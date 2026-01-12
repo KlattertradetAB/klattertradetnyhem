@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Horizonten Klätterträdet</title>
+  <link rel="icon" type="image/png" href="/logo2.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            glass: {
+              100: 'rgba(255, 255, 255, 0.1)',
+              200: 'rgba(255, 255, 255, 0.2)',
+              300: 'rgba(255, 255, 255, 0.3)',
+            },
+            horizon: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              200: '#e2e8f0',
+              300: '#cbd5e1',
+              400: '#94a3b8',
+              500: '#64748b',
+              600: '#475569',
+              700: '#334155',
+              800: '#1e293b',
+              900: '#0f172a',
+            }
+          },
+          backgroundImage: {
+            'glossy-gradient': 'linear-gradient(135deg, #050505 0%, #120806 20%, #1f0d08 40%, #2e1208 60%, #4a180a 80%, #63200d 100%)',
+            'glossy-gradient-dark': 'linear-gradient(135deg, #000000 0%, #0f0202 40%, #2e0505 70%, #4a0808 100%)',
+          },
+          animation: {
+            float: 'float 6s ease-in-out infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-20px)' },
+            }
+          }
+        },
+      },
+    }
+  </script>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Custom scrollbar for glass effect */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Accessibility Focus Styles */
+    :focus-visible {
+      outline: 2px solid #fbbf24;
+      /* Amber-400 */
+      outline-offset: 4px;
+      border-radius: 4px;
+    }
+  </style>
+  <link rel="stylesheet" href="/index.css">
+  <script type="module" crossorigin src="/assets/index-6C2YJdss.js"></script>
+</head>
+
+<body class="bg-black min-h-screen text-white overflow-x-hidden">
+  <div id="root"></div>
+</body>
+
+</html>
