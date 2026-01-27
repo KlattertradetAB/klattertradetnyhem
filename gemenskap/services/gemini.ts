@@ -2,7 +2,7 @@ import { ChatMessage } from "../types";
 
 // Access the API key injected by Vite via define/process.env
 const API_KEY = process.env.GEMINI_API_KEY;
-const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 
 export const getAIResponse = async (history: { role: 'user' | 'model'; text: string }[], userPrompt: string, overrideSystemInstruction?: string) => {
   if (!API_KEY) {
