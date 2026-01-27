@@ -417,9 +417,9 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
             </div>
 
             {/* 3. Main Chat Area */}
-            <div className="flex-grow flex flex-col bg-slate-950/20">
+            <div className="flex-1 flex flex-col bg-slate-950/20 min-w-0 max-w-full overflow-hidden">
                 {/* Room Header (Exclusive Horizonten/Swipe Hybrid) */}
-                <div className="px-4 md:px-12 py-6 md:py-8 border-b border-white/5 flex items-center justify-between bg-slate-900/60 backdrop-blur-3xl relative z-20">
+                <div className="px-4 md:px-12 py-6 md:py-8 border-b border-white/5 flex items-center justify-between bg-slate-900/60 backdrop-blur-3xl relative z-20 shrink-0">
                     <div className="flex items-center gap-4 md:gap-8">
                         <div className="relative">
                             <div className="w-20 h-20 bg-gradient-to-br from-slate-800 to-slate-900 rounded-[2.5rem] flex items-center justify-center text-orange-400 border border-white/10 shadow-2xl relative group cursor-pointer overflow-hidden">
@@ -474,7 +474,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
                 </div>
 
                 {/* Chat or Video Component Area */}
-                <div className="flex-grow overflow-hidden relative flex flex-col">
+                <div className="flex-1 overflow-hidden relative flex flex-col min-h-0">
                     {currentRoom.hasVideo ? (
                         <VideoRoom roomId={currentRoom.name} user={user} onEndCall={() => setActiveRoom('general')} />
                     ) : (

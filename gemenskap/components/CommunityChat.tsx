@@ -405,7 +405,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
     };
 
     return (
-        <div className={`flex flex-col bg-transparent overflow-hidden ${className || 'h-full'}`}>
+        <div className={`flex flex-col bg-transparent h-full w-full max-w-full ${className || ''}`}>
             {/* Header (Optional, mostly hidden in ChatPage) */}
             {showHeader && (
                 <div className="px-6 py-4 bg-slate-900/40 backdrop-blur-xl border-b border-white/5 flex justify-between items-center shrink-0">
@@ -426,7 +426,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
             )}
 
             {/* Messages View */}
-            <div ref={scrollRef} className="flex-grow overflow-y-auto px-8 py-10 space-y-8 no-scrollbar scroll-smooth">
+            <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 md:px-8 py-10 space-y-8 no-scrollbar scroll-smooth min-h-0">
                 {messages.map((msg, idx) => {
                     const isUser = msg.role === 'user';
                     const nextMsgIsSame = messages[idx + 1]?.persona?.id === msg.persona?.id && messages[idx + 1]?.role === msg.role;
@@ -539,8 +539,8 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
             </div>
 
             {/* Input Area (Floating Swipe Style) */}
-            <div className="px-3 md:px-6 pb-4 md:pb-6 pt-2">
-                <div className="relative group bg-slate-900/60 backdrop-blur-2xl border border-white/5 rounded-[1.5rem] p-2 shadow-2xl transition-all focus-within:ring-2 focus-within:ring-orange-500/20 focus-within:border-orange-500/30 flex items-center gap-2">
+            <div className="px-3 md:px-6 pb-4 md:pb-6 pt-2 shrink-0 w-full">
+                <div className="relative group bg-slate-900/60 backdrop-blur-2xl border border-white/5 rounded-[1.5rem] p-2 shadow-2xl transition-all focus-within:ring-2 focus-within:ring-orange-500/20 focus-within:border-orange-500/30 flex items-center gap-2 w-full max-w-full">
                     <button className="text-slate-500 hover:text-orange-400 transition-colors shrink-0 p-2" aria-label="Lägg till emoji">
                         <Smile size={20} />
                     </button>

@@ -516,46 +516,58 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
           </aside>
 
           {/* Main Content Area */}
-          <main className={`flex-grow flex flex-col relative z-20 overflow-hidden ${activeTab === 'chat' ? 'p-0' : 'overflow-y-auto custom-scrollbar'}`}>
-            <div className={`${activeTab === 'chat' ? 'h-full' : 'w-full min-h-full'}`}>
-              {activeTab === 'welcome' ? (
-                <div className="flex-grow animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <Welcome />
-                </div>
-              ) : activeTab === 'dashboard' ? (
-                <div className="flex-grow animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <Dashboard user={user} onThreadClick={openThread} onBackToSite={onBackToSite} />
-                </div>
-              ) : activeTab === 'chat' ? (
-                <div className="flex-grow h-full w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <ChatPage
-                    user={user}
-                    initialThread={selectedTopic}
-                    onOpenSettings={() => setSettingsOpen(true)}
-                    onLogout={handleLogout}
+          <main className={`flex-1 flex flex-col relative z-20 min-h-0 ${activeTab === 'chat' ? 'overflow-hidden' : 'overflow-y-auto custom-scrollbar'}`}>
+            {activeTab === 'welcome' ? (
+              <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-y-auto">
+                <Welcome />
+                <div className="p-4 md:px-12 md:pb-12">
+                  <Footer
                     onBackToSite={onBackToSite}
+                    onSettingsClick={() => setSettingsOpen(true)}
                   />
                 </div>
-              ) : activeTab === 'experts' ? (
-                <div className="flex-grow animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <Experts />
+              </div>
+            ) : activeTab === 'dashboard' ? (
+              <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-y-auto">
+                <Dashboard user={user} onThreadClick={openThread} onBackToSite={onBackToSite} />
+                <div className="p-4 md:px-12 md:pb-12">
+                  <Footer
+                    onBackToSite={onBackToSite}
+                    onSettingsClick={() => setSettingsOpen(true)}
+                  />
                 </div>
-              ) : activeTab === 'admin' && user.role === 'admin' ? (
-                <div className="flex-grow animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <AdminDashboard user={user} onBack={() => navigateTo('dashboard')} />
-                </div>
-              ) : null}
-            </div>
-
-            {/* Footer only shows on non-chat pages and mobile mainly, but we can keep it at bottom of scroll area */}
-            {activeTab !== 'chat' && (
-              <div className="p-4 md:px-12 md:pb-12">
-                <Footer
+              </div>
+            ) : activeTab === 'chat' ? (
+              <div className="flex-1 h-full w-full animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-hidden">
+                <ChatPage
+                  user={user}
+                  initialThread={selectedTopic}
+                  onOpenSettings={() => setSettingsOpen(true)}
+                  onLogout={handleLogout}
                   onBackToSite={onBackToSite}
-                  onSettingsClick={() => setSettingsOpen(true)}
                 />
               </div>
-            )}
+            ) : activeTab === 'experts' ? (
+              <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-y-auto">
+                <Experts />
+                <div className="p-4 md:px-12 md:pb-12">
+                  <Footer
+                    onBackToSite={onBackToSite}
+                    onSettingsClick={() => setSettingsOpen(true)}
+                  />
+                </div>
+              </div>
+            ) : activeTab === 'admin' && user.role === 'admin' ? (
+              <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-y-auto">
+                <AdminDashboard user={user} onBack={() => navigateTo('dashboard')} />
+                <div className="p-4 md:px-12 md:pb-12">
+                  <Footer
+                    onBackToSite={onBackToSite}
+                    onSettingsClick={() => setSettingsOpen(true)}
+                  />
+                </div>
+              </div>
+            ) : null}
           </main>
         </div>
         {
