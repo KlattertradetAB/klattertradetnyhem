@@ -1,13 +1,18 @@
 import { ChatMessage } from "../types";
 
-// Access the API key injected by Vite via define/process.env
-const API_KEY = process.env.GEMINI_API_KEY;
+// Access the API key injected by Vite via define/process.env OR from localStorage (Admin override)
+const getApiKey = () => {
+  return localStorage.getItem('gemini_api_key') || process.env.GEMINI_API_KEY;
+};
+
 const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 
 export const getAIResponse = async (history: { role: 'user' | 'model'; text: string }[], userPrompt: string, overrideSystemInstruction?: string) => {
+  const API_KEY = getApiKey();
+
   if (!API_KEY) {
     console.error("Missing GEMINI_API_KEY");
-    return "Jag har lite tekniska problem just nu (Saknar API-nyckel). Försök igen senare.";
+    return "Jag har lite tekniska problem just nu (Saknar API-nyckel). Kontrollera inställningarna eller försök igen senare.";
   }
 
   // Format history for Gemini API

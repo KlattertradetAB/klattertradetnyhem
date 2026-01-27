@@ -1,12 +1,16 @@
 import React from 'react';
 import { Page } from '../public/types';
-import { ArrowLeft, ArrowRight, TreePine, Leaf, ShieldCheck, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, TreePine, Leaf, ShieldCheck, ChevronRight, Smartphone } from 'lucide-react';
+import { usePWAInstall } from '../gemenskap/hooks/usePWAInstall';
+import { InstallGuideModal } from '../gemenskap/components/InstallGuideModal';
 
 interface LoginPageProps {
     setPage: (page: Page) => void;
 }
 
 const LoginPage: React.FC<LoginPageProps> = ({ setPage }) => {
+    const { installApp, isInstallable, showInstallModal, setShowInstallModal } = usePWAInstall();
+
     return (
         <div className="container mx-auto px-4 md:px-6 py-10 md:py-20 animate-fade-in flex flex-col items-center">
             <div className="w-full max-w-6xl">
@@ -168,6 +172,14 @@ const LoginPage: React.FC<LoginPageProps> = ({ setPage }) => {
                             >
                                 Ansök om medlemskap
                             </button>
+                            {isInstallable && (
+                                <button
+                                    onClick={installApp}
+                                    className="bg-zinc-800 text-white border border-zinc-700 hover:bg-zinc-700/80 transition-all shadow-lg hover:shadow-xl font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0 w-full"
+                                >
+                                    <Smartphone size={18} className="text-orange-400" /> Installera Appen
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -185,6 +197,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ setPage }) => {
                     </button>
                 </div>
             </div>
+            <InstallGuideModal isOpen={showInstallModal} onClose={() => setShowInstallModal(false)} />
         </div>
     );
 };

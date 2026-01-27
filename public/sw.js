@@ -1,4 +1,4 @@
-const CACHE_NAME = 'horizonten-cache-v2';
+const CACHE_NAME = 'horizonten-cache-v3';
 const ASSETS_TO_CACHE = [
     '/app',
     '/manifest.json',
@@ -18,6 +18,17 @@ self.addEventListener('install', (event) => {
 // Activate Event
 self.addEventListener('activate', (event) => {
     event.waitUntil(self.clients.claim());
+});
+
+// Fetch Event - REQUIRED FOR PWA INSTALLABILITY
+self.addEventListener('fetch', (event) => {
+    // Basic pass-through strategy (or cache-first if preferred later)
+    // For now, we mainly need this handler to exist.
+    event.respondWith(
+        caches.match(event.request).then((response) => {
+            return response || fetch(event.request);
+        })
+    );
 });
 
 // Push Event - THIS IS THE CORE OF BACKGROUND NOTIFICATIONS

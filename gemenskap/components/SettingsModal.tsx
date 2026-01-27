@@ -18,6 +18,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ user, onClose, onU
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    // Admin State
+    const [geminiKey, setGeminiKey] = useState(localStorage.getItem('gemini_api_key') || '');
+    const [vertexId, setVertexId] = useState(localStorage.getItem('vertex_project_id') || '');
+
     // Request notification permission when toggling on
     const handleToggle = async (checked: boolean) => {
         setNotificationsEnabled(checked);
@@ -62,6 +66,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ user, onClose, onU
                 full_name: displayName,
                 notifications_enabled: notificationsEnabled,
             };
+            // Save Admin Keys
+            if (geminiKey) localStorage.setItem('gemini_api_key', geminiKey);
+            else localStorage.removeItem('gemini_api_key');
+
+            if (vertexId) localStorage.setItem('vertex_project_id', vertexId);
+            else localStorage.removeItem('vertex_project_id');
+
             onUpdate(updatedProfile);
             onClose();
         } catch (e: any) {
@@ -107,6 +118,32 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ user, onClose, onU
                         />
                         <div className="w-11 h-6 bg-white/20 border border-white/30 rounded-full peer peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-orange-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500/80 peer-checked:border-orange-500 peer-checked:after:bg-white" />
                     </label>
+                </div>
+
+                <div className="border-t border-white/10 my-4 pt-4">
+                    <h3 className="text-sm font-semibold text-white mb-3">Admin / API Konfiguration</h3>
+                    <div className="space-y-3">
+                        <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Gemini API Key</label>
+                            <input
+                                type="password"
+                                placeholder="klistra in nyckel..."
+                                value={geminiKey}
+                                onChange={(e) => setGeminiKey(e.target.value)}
+                                className="w-full bg-white/5 border border-white/20 rounded px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-orange-500/50"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-medium text-gray-400 mb-1">Google Cloud Vertex Project ID</label>
+                            <input
+                                type="text"
+                                placeholder="t.ex. my-project-id"
+                                value={vertexId}
+                                onChange={(e) => setVertexId(e.target.value)}
+                                className="w-full bg-white/5 border border-white/20 rounded px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-orange-500/50"
+                            />
+                        </div>
+                    </div>
                 </div>
                 <button
                     onClick={handleSave}

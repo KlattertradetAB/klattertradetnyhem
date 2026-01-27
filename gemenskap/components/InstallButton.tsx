@@ -7,9 +7,7 @@ export const InstallButton = () => {
 
     useEffect(() => {
         const handleBeforeInstallPrompt = (e: any) => {
-            // Prevent Chrome 67 and earlier from automatically showing the prompt
             e.preventDefault();
-            // Stash the event so it can be triggered later.
             setDeferredPrompt(e);
             setIsVisible(true);
         };
@@ -22,9 +20,15 @@ export const InstallButton = () => {
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
         window.addEventListener('appinstalled', handleAppInstalled);
 
-        // Initial check for standalone mode
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            setIsVisible(false);
+        // Check if NOT in standalone mode
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+            (window.navigator as any).standalone === true;
+
+        // If not standalone, we ALWAYS show the button (for Safari/manual support)
+        // But we wait a moment to see if the native prompt fires first to prefer that
+        if (!isStandalone) {
+            const timer = setTimeout(() => setIsVisible(true), 1000);
+            return () => clearTimeout(timer);
         }
 
         return () => {
@@ -34,20 +38,17 @@ export const InstallButton = () => {
     }, []);
 
     const handleInstallClick = async () => {
-        if (!deferredPrompt) return;
-
-        // Show the install prompt
-        deferredPrompt.prompt();
-
-        // Wait for the user to respond to the prompt
-        const { outcome } = await deferredPrompt.userChoice;
-
-        if (outcome === 'accepted') {
-            console.log('User accepted the install prompt');
-            setDeferredPrompt(null);
-            setIsVisible(false);
+        if (deferredPrompt) {
+            // Automatic prompt supported (Chrome/Edge/Android)
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                setDeferredPrompt(null);
+                setIsVisible(false);
+            }
         } else {
-            console.log('User dismissed the install prompt');
+            // Manual instructions needed (Safari/iOS)
+            alert("För att installera: Tryck på webbläsarens meny (eller Dela-knapp på iPhone) och välj 'Lägg till på hemskärmen'.");
         }
     };
 
