@@ -15,6 +15,7 @@ import Footer from './components/Footer';
 import AdminDashboard from './components/Admin/AdminDashboard';
 import { LogOut, LayoutGrid, MessageSquare, ArrowLeft, Menu, X, Users, Bot, MessageCircle, Settings, Home, ChevronLeft, Shield } from 'lucide-react';
 import { SettingsModal } from './components/SettingsModal';
+import { InstallButton } from './components/InstallButton';
 
 interface GemenskapAppProps {
   onBackToSite: (page?: Page) => void;
@@ -580,53 +581,55 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
           )
         }
       </BackgroundWrapper >
-    );
-  }
-
-  // -- UNAUTHENTICATED VIEW (Landing or Login) --
-  return (
-    <BackgroundWrapper>
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 relative animate-in fade-in zoom-in-95 duration-700 overflow-hidden">
-        <div className="fixed inset-0 z-0 opacity-50 bg-black">
-          <GL hovering={true} />
-        </div>
-
-        <button
-          onClick={handleBackToLanding}
-          className="absolute top-8 left-8 text-slate-400 hover:text-white flex items-center gap-2 transition-colors z-50 group px-4 py-2 rounded-full hover:bg-white/5"
-        >
-          <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-          Tillbaka
-        </button>
-
-        <div className="relative z-10 w-full max-w-md bg-black/40 backdrop-blur-3xl p-8 rounded-[2.5rem] border border-white/5 shadow-2xl">
-          <div className="mb-8 flex justify-center">
-            {/* Logo removed */}
-          </div>
-          {isPremiumView ? (
-            <PremiumLogin
-              onLoginSuccess={handleLoginSuccess}
-              onBack={() => {
-                setShowPremiumIntro(true);
-                setShowLogin(false);
-                onBackToSite(Page.LOGIN);
-              }}
-            />
-          ) : (
-            <LoginForm
-              onLoginSuccess={handleLoginSuccess}
-              initialView={initialView}
-              onNavigateToPremium={() => onBackToSite(Page.PREMIUM_APPLICATION)}
-              onNavigateToTerms={() => onBackToSite(Page.TERMS)}
-              onNavigateToPrivacy={() => onBackToSite(Page.PRIVACY)}
-              onNavigateToCookies={() => onBackToSite(Page.COOKIE_POLICY)}
-              onNavigateToContact={() => onBackToSite(Page.CONTACT)}
-            />
-          )}
-        </div>
-      </div>
-    </BackgroundWrapper>
+      <InstallButton />
+    </ContextMenu >
   );
+}
+
+// -- UNAUTHENTICATED VIEW (Landing or Login) --
+return (
+  <BackgroundWrapper>
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 relative animate-in fade-in zoom-in-95 duration-700 overflow-hidden">
+      <div className="fixed inset-0 z-0 opacity-50 bg-black">
+        <GL hovering={true} />
+      </div>
+
+      <button
+        onClick={handleBackToLanding}
+        className="absolute top-8 left-8 text-slate-400 hover:text-white flex items-center gap-2 transition-colors z-50 group px-4 py-2 rounded-full hover:bg-white/5"
+      >
+        <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+        Tillbaka
+      </button>
+
+      <div className="relative z-10 w-full max-w-md bg-black/40 backdrop-blur-3xl p-8 rounded-[2.5rem] border border-white/5 shadow-2xl">
+        <div className="mb-8 flex justify-center">
+          {/* Logo removed */}
+        </div>
+        {isPremiumView ? (
+          <PremiumLogin
+            onLoginSuccess={handleLoginSuccess}
+            onBack={() => {
+              setShowPremiumIntro(true);
+              setShowLogin(false);
+              onBackToSite(Page.LOGIN);
+            }}
+          />
+        ) : (
+          <LoginForm
+            onLoginSuccess={handleLoginSuccess}
+            initialView={initialView}
+            onNavigateToPremium={() => onBackToSite(Page.PREMIUM_APPLICATION)}
+            onNavigateToTerms={() => onBackToSite(Page.TERMS)}
+            onNavigateToPrivacy={() => onBackToSite(Page.PRIVACY)}
+            onNavigateToCookies={() => onBackToSite(Page.COOKIE_POLICY)}
+            onNavigateToContact={() => onBackToSite(Page.CONTACT)}
+          />
+        )}
+      </div>
+    </div>
+  </BackgroundWrapper>
+);
 };
 
 export default GemenskapApp;
