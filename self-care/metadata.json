@@ -1,0 +1,5 @@
+{
+  "name": "Self-care Enkät 1: Grundsår och kategorisering",
+  "description": "En interaktiv enkät för att hjälpa användare att identifiera och reflektera över sina grundläggande känslomässiga sår genom en serie frågor. Appen analyserar svaren med Gemini och presenterar en personlig utvärdering.",
+  "requestFramePermissions": []
+}

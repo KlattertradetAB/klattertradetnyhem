@@ -1,30 +1,35 @@
 
 import React from 'react';
 import { Download, FileText, Book, Sparkles, FileSpreadsheet, Heart } from 'lucide-react';
+import { Page } from '../public/types';
 
-const Downloads: React.FC = () => {
+interface DownloadsProps {
+  setPage: (page: Page) => void;
+}
+
+const Downloads: React.FC<DownloadsProps> = ({ setPage }) => {
   const materials = [
     {
       category: "E-böcker",
       items: [
-        { 
-          title: "Myndighetsinducerat trauma - En introduktion", 
-          desc: "En sammanfattning av grunderna i MiT-modellen och hur du börjar din läkningsresa.", 
-          icon: Book, 
+        {
+          title: "Myndighetsinducerat trauma - En introduktion",
+          desc: "En sammanfattning av grunderna i MiT-modellen och hur du börjar din läkningsresa.",
+          icon: Book,
           color: "text-amber-400",
           size: "2.4 MB"
         },
-        { 
-          title: "Gestaltterapi i vardagen", 
-          desc: "Praktiska verktyg för att använda gestaltmetodik i dina nära relationer.", 
-          icon: Book, 
+        {
+          title: "Gestaltterapi i vardagen",
+          desc: "Praktiska verktyg för att använda gestaltmetodik i dina nära relationer.",
+          icon: Book,
           color: "text-blue-400",
           size: "1.8 MB"
         },
-        { 
-          title: "Narcissism, en problematisering av etiketter", 
-          desc: "En djupdykning i hur diagnoser och etiketter påverkar individens självbild och den terapeutiska processen.", 
-          icon: Book, 
+        {
+          title: "Narcissism, en problematisering av etiketter",
+          desc: "En djupdykning i hur diagnoser och etiketter påverkar individens självbild och den terapeutiska processen.",
+          icon: Book,
           color: "text-purple-400",
           size: "2.1 MB"
         }
@@ -33,36 +38,44 @@ const Downloads: React.FC = () => {
     {
       category: "Arbetsmaterial & Mallar",
       items: [
-        { 
-          title: "Självreglerings-schema (Veckoplanering)", 
-          desc: "Ett verktyg för att kartlägga ditt nervsystems reaktioner under veckan.", 
-          icon: FileSpreadsheet, 
+        {
+          title: "Självreglerings-schema (Veckoplanering)",
+          desc: "Ett verktyg för att kartlägga ditt nervsystems reaktioner under veckan.",
+          icon: FileSpreadsheet,
           color: "text-emerald-400",
           size: "0.5 MB"
         },
-        { 
-          title: "Checklista inför myndighetsmöten", 
-          desc: "Gör din röst hörd. En guide för att förbereda dig mentalt och praktiskt.", 
-          icon: FileText, 
+        {
+          title: "Checklista inför myndighetsmöten",
+          desc: "Gör din röst hörd. En guide för att förbereda dig mentalt och praktiskt.",
+          icon: FileText,
           color: "text-orange-400",
           size: "0.3 MB"
+        },
+        {
+          title: "Gestaltterapi: arbetsblad i filosofisk grund",
+          desc: "Interaktivt arbetsblad för att utforska existentialism och fenomenologi.",
+          icon: Sparkles,
+          color: "text-indigo-400",
+          size: "Online",
+          page: Page.GESTALT_WORKSHEET
         }
       ]
     },
     {
       category: "Övningar & Verktyg",
       items: [
-        { 
-          title: "Grounding-övningar för hemmabruk", 
-          desc: "Fem enkla övningar för att komma tillbaka till nuet när stressen tar över.", 
-          icon: Heart, 
+        {
+          title: "Grounding-övningar för hemmabruk",
+          desc: "Fem enkla övningar för att komma tillbaka till nuet när stressen tar över.",
+          icon: Heart,
           color: "text-red-400",
           size: "1.2 MB"
         },
-        { 
-          title: "Self-care modellen: Arbetsblad", 
-          desc: "Fördjupat arbetsblad för att arbeta med dina grundsår på egen hand.", 
-          icon: Sparkles, 
+        {
+          title: "Self-care modellen: Arbetsblad",
+          desc: "Fördjupat arbetsblad för att arbeta med dina grundsår på egen hand.",
+          icon: Sparkles,
           color: "text-purple-400",
           size: "0.9 MB"
         }
@@ -72,7 +85,7 @@ const Downloads: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 md:px-6 py-10 animate-fade-in space-y-12">
-      
+
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
         <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-teal-500">
@@ -89,11 +102,11 @@ const Downloads: React.FC = () => {
             <h2 className="text-2xl font-bold border-l-4 border-emerald-500 pl-4 text-white/90">
               {section.category}
             </h2>
-            
+
             <div className="grid md:grid-cols-2 gap-6">
               {section.items.map((item, iIdx) => (
-                <div 
-                  key={iIdx} 
+                <div
+                  key={iIdx}
                   className="glass bg-white/5 border border-white/10 rounded-3xl p-6 hover:bg-white/10 transition-all duration-300 group flex flex-col h-full"
                 >
                   <div className="flex items-start justify-between mb-4">
@@ -101,10 +114,10 @@ const Downloads: React.FC = () => {
                       <item.icon size={28} />
                     </div>
                     <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest bg-black/20 px-3 py-1 rounded-full border border-white/5">
-                      PDF | {item.size}
+                      {item.size === "Online" ? "WEB APP" : `PDF | ${item.size}`}
                     </span>
                   </div>
-                  
+
                   <div className="flex-1">
                     <h3 className="text-xl font-bold mb-2 group-hover:text-white transition-colors">
                       {item.title}
@@ -114,11 +127,18 @@ const Downloads: React.FC = () => {
                     </p>
                   </div>
 
-                  <button 
-                    onClick={() => alert(`Startar nedladdning av: ${item.title}`)}
+                  <button
+                    onClick={() => {
+                      if ((item as any).page) {
+                        setPage((item as any).page);
+                      } else {
+                        alert(`Startar nedladdning av: ${item.title}`);
+                      }
+                    }}
                     className="w-full py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
                   >
-                    <Download size={18} /> Ladda ner material
+                    {(item as any).page ? <Sparkles size={18} /> : <Download size={18} />}
+                    {(item as any).page ? "Öppna arbetsblad" : "Ladda ner material"}
                   </button>
                 </div>
               ))}

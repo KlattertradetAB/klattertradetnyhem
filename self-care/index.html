@@ -1,0 +1,112 @@
+
+<!DOCTYPE html>
+<html lang="sv" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Grundsår för Självreflektion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              'brand-primary': 'rgb(var(--color-brand-primary) / <alpha-value>)',
+              'brand-secondary': 'rgb(var(--color-brand-secondary) / <alpha-value>)',
+              'brand-accent': 'rgb(var(--color-brand-accent) / <alpha-value>)',
+              'brand-light': 'rgb(var(--color-brand-light) / <alpha-value>)',
+              'brand-text': 'rgb(var(--color-brand-text) / <alpha-value>)',
+              'brand-dark-bg': 'rgb(var(--color-brand-dark-bg) / <alpha-value>)',
+              'brand-dark-text': 'rgb(var(--color-brand-dark-text) / <alpha-value>)',
+              'brand-dark-surface': 'rgb(var(--color-brand-dark-surface) / <alpha-value>)',
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.5s ease-out forwards',
+              'slide-in-up': 'slideInUp 0.5s ease-out forwards',
+              'pulse-dot': 'pulse-dot 1.4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: 0 },
+                '100%': { opacity: 1 },
+              },
+              slideInUp: {
+                '0%': { opacity: 0, transform: 'translateY(20px)' },
+                '100%': { opacity: 1, transform: 'translateY(0)' },
+              },
+              'pulse-dot': {
+                '0%, 100%': { opacity: 1 },
+                '50%': { opacity: 0.5 },
+              },
+            }
+          },
+        },
+      }
+    </script>
+    <style type="text/css">
+      :root {
+        --color-brand-primary: 30 58 138;
+        --color-brand-secondary: 59 130 246;
+        --color-brand-accent: 147 197 253;
+        --color-brand-light: 226 232 240;
+        --color-brand-text: 17 24 39;
+        --color-brand-dark-bg: 12 18 30;
+        --color-brand-dark-text: 243 244 246;
+        --color-brand-dark-surface: 31 41 55;
+      }
+      body {
+        background-color: rgb(var(--color-brand-light));
+        background-image:
+            radial-gradient(circle at 1px 1px, rgba(0,0,0,0.05) 1px, transparent 0);
+        background-size: 20px 20px;
+        transition: background-color 0.3s ease;
+      }
+      .dark body {
+        background-color: rgb(var(--color-brand-dark-bg));
+        background-image:
+            radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @keyframes slideInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes pulse-dot {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.22.0",
+    "recharts": "https://aistudiocdn.com/recharts@^3.2.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-brand-light dark:bg-brand-dark-bg transition-colors duration-300">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

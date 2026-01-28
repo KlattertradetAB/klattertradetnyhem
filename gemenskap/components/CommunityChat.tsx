@@ -4,7 +4,6 @@ import { PERSONAS, Persona } from '../services/personas';
 import { supabase } from '../services/supabase';
 import { getAIResponse } from '../services/gemini';
 import { sendNotification } from '../services/notifications';
-import { addNotification } from '../services/notificationStore';
 import {
     Send, User, MessageCircle, Sparkles, MoreHorizontal,
     Smile, Paperclip, MoreVertical, Check, CheckCheck,
@@ -40,7 +39,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
     useEffect(() => {
         const fetchMessages = async () => {
             let query = supabase
-                .from('messages')
+                .from('chat_messages')
                 .select('*')
                 .order('created_at', { ascending: true })
                 .limit(50);
@@ -111,7 +110,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                 const followUpText = "Jag har tänkt lite på det vi pratade om här sist, hur har du det just nu?";
 
                 if (lastMessage.text !== followUpText) {
-                    await supabase.from('messages').insert({
+                    await supabase.from('chat_messages').insert({
                         content: followUpText,
                         user_id: user.id,
                         is_ai: true,
@@ -139,7 +138,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                 const welcomers = PERSONAS.filter(p => p.id === 'anneli' || p.id === 'andreas');
                 const responder = welcomers[Math.floor(Math.random() * welcomers.length)];
 
-                await supabase.from('messages').insert({
+                await supabase.from('chat_messages').insert({
                     content: randomReflection,
                     user_id: user.id,
                     is_ai: true,
@@ -161,7 +160,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                 {
                     event: 'INSERT',
                     schema: 'public',
-                    table: 'messages',
+                    table: 'chat_messages',
                     filter: threadId && threadId !== 'general' ? `thread_id=eq.${threadId}` : undefined
                 },
                 async (payload) => {
@@ -210,7 +209,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                 {
                     event: 'UPDATE',
                     schema: 'public',
-                    table: 'messages',
+                    table: 'chat_messages',
                     filter: threadId && threadId !== 'general' ? `thread_id=eq.${threadId}` : undefined
                 },
                 (payload) => {
@@ -228,7 +227,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                 {
                     event: 'DELETE',
                     schema: 'public',
-                    table: 'messages',
+                    table: 'chat_messages',
                     filter: threadId && threadId !== 'general' ? `thread_id=eq.${threadId}` : undefined
                 },
                 (payload) => {
@@ -265,7 +264,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
         setMessages(prev => [...prev, optimisticMsg]);
 
         try {
-            await supabase.from('messages').insert({
+            await supabase.from('chat_messages').insert({
                 content: textToSend,
                 user_id: user.id,
                 is_ai: false,
@@ -339,7 +338,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
 
                     if (!responseText) continue;
 
-                    const { data: savedMsg, error: saveErr } = await supabase.from('messages').insert({
+                    const { data: savedMsg, error: saveErr } = await supabase.from('chat_messages').insert({
                         content: responseText,
                         user_id: user.id,
                         is_ai: true,
@@ -372,7 +371,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
 
         try {
             const { error } = await supabase
-                .from('messages')
+                .from('chat_messages')
                 .update({
                     content: editInput,
                     is_edited: true,
@@ -393,7 +392,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
         if (!confirm('Är du säker på att du vill ta bort detta meddelande?')) return;
 
         try {
-            await supabase.from('messages').delete().eq('id', messageId);
+            await supabase.from('chat_messages').delete().eq('id', messageId);
         } catch (err) {
             console.error('Error deleting message:', err);
         }

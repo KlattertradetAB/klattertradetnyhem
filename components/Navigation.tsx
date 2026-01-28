@@ -171,7 +171,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
                     </div>
                     <div className="flex flex-col">
                       <span className="font-bold text-sm">Enkät och utredning</span>
-                      <span className="text-[10px] opacity-60">Kraftsamling för barnens bästa</span>
+                      <span className="text-[10px] opacity-60">Självreflektion & Grundsår</span>
                     </div>
                   </button>
 

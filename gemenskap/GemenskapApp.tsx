@@ -16,6 +16,7 @@ import AdminDashboard from './components/Admin/AdminDashboard';
 import { LogOut, LayoutGrid, MessageSquare, ArrowLeft, Menu, X, Users, Bot, MessageCircle, Settings, Home, ChevronLeft, Shield } from 'lucide-react';
 import { SettingsModal } from './components/SettingsModal';
 import { InstallButton } from './components/InstallButton';
+import AssistantFab from './components/Assistant/AssistantFab';
 
 interface GemenskapAppProps {
   onBackToSite: (page?: Page) => void;
@@ -111,7 +112,6 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
         const newMsg = payload.new;
         if (user && newMsg.user_id !== user.id && user.notifications_enabled !== false) {
           const { sendNotification } = await import('./services/notifications');
-          const { addNotification } = await import('./services/notificationStore');
           const { PERSONAS } = await import('./services/personas');
 
           let senderName = 'Någon';
@@ -132,16 +132,6 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
           const snippet = newMsg.content.split(' ').slice(0, 3).join(' ') + (newMsg.content.split(' ').length > 3 ? '...' : '');
 
           sendNotification(`Nytt från ${senderName}`, snippet);
-
-          const { addGroupedNotification } = await import('./services/notificationStore');
-          addGroupedNotification({
-            title: `Nytt meddelande från ${senderName}`,
-            content: snippet,
-            senderName,
-            icon,
-            color,
-            groupId: 'chat_messages'
-          });
         }
       })
       .subscribe();
@@ -580,6 +570,7 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
             />
           )
         }
+        <AssistantFab user={user} />
         <InstallButton />
       </BackgroundWrapper >
     );

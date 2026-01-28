@@ -13,7 +13,7 @@ import BehandlingsAssistent from './pages/BehandlingsAssistent';
 import Blog from './pages/Blog';
 import Community from './pages/Community';
 import ContactUs from './pages/ContactUs';
-import Survey from './pages/Survey';
+import SelfCareApp from './self-care/App';
 import Downloads from './pages/Downloads';
 import LoginPage from './pages/LoginPage';
 import BookPromotion from './pages/BookPromotion';
@@ -24,6 +24,7 @@ import GemenskapApp from './gemenskap/GemenskapApp';
 import PremiumApplication from './pages/PremiumApplication';
 import FreeRegistration from './pages/FreeRegistration';
 import { Page } from './public/types';
+import GestaltApp from './gestalt-filosofi/App';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>(Page.HOME);
@@ -117,8 +118,9 @@ const App: React.FC = () => {
             case Page.BLOG: return <Blog setPage={handleSetPage} />;
             case Page.COMMUNITY: return <Community />;
             case Page.CONTACT: return <ContactUs />;
-            case Page.SURVEY: return <Survey />;
-            case Page.DOWNLOADS: return <Downloads />;
+            case Page.SURVEY: return <SelfCareApp />;
+            case Page.DOWNLOADS: return <Downloads setPage={handleSetPage} />;
+            case Page.GESTALT_WORKSHEET: return <GestaltApp onBack={() => handleSetPage(Page.DOWNLOADS)} />;
             case Page.LOGIN: return <LoginPage setPage={handleSetPage} />;
             case Page.BOOK: return <BookPromotion setPage={handleSetPage} />;
             case Page.CHECKOUT: return (

@@ -1,102 +1,125 @@
+import { supabase } from './supabase';
+import { getCurrentUser } from './auth';
 
 export interface NotificationItem {
     id: string;
     title: string;
-    content: string;
-    time: string;
-    timestamp: number;
-    icon: string; // Emoji or Lucide icon name
-    color: string;
-    read: boolean;
-    groupId?: string;
+    message: string; // Changed from content to match DB
+    created_at: string;
+    is_read: boolean;
 }
-
-const STORAGE_KEY = 'horizonten_notifications';
 
 type NotificationListener = (notifications: NotificationItem[]) => void;
 let listeners: NotificationListener[] = [];
+let currentSubscription: any = null;
 
-export const getNotifications = (): NotificationItem[] => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return [];
-    try {
-        return JSON.parse(stored);
-    } catch (e) {
-        console.error('Error parsing notifications:', e);
-        return [];
-    }
-};
-
-const saveNotifications = (notifications: NotificationItem[]) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
+const notifyListeners = (notifications: NotificationItem[]) => {
     listeners.forEach(l => l(notifications));
 };
 
-export const addNotification = (notification: Omit<NotificationItem, 'id' | 'timestamp' | 'read'> & { groupId?: string }) => {
-    const notifications = getNotifications();
-    const newNotification: NotificationItem = {
-        ...notification,
-        id: Math.random().toString(36).substr(2, 9),
-        timestamp: Date.now(),
-        read: false
-    };
+export const fetchNotifications = async () => {
+    const user = await getCurrentUser();
+    if (!user) return [];
 
-    saveNotifications([newNotification, ...notifications].slice(0, 50)); // Keep last 50
-};
+    // Filter by created_at > 24 hours ago
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
-export const addGroupedNotification = (
-    data: { title: string; content: string; icon: string; color: string; senderName: string; groupId: string }
-) => {
-    const notifications = getNotifications();
-    const now = Date.now();
-    const GROUP_WINDOW = 2 * 60 * 1000; // 2 minutes
+    const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .gt('created_at', oneDayAgo)
+        .order('created_at', { ascending: false });
 
-    // Find if there's a recent notification with the same groupId
-    const existingIndex = notifications.findIndex(n => n.groupId === data.groupId && (now - n.timestamp) < GROUP_WINDOW);
-
-    if (existingIndex !== -1) {
-        const existing = notifications[existingIndex];
-        // Parse how many people are in the group
-        const match = existing.title.match(/(\d+) till/);
-        const count = match ? parseInt(match[1]) + 1 : 2;
-
-        const updatedNotification: NotificationItem = {
-            ...existing,
-            title: `${data.senderName} och ${count - 1} till har skrivit`,
-            content: data.content, // Show the latest message snippet
-            timestamp: now, // Refresh timestamp
-            read: false
-        };
-
-        const newNotifications = [...notifications];
-        newNotifications[existingIndex] = updatedNotification;
-        // Move to top
-        newNotifications.splice(existingIndex, 1);
-        saveNotifications([updatedNotification, ...newNotifications].slice(0, 50));
-    } else {
-        addNotification({
-            title: data.title,
-            content: data.content,
-            icon: data.icon,
-            color: data.color,
-            time: 'Just nu',
-            groupId: data.groupId
-        });
+    if (error) {
+        console.error('Error fetching notifications:', error);
+        return [];
     }
-};
 
-export const clearNotifications = () => {
-    saveNotifications([]);
-};
-
-export const deleteNotification = (id: string) => {
-    const notifications = getNotifications();
-    saveNotifications(notifications.filter(n => n.id !== id));
+    notifyListeners(data || []);
+    return data || [];
 };
 
 export const subscribeToNotifications = (listener: NotificationListener) => {
     listeners.push(listener);
+
+    // Initial fetch
+    fetchNotifications();
+
+    // Setup realtime subscription if not exists
+    if (!currentSubscription) {
+        setupSubscription();
+    }
+
     return () => {
         listeners = listeners.filter(l => l !== listener);
+        if (listeners.length === 0 && currentSubscription) {
+            currentSubscription.unsubscribe();
+            currentSubscription = null;
+        }
     };
+};
+
+const setupSubscription = async () => {
+    const user = await getCurrentUser();
+    if (!user) return;
+
+    currentSubscription = supabase
+        .channel('public:notifications')
+        .on(
+            'postgres_changes',
+            {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'notifications',
+                filter: `user_id=eq.${user.id}`,
+            },
+            (payload) => {
+                // Determine if we should play sound (handled in frontend usually, but we can emit event)
+                // fetch new list to ensure correct order/state
+                fetchNotifications();
+
+                // Optional: Trigger system notification sound here if desired
+                // or let the UI component handle "new item" effects
+            }
+        )
+        .subscribe();
+};
+
+export const markAsRead = async (id: string) => {
+    const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', id);
+
+    if (!error) {
+        fetchNotifications(); // Refresh state
+    }
+};
+
+export const clearNotifications = async () => {
+    const user = await getCurrentUser();
+    if (!user) return;
+
+    // We can either delete them or just mark all as read?
+    // User asked "tills man tar bort alla", implying delete.
+    const { error } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('user_id', user.id);
+
+    if (!error) {
+        fetchNotifications();
+    }
+};
+
+export const deleteNotification = async (id: string) => {
+    const { error } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('id', id);
+
+    if (!error) {
+        fetchNotifications();
+    }
 };
