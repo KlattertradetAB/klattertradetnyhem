@@ -1,8 +1,11 @@
-const CACHE_NAME = 'horizonten-cache-v3';
+const CACHE_NAME = 'horizonten-cache-v4';
 const ASSETS_TO_CACHE = [
-    '/app',
+    '/',
+    '/index.html',
     '/manifest.json',
-    '/assets/logo2.png'
+    '/icon-192.png',
+    '/icon-512.png',
+    '/apple-touch-icon.png'
 ];
 
 // Install Event
@@ -15,25 +18,58 @@ self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
 
-// Activate Event
+// Activate Event - Clean old caches
 self.addEventListener('activate', (event) => {
-    event.waitUntil(self.clients.claim());
-});
-
-// Fetch Event - REQUIRED FOR PWA INSTALLABILITY
-self.addEventListener('fetch', (event) => {
-    // Basic pass-through strategy (or cache-first if preferred later)
-    // For now, we mainly need this handler to exist.
-    event.respondWith(
-        caches.match(event.request).then((response) => {
-            return response || fetch(event.request);
-        })
+    event.waitUntil(
+        caches.keys().then((cacheNames) => {
+            return Promise.all(
+                cacheNames
+                    .filter((name) => name !== CACHE_NAME)
+                    .map((name) => caches.delete(name))
+            );
+        }).then(() => self.clients.claim())
     );
 });
 
-// Push Event - THIS IS THE CORE OF BACKGROUND NOTIFICATIONS
+// Fetch Event - Network first, fallback to cache
+self.addEventListener('fetch', (event) => {
+    // Skip non-GET requests
+    if (event.request.method !== 'GET') return;
+
+    // Skip external requests
+    if (!event.request.url.startsWith(self.location.origin)) return;
+
+    event.respondWith(
+        fetch(event.request)
+            .then((response) => {
+                // Cache successful responses
+                if (response.status === 200) {
+                    const responseClone = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, responseClone);
+                    });
+                }
+                return response;
+            })
+            .catch(() => {
+                // Fallback to cache when offline
+                return caches.match(event.request).then((cachedResponse) => {
+                    if (cachedResponse) {
+                        return cachedResponse;
+                    }
+                    // For navigation requests, return the cached index.html
+                    if (event.request.mode === 'navigate') {
+                        return caches.match('/index.html');
+                    }
+                    return new Response('Offline', { status: 503 });
+                });
+            })
+    );
+});
+
+// Push Event - Background notifications
 self.addEventListener('push', (event) => {
-    let data = { title: 'Nytt meddelande', body: 'Du har fått ett nytt meddelande i gemenskapen.' };
+    let data = { title: 'Horizonten', body: 'Du har fått ett nytt meddelande i gemenskapen.' };
 
     if (event.data) {
         try {
@@ -45,11 +81,13 @@ self.addEventListener('push', (event) => {
 
     const options = {
         body: data.body,
-        icon: '/icon-app.jpeg',
-        badge: '/icon-app.jpeg',
+        icon: '/icon-192.png',
+        badge: '/icon-192.png',
         vibrate: [100, 50, 100],
+        tag: 'horizonten-notification',
+        renotify: true,
         data: {
-            url: self.registration.scope
+            url: data.url || '/#premium-login'
         }
     };
 
@@ -62,6 +100,15 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
     event.waitUntil(
-        clients.openWindow(event.notification.data.url)
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+            // Focus existing window if open
+            for (const client of clientList) {
+                if (client.url.includes(self.location.origin) && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            // Otherwise open new window
+            return clients.openWindow(event.notification.data.url);
+        })
     );
 });
