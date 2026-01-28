@@ -79,7 +79,7 @@ const App: React.FC = () => {
     if (currentPage === Page.HOME) {
       document.title = 'Klätterträdet';
     } else if (currentPage === Page.GEMENSKAP_APP) {
-      document.title = 'Horizonten gemenskap';
+      document.title = 'Horizonten gemenskap – Våga vara den du är';
     } else {
       const pageTitle = currentPage.charAt(0) + currentPage.slice(1).toLowerCase().replace('_', ' ');
       document.title = `${pageTitle} | Horizonten`;
