@@ -197,6 +197,54 @@ const LoginPage: React.FC<LoginPageProps> = ({ setPage }) => {
                     </button>
                 </div>
             </div>
+
+            {/* Walking Goat Easter Egg */}
+            {isInstallable && (
+                <div
+                    onClick={installApp}
+                    className="fixed bottom-0 left-0 w-full pointer-events-none z-50 overflow-hidden"
+                    style={{ height: '150px' }}
+                >
+                    <style>{`
+                        @keyframes walkAcross {
+                            0% { transform: translateX(-150px) scaleX(1); }
+                            49% { transform: translateX(100vw) scaleX(1); }
+                            50% { transform: translateX(100vw) scaleX(-1); }
+                            99% { transform: translateX(-150px) scaleX(-1); }
+                            100% { transform: translateX(-150px) scaleX(1); }
+                        }
+                        @keyframes bob {
+                            0%, 100% { transform: translateY(0); }
+                            50% { transform: translateY(-5px); }
+                        }
+                        .walking-goat {
+                            animation: walkAcross 60s linear infinite;
+                            cursor: pointer;
+                            pointer-events: auto;
+                        }
+                        .walking-goat:hover {
+                            filter: drop-shadow(0 0 10px rgba(255, 165, 0, 0.5));
+                        }
+                        .goat-body {
+                            animation: bob 0.5s ease-in-out infinite;
+                        }
+                    `}</style>
+                    <div className="walking-goat absolute bottom-4" title="Klicka för att installera!">
+                        <div className="goat-body w-24 h-24">
+                            <img
+                                src="/walking_goat.png"
+                                alt="Walking Goat"
+                                className="w-full h-full object-contain"
+                                style={{ mixBlendMode: 'screen' }}
+                            />
+                        </div>
+                        <div className="bg-white/90 text-black text-[10px] font-bold px-2 py-1 rounded-full absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap opacity-0 hover:opacity-100 transition-opacity">
+                            Installera mig! 🐐
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <InstallGuideModal isOpen={showInstallModal} onClose={() => setShowInstallModal(false)} />
         </div>
     );
