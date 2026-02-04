@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Page } from '../public/types';
+import { Page } from '../types';
 import { Hexagon, Menu, X, Moon, Sun, ChevronDown, BookOpen, Heart, Newspaper, Library, Users, ClipboardList, Download, LogIn } from 'lucide-react';
 
 interface NavigationProps {
@@ -237,32 +237,41 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
           {/* Mobile Menu */}
           {isMobileMenuOpen && (
             <div className="absolute top-full left-0 w-full mt-4 p-4 md:hidden">
-              <div className="glass bg-black/95 backdrop-blur-3xl border border-white/20 rounded-xl p-6 flex flex-col gap-3 shadow-2xl">
-                <button onClick={() => handleNavClick(Page.HOME)} className={`w-full py-3 rounded-lg font-medium text-left px-4 ${currentPage === Page.HOME ? 'text-orange-400 bg-white/5' : 'text-white/80'}`}>Hem</button>
-                <button onClick={() => handleNavClick(Page.ABOUT)} className={`w-full py-3 rounded-lg font-medium text-left px-4 ${currentPage === Page.ABOUT ? 'text-orange-400 bg-white/5' : 'text-white/80'}`}>Om oss</button>
+              <div className="glass bg-black/95 backdrop-blur-3xl border border-white/20 rounded-2xl p-6 flex flex-col gap-4 shadow-2xl max-h-[80vh] overflow-y-auto no-scrollbar">
 
-                <div className="border-y border-white/10 py-2 my-2">
-                  <div className="px-4 py-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Tjänster</div>
-                  <button onClick={() => handleNavClick(Page.BEHANDLINGS_ASSISTENT)} className={`w-full py-3 rounded-lg font-medium text-left px-6 ${currentPage === Page.BEHANDLINGS_ASSISTENT ? 'text-orange-400 bg-white/5' : 'text-white/80'}`}>Behandlingsassistent</button>
-                  <button onClick={() => handleNavClick(Page.CHAT)} className={`w-full py-3 rounded-lg font-medium text-left px-6 ${currentPage === Page.CHAT ? 'text-orange-400 bg-white/5' : 'text-white/80'}`}>Myndighetsinducerat trauma</button>
-                  <button onClick={() => handleNavClick(Page.GESTALT_TRAINING)} className={`w-full py-3 rounded-lg font-medium text-left px-6 ${currentPage === Page.GESTALT_TRAINING ? 'text-orange-400 bg-white/5' : 'text-white/80'}`}>Gestaltterapi</button>
-                  <button onClick={() => handleNavClick(Page.THERAPY)} className={`w-full py-3 rounded-lg font-medium text-left px-6 ${currentPage === Page.THERAPY ? 'text-orange-400 bg-white/5' : 'text-white/80'}`}>Enskild Terapi</button>
-                  <button onClick={() => handleNavClick(Page.GROUP_THERAPY)} className={`w-full py-3 rounded-lg font-medium text-left px-6 ${currentPage === Page.GROUP_THERAPY ? 'text-orange-400 bg-white/5' : 'text-white/80'}`}>Grupp- och parterapi</button>
+                <div className="flex flex-col gap-1">
+                  <button onClick={() => handleNavClick(Page.HOME)} className={`w-full py-3 rounded-xl font-bold text-left px-4 transition-colors ${currentPage === Page.HOME ? 'text-orange-400 bg-white/10' : 'text-white/80 hover:bg-white/5'}`}>Hem</button>
+                  <button onClick={() => handleNavClick(Page.ABOUT)} className={`w-full py-3 rounded-xl font-bold text-left px-4 transition-colors ${currentPage === Page.ABOUT ? 'text-orange-400 bg-white/10' : 'text-white/80 hover:bg-white/5'}`}>Om oss</button>
                 </div>
 
-                <div className="border-b border-white/10 pb-2 mb-2">
-                  <div className="px-4 py-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Resurser</div>
-                  <button onClick={() => handleNavClick(Page.COMMUNITY)} className={`w-full py-3 rounded-lg font-medium text-left px-6 ${currentPage === Page.COMMUNITY ? 'text-orange-400 bg-white/5' : 'text-white/80'}`}>Gemenskap</button>
-                  <button onClick={() => handleNavClick(Page.SURVEY)} className={`w-full py-3 rounded-lg font-medium text-left px-6 ${currentPage === Page.SURVEY ? 'text-orange-400 bg-white/5' : 'text-white/80'}`}>Enkät och utredning</button>
-                  <button onClick={() => handleNavClick(Page.DOWNLOADS)} className={`w-full py-3 rounded-lg font-medium text-left px-6 ${currentPage === Page.DOWNLOADS ? 'text-orange-400 bg-white/5' : 'text-white/80'}`}>Nedladdningar</button>
+                <div className="bg-white/5 rounded-2xl p-4 space-y-3">
+                  <div className="px-1 text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Tjänster & Utbildning</div>
+                  <div className="grid grid-cols-1 gap-1">
+                    <button onClick={() => handleNavClick(Page.BEHANDLINGS_ASSISTENT)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.BEHANDLINGS_ASSISTENT ? 'text-orange-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>Behandlingsassistent</button>
+                    <button onClick={() => handleNavClick(Page.CHAT)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.CHAT ? 'text-orange-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>Myndighetsinducerat trauma</button>
+                    <button onClick={() => handleNavClick(Page.GESTALT_TRAINING)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.GESTALT_TRAINING ? 'text-orange-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>Gestaltterapi</button>
+                    <button onClick={() => handleNavClick(Page.THERAPY)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.THERAPY ? 'text-orange-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>Enskild Terapi</button>
+                    <button onClick={() => handleNavClick(Page.GROUP_THERAPY)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.GROUP_THERAPY ? 'text-orange-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>Grupp- och parterapi</button>
+                  </div>
                 </div>
 
-                <button onClick={() => handleNavClick(Page.BLOG)} className={`w-full py-3 rounded-lg font-medium text-left px-4 ${currentPage === Page.BLOG ? 'text-orange-400 bg-white/5' : 'text-white/80'}`}>Blogg</button>
-                <button onClick={() => handleNavClick(Page.CONTACT)} className={`w-full py-3 rounded-lg font-medium text-left px-4 ${currentPage === Page.CONTACT ? 'text-orange-400 bg-white/5' : 'text-white/80'}`}>Kontakt & bokning</button>
+                <div className="bg-white/5 rounded-2xl p-4 space-y-3">
+                  <div className="px-1 text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Resurser</div>
+                  <div className="grid grid-cols-1 gap-1">
+                    <button onClick={() => handleNavClick(Page.COMMUNITY)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.COMMUNITY ? 'text-amber-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>Gemenskap</button>
+                    <button onClick={() => handleNavClick(Page.SURVEY)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.SURVEY ? 'text-blue-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>Enkät och utredning</button>
+                    <button onClick={() => handleNavClick(Page.DOWNLOADS)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.DOWNLOADS ? 'text-emerald-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>Nedladdningar</button>
+                  </div>
+                </div>
 
-                <div className="border-t border-white/10 mt-2 pt-2">
-                  <button onClick={() => handleNavClick(Page.LOGIN)} className={`w-full py-3 rounded-lg font-bold text-left px-4 flex items-center gap-3 ${currentPage === Page.LOGIN ? 'text-orange-400 bg-white/5' : 'text-white'}`}>
-                    <LogIn size={20} /> Logga in
+                <div className="flex flex-col gap-1">
+                  <button onClick={() => handleNavClick(Page.BLOG)} className={`w-full py-3 rounded-xl font-bold text-left px-4 transition-colors ${currentPage === Page.BLOG ? 'text-orange-400 bg-white/10' : 'text-white/80 hover:bg-white/5'}`}>Blogg</button>
+                  <button onClick={() => handleNavClick(Page.CONTACT)} className={`w-full py-3 rounded-xl font-bold text-left px-4 transition-colors ${currentPage === Page.CONTACT ? 'text-orange-400 bg-white/10' : 'text-white/80 hover:bg-white/5'}`}>Kontakt & bokning</button>
+                </div>
+
+                <div className="mt-2">
+                  <button onClick={() => handleNavClick(Page.LOGIN)} className={`w-full py-4 rounded-2xl font-black text-center px-4 flex items-center justify-center gap-3 transition-all ${currentPage === Page.LOGIN ? 'bg-orange-500 text-black shadow-lg shadow-orange-500/20' : 'bg-white/10 text-white hover:bg-white/20'}`}>
+                    <LogIn size={20} /> LOGGA IN
                   </button>
                 </div>
               </div>

@@ -1,4 +1,4 @@
-import { Page } from '../../public/types';
+import { Page } from '../../types';
 
 interface FooterProps {
     onBackToSite: (page?: Page) => void;

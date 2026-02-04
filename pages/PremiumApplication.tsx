@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Phone, User, Send, CheckCircle2, ArrowLeft, CreditCard } from 'lucide-react';
-import { Page } from '../public/types';
+import { Page } from '../types';
 
 interface PremiumApplicationProps {
     setPage: (page: Page) => void;
@@ -74,7 +74,7 @@ const PremiumApplication: React.FC<PremiumApplicationProps> = ({ setPage }) => {
                                 <div className="p-4 bg-orange-500/10 border border-orange-500/30 rounded-xl flex items-center justify-between">
                                     <div className="flex flex-col">
                                         <span className="text-orange-500 text-[10px] font-black uppercase tracking-wider mb-1">Swish</span>
-                                        <span className="text-white font-mono font-bold text-lg tracking-wider">123 456 78 90</span>
+                                        <span className="text-white font-sans font-bold text-lg tracking-wider">123 456 78 90</span>
                                     </div>
                                     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Swish_Logo.svg/1200px-Swish_Logo.svg.png" alt="Swish" className="w-10 h-10 object-contain" />
                                 </div>
@@ -82,7 +82,7 @@ const PremiumApplication: React.FC<PremiumApplicationProps> = ({ setPage }) => {
                                 <div className="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between">
                                     <div className="flex flex-col">
                                         <span className="text-zinc-500 text-[10px] font-black uppercase tracking-wider mb-1">Bankgiro</span>
-                                        <span className="text-white font-mono font-bold text-lg tracking-wider">XXXX-XXXX</span>
+                                        <span className="text-white font-sans font-bold text-lg tracking-wider">XXXX-XXXX</span>
                                     </div>
                                     <div className="w-10 h-10 flex items-center justify-center">
                                         <CreditCard className="text-zinc-500" />

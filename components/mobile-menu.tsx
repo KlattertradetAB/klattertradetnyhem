@@ -64,7 +64,7 @@ export const MobileMenu = ({ className }: MobileMenuProps) => {
                 key={item.name}
                 href={item.href}
                 onClick={handleLinkClick}
-                className="text-xl font-mono text-foreground/60 transition-colors ease-out duration-150 hover:text-foreground/100 py-2"
+                className="text-xl font-sans text-foreground/60 transition-colors ease-out duration-150 hover:text-foreground/100 py-2"
               >
                 {item.name}
               </Link>
@@ -74,7 +74,7 @@ export const MobileMenu = ({ className }: MobileMenuProps) => {
               <Link
                 href="/login"
                 onClick={handleLinkClick}
-                className="inline-block text-xl font-mono text-primary transition-colors ease-out duration-150 hover:text-primary/80 py-2"
+                className="inline-block text-xl font-sans text-primary transition-colors ease-out duration-150 hover:text-primary/80 py-2"
               >
                 Logga in
               </Link>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Page } from '../public/types';
+import { Page } from '../types';
 import { BookOpen, CheckCircle, Smartphone, ArrowRight, Shield, Award, Users } from 'lucide-react';
 
 interface BookPromotionProps {

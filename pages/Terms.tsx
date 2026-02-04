@@ -1,5 +1,5 @@
 import React from 'react';
-import { Page } from '../public/types';
+import { Page } from '../types';
 import { ArrowLeft, ShieldCheck, Heart, Info, Anchor, Users, Brain, Zap, Gem, Lock } from 'lucide-react';
 
 interface TermsProps {

@@ -1,6 +1,6 @@
 {
-  "name": "Horizonten gemenskap – Våga vara den du är",
-  "short_name": "Horizonten",
+  "name": "Horizonten gemenskap",
+  "short_name": "Horizonten gemenskap",
   "description": "Din digitala flock – community, självhjälp och stöd för personlig utveckling.",
   "start_url": "/#premium-login",
   "scope": "/",
@@ -8,7 +8,11 @@
   "background_color": "#020617",
   "theme_color": "#f97316",
   "orientation": "portrait-primary",
-  "categories": ["health", "lifestyle", "social"],
+  "categories": [
+    "health",
+    "lifestyle",
+    "social"
+  ],
   "lang": "sv-SE",
   "icons": [
     {

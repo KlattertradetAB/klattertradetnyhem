@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Download, FileText, Book, Sparkles, FileSpreadsheet, Heart } from 'lucide-react';
-import { Page } from '../public/types';
+import { Page } from '../types';
 
 interface DownloadsProps {
   setPage: (page: Page) => void;

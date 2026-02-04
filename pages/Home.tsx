@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Page } from '../public/types';
+import { Page } from '../types';
 import { ArrowRight, BookOpen, Users, Shield, Heart, Anchor, Sparkles, Calendar, FileText, Star, ChevronRight, ChevronLeft } from 'lucide-react';
 import Newsletter from '../components/Newsletter';
 import PDFViewer from '../components/PDFViewer';
@@ -144,7 +144,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
       </div>
 
       {/* Featured Post Carousel (Mirrored from Community) */}
-      <div className="max-w-5xl mx-auto w-full space-y-3 animate-in slide-in-from-bottom-6 duration-700 relative group/carousel">
+      <div className="w-full space-y-3 animate-in slide-in-from-bottom-6 duration-700 relative group/carousel">
         <div className="flex justify-between items-center px-2">
           <h2 className="text-xl md:text-2xl font-black text-white italic tracking-tight flex items-center gap-2">
             <Star className="text-orange-500" size={20} />
@@ -214,7 +214,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
       </div>
 
       {/* Book Promotion Section */}
-      <div className="max-w-5xl mx-auto w-full glass bg-white/5 border border-white/10 rounded-[2.5rem] p-6 md:p-10 flex flex-col md:flex-row items-center gap-10 group hover:border-amber-500/20 transition-all min-h-[280px]">
+      <div className="w-full glass bg-white/5 border border-white/10 rounded-[2.5rem] p-6 md:p-10 flex flex-col md:flex-row items-center gap-10 group hover:border-amber-500/20 transition-all min-h-[280px]">
         <div className="md:w-1/4 flex justify-center">
           <TiltedImage
             src="/booklet.jpeg"
@@ -239,7 +239,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto w-full glass bg-gradient-to-r from-amber-500/20 to-orange-600/20 border border-white/10 rounded-[2.5rem] p-6 md:p-10 relative overflow-hidden group min-h-[320px] flex items-center justify-center">
+      <div className="w-full glass bg-gradient-to-r from-amber-500/20 to-orange-600/20 border border-white/10 rounded-[2.5rem] p-6 md:p-10 relative overflow-hidden group min-h-[320px] flex items-center justify-center">
         <div className="relative z-10 max-w-2xl text-center space-y-4">
           <div className="inline-block px-3 py-1 bg-amber-500/20 rounded-full border border-amber-500/30 text-amber-500 text-[10px] font-black uppercase tracking-widest">
             Aktuell Specialistutbildning
@@ -358,7 +358,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
 
       {/* Horizonten Gemenskap Section */}
       <div className="space-y-16 md:space-y-24 py-12">
-        <div className="text-center space-y-6 max-w-4xl mx-auto">
+        <div className="text-center space-y-6 mx-auto">
           <h2 className="text-4xl md:text-6xl font-black text-white italic tracking-tight leading-[1.1]">
             Horizonten Gemenskap – <br className="hidden md:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-200 to-white">
@@ -374,7 +374,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-12 items-center mx-auto">
           <div className="space-y-6">
             <div className="inline-block px-4 py-1.5 bg-orange-500/10 rounded-full border border-orange-500/20 text-orange-500 text-xs font-black uppercase tracking-widest">
               Mer än bara en app
@@ -402,7 +402,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
             <h3 className="text-3xl font-black text-white italic tracking-tight">Vad hittar du här?</h3>
             <p className="text-zinc-500">Mångsidigt stöd för din personliga resa.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mx-auto">
             {[
               { title: "Gratis Stöd", text: "En plats där du kan dela erfarenheter med andra som förstår. Att spegla sig i andra minskar skam och bryter isolering.", icon: <Users className="text-orange-500" size={32} /> },
               { title: "Verktyg", text: "Tillgång till material, övningar och mallar som stöttar din process.", icon: <Sparkles className="text-amber-400" size={32} /> },
@@ -419,7 +419,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
           </div>
         </div>
 
-        <div className="glass bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-[3rem] p-10 md:p-16 max-w-6xl mx-auto relative overflow-hidden group">
+        <div className="glass bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-[3rem] p-10 md:p-16 mx-auto relative overflow-hidden group">
           <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-orange-500/5 rounded-full blur-3xl group-hover:bg-orange-500/10 transition-colors"></div>
           <div className="relative z-10 space-y-12 text-center">
             <div className="space-y-4">
@@ -447,7 +447,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
 
         {/* Vårt Specialistteam Section */}
         <div className="space-y-24">
-          <div className="text-center space-y-6 max-w-4xl mx-auto">
+          <div className="text-center space-y-6 mx-auto">
             <h2 className="text-4xl md:text-5xl font-black text-white italic tracking-tight">
               Vårt Specialistteam
             </h2>
@@ -464,7 +464,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12 items-center mx-auto">
             <div className="space-y-6">
               <h3 className="text-3xl font-black text-white italic">Vi har sållat fram de bästa</h3>
               <p className="text-zinc-400 text-lg leading-relaxed font-light">
@@ -493,7 +493,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
             </div>
           </div>
 
-          <div className="text-center space-y-12 max-w-6xl mx-auto">
+          <div className="text-center space-y-12 mx-auto">
             <Experts />
 
             <div className="pt-8 space-y-8">

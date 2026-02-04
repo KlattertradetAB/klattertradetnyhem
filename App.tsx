@@ -23,14 +23,18 @@ import Terms from './pages/Terms';
 import GemenskapApp from './gemenskap/GemenskapApp';
 import PremiumApplication from './pages/PremiumApplication';
 import FreeRegistration from './pages/FreeRegistration';
-import { Page } from './public/types';
+import { Page } from './types';
 import GestaltApp from './gestalt-filosofi/App';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>(Page.HOME);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
+    const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+    setIsStandalone(!!isStandaloneMode);
+
     // Sync state with history on mount
     const handlePopState = (event: PopStateEvent) => {
       if (event.state && event.state.page) {
@@ -96,7 +100,7 @@ const App: React.FC = () => {
     <div className={`relative min-h-screen flex flex-col transition-all duration-700 ease-in-out ${isDarkMode ? 'bg-glossy-gradient-dark' : 'bg-glossy-gradient'}`}>
       <BackgroundShapes />
       <CookieBanner setPage={handleSetPage} />
-      {currentPage !== Page.GEMENSKAP_APP && (
+      {currentPage !== Page.GEMENSKAP_APP && !isStandalone && (
         <Navigation
           currentPage={currentPage}
           setPage={handleSetPage}
@@ -141,7 +145,7 @@ const App: React.FC = () => {
         })()}
       </main>
 
-      {currentPage !== Page.GEMENSKAP_APP && (
+      {currentPage !== Page.GEMENSKAP_APP && !isStandalone && (
         <footer className="py-12 mt-auto border-t border-white/10">
           <div className="max-w-[1600px] mx-auto px-6 flex flex-col items-center gap-6">
             <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 text-[10px] md:text-xs font-bold text-white/30 tracking-widest uppercase">

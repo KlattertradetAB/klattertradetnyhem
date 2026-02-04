@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Newspaper, Sparkles, Clock, Bell, CheckCircle, ArrowRight, BookOpen, Book, FileText } from 'lucide-react';
-import { Page } from '../public/types';
+import { Page } from '../types';
 import Newsletter from '../components/Newsletter';
 import PDFViewer from '../components/PDFViewer';
 

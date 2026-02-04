@@ -1,5 +1,5 @@
 import React from 'react';
-import { Page } from '../public/types';
+import { Page } from '../types';
 import { ArrowLeft, ArrowRight, TreePine, Leaf, ShieldCheck, ChevronRight, Smartphone } from 'lucide-react';
 import { usePWAInstall } from '../gemenskap/hooks/usePWAInstall';
 import { InstallGuideModal } from '../gemenskap/components/InstallGuideModal';

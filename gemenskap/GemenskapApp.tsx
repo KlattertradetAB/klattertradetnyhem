@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AuthStatus, Profile } from './types';
-import { Page } from '../public/types';
+import { Page } from '../types';
 import LoginForm from './components/LoginForm';
 import PremiumLogin from './components/PremiumLogin';
 import { Hero } from '../components/hero';
@@ -35,23 +35,30 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
   const [initialView, setInitialView] = useState<'login' | 'signup'>('login');
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [navHistory, setNavHistory] = useState<{ tab: string; topic: string | null }[]>([]);
+  const [isStandalone, setIsStandalone] = useState(false);
 
   // 2. Effects
+  useEffect(() => {
+    const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+    setIsStandalone(!!isStandaloneMode);
+  }, []);
+
   useEffect(() => {
     const handleHashRouting = () => {
       const hash = window.location.hash;
 
-      if (hash === '#login') {
+      if (hash.includes('#premium-login')) {
+        // Bypass intro splash and go straight to login
+        setShowPremiumIntro(false);
+        setShowLogin(true);
+        setIsPremiumView(true);
+        setInitialView('login');
+      } else if (hash.includes('#login')) {
         setShowLogin(true);
         setShowPremiumIntro(false);
         setIsPremiumView(false);
         setInitialView('login');
-      } else if (hash === '#premium-login') {
-        setShowPremiumIntro(true);
-        setShowLogin(false);
-        setIsPremiumView(true);
-        setInitialView('login');
-      } else if (hash === '#signup') {
+      } else if (hash.includes('#signup')) {
         setShowLogin(true);
         setShowPremiumIntro(false);
         setIsPremiumView(false);
@@ -263,9 +270,19 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
     setAuthStatus(AuthStatus.UNAUTHENTICATED);
     setActiveTab('welcome');
     setSelectedTopic(null);
-    setShowLogin(false);
-    // Explicitly go back to the site's official login page for a consistent experience
-    onBackToSite(Page.LOGIN);
+    setShowLogin(isStandalone); // Show login directly if standalone
+
+    if (!isStandalone) {
+      // Explicitly go back to the site's official login page for a consistent experience
+      onBackToSite(Page.LOGIN);
+    } else {
+      // In standalone, just show the premium login form
+      setShowPremiumIntro(false);
+      setShowLogin(true);
+      setIsPremiumView(true);
+      setInitialView('login');
+      window.history.pushState({ view: 'premium-login' }, '', '#premium-login');
+    }
   };
 
   const navigateTo = (tab: 'welcome' | 'dashboard' | 'chat' | 'experts' | 'admin', topic: string | null = null, noHistory = false) => {
@@ -404,14 +421,23 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
                     <Shield size={20} /> <span className="font-medium">Admin Panel</span>
                   </button>
                 )}
-                <div className="border-t border-white/10 my-2 pt-2">
-                  <button onClick={() => onBackToSite()} className="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-orange-400 hover:bg-white/5 rounded-xl transition-colors">
-                    <ArrowLeft size={20} /> <span className="font-medium">Klätterträdet.se</span>
-                  </button>
-                  <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors">
-                    <LogOut size={20} /> <span className="font-medium">Logga ut</span>
-                  </button>
-                </div>
+                {!isStandalone && (
+                  <div className="border-t border-white/10 my-2 pt-2">
+                    <button onClick={() => onBackToSite()} className="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-orange-400 hover:bg-white/5 rounded-xl transition-colors">
+                      <ArrowLeft size={20} /> <span className="font-medium">Klätterträdet.se</span>
+                    </button>
+                    <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors">
+                      <LogOut size={20} /> <span className="font-medium">Logga ut</span>
+                    </button>
+                  </div>
+                )}
+                {isStandalone && (
+                  <div className="border-t border-white/10 my-2 pt-2">
+                    <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors">
+                      <LogOut size={20} /> <span className="font-medium">Logga ut</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -599,6 +625,7 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
           {isPremiumView ? (
             <PremiumLogin
               onLoginSuccess={handleLoginSuccess}
+              isStandalone={isStandalone}
               onBack={() => {
                 setShowPremiumIntro(true);
                 setShowLogin(false);

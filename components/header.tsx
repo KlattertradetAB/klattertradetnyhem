@@ -11,25 +11,25 @@ export const Header = () => {
         </Link>
         <nav className="flex max-lg:hidden absolute left-1/2 -translate-x-1/2 items-center justify-center gap-x-10">
           <Link
-            className="inline-block font-mono text-foreground/60 hover:text-foreground/100 duration-150 transition-colors ease-out"
+            className="inline-block font-sans text-foreground/60 hover:text-foreground/100 duration-150 transition-colors ease-out"
             href="#vision"
           >
             Vision
           </Link>
           <Link
-            className="inline-block font-mono text-foreground/60 hover:text-foreground/100 duration-150 transition-colors ease-out"
+            className="inline-block font-sans text-foreground/60 hover:text-foreground/100 duration-150 transition-colors ease-out"
             href="#medlemsvillkor"
           >
             Medlemsvillkor
           </Link>
           <Link
-            className="inline-block font-mono text-foreground/60 hover:text-foreground/100 duration-150 transition-colors ease-out"
+            className="inline-block font-sans text-foreground/60 hover:text-foreground/100 duration-150 transition-colors ease-out"
             href="#bli-medlem"
           >
             Bli medlem idag
           </Link>
         </nav>
-        <Link className="max-lg:hidden transition-colors ease-out duration-150 font-mono text-primary hover:text-primary/80" href="/login">
+        <Link className="max-lg:hidden transition-colors ease-out duration-150 font-sans text-primary hover:text-primary/80" href="/login">
           Logga in
         </Link>
         <MobileMenu />

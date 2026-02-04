@@ -1,5 +1,5 @@
 import React from 'react';
-import { Page } from '../public/types';
+import { Page } from '../types';
 import { ArrowLeft, ShieldCheck, Info, Eye, Shield, Lock, Clock, Mail } from 'lucide-react';
 
 interface CookiePolicyProps {

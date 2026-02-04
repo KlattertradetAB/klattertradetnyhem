@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Users, Heart, Users2, Shield, Sparkles, CheckCircle, ArrowRight, Target } from 'lucide-react';
-import { Page } from '../public/types';
+import { Page } from '../types';
 import TiltedImage from '../components/TiltedImage';
 
 interface GroupTherapyProps {

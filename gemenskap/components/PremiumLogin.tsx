@@ -6,9 +6,10 @@ import { supabase } from '../services/supabase';
 interface PremiumLoginProps {
     onLoginSuccess: (profile: Profile) => void;
     onBack: () => void;
+    isStandalone?: boolean;
 }
 
-const PremiumLogin: React.FC<PremiumLoginProps> = ({ onLoginSuccess, onBack }) => {
+const PremiumLogin: React.FC<PremiumLoginProps> = ({ onLoginSuccess, onBack, isStandalone }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -128,25 +129,29 @@ const PremiumLogin: React.FC<PremiumLoginProps> = ({ onLoginSuccess, onBack }) =
             </form>
 
             {/* Footer */}
-            <div className="mt-8 text-center">
-                <p className="text-slate-500 text-sm">
-                    Inte medlem än?{" "}
-                    <button onClick={onBack} className="text-[#b35c2a] hover:text-[#9a4f24] transition-colors font-medium">
-                        Bli medlem idag
-                    </button>
-                </p>
-            </div>
+            {!isStandalone && (
+                <div className="mt-8 text-center">
+                    <p className="text-slate-500 text-sm">
+                        Inte medlem än?{" "}
+                        <button onClick={onBack} className="text-[#b35c2a] hover:text-[#9a4f24] transition-colors font-medium">
+                            Bli medlem idag
+                        </button>
+                    </p>
+                </div>
+            )}
 
             {/* Back to selection */}
-            <div className="mt-8 text-center pt-6 border-t border-white/5">
-                <button
-                    onClick={onBack}
-                    className="flex items-center gap-2 text-slate-500 hover:text-white transition-colors mx-auto text-sm group"
-                >
-                    <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-                    Tillbaka till startsidan
-                </button>
-            </div>
+            {!isStandalone && (
+                <div className="mt-8 text-center pt-6 border-t border-white/5">
+                    <button
+                        onClick={onBack}
+                        className="flex items-center gap-2 text-slate-500 hover:text-white transition-colors mx-auto text-sm group"
+                    >
+                        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                        Tillbaka till startsidan
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

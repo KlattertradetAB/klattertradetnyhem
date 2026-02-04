@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, User, Send, CheckCircle2, ArrowLeft, ArrowRight, Lock, Loader2 } from 'lucide-react';
-import { Page } from '../public/types';
+import { Page } from '../types';
 import { supabase } from '../gemenskap/services/supabase';
 
 interface FreeRegistrationProps {

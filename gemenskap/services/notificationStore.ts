@@ -12,9 +12,34 @@ export interface NotificationItem {
 type NotificationListener = (notifications: NotificationItem[]) => void;
 let listeners: NotificationListener[] = [];
 let currentSubscription: any = null;
+let cachedNotifications: NotificationItem[] = [];
 
 const notifyListeners = (notifications: NotificationItem[]) => {
+    cachedNotifications = notifications;
     listeners.forEach(l => l(notifications));
+};
+
+export const getNotifications = () => cachedNotifications;
+
+export const addNotification = async (notification: { title: string; message: string }) => {
+    const user = await getCurrentUser();
+    if (!user) return;
+
+    const { data, error } = await supabase
+        .from('notifications')
+        .insert([{
+            user_id: user.id,
+            title: notification.title,
+            message: notification.message,
+            is_read: false
+        }])
+        .select()
+        .single();
+
+    if (!error) {
+        fetchNotifications();
+    }
+    return { data, error };
 };
 
 export const fetchNotifications = async () => {

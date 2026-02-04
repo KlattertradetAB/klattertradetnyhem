@@ -1,5 +1,5 @@
 import React from 'react';
-import { Page } from '../public/types';
+import { Page } from '../types';
 import { ArrowLeft, ShieldCheck, Lock, Database, UserCheck, Scale, Mail, Info } from 'lucide-react';
 
 interface PrivacyPolicyProps {

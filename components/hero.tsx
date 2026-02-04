@@ -19,7 +19,7 @@ export function Hero({ onLoginClick, onContactClick }: HeroProps) {
       <div className="pb-16 mt-auto text-center relative z-10 px-4">
         <Pill className="mb-6">EXKLUSIV TILLGÅNG</Pill>
 
-        <h1 className="font-serif text-4xl text-white text-balance mt-4 sm:text-8xl leading-[0.9] tracking-tighter">
+        <h1 className="font-display text-4xl text-white text-balance mt-4 sm:text-8xl leading-[0.9] tracking-tighter">
           Välkommen till <br />
           <span className="text-[#b35c2a]">Horizonten</span> gemenskap
         </h1>

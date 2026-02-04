@@ -102,7 +102,7 @@ const Component = ({ variant, className }) => (
 
 **Design System:**
 - **Colors:** Orange/amber primary (`#b35c2a`), dark backgrounds
-- **Typography:** Geist font family, mono for buttons/headers
+- **Typography:** Inter for body text, Outfit for headers/display. Strictly avoid mono/serif fonts for UI elements.
 - **Theme:** Dark/light mode support with CSS custom properties
 - **Animations:** Custom keyframes in index.css (slideInUp, fade-in, bg-shift)
 

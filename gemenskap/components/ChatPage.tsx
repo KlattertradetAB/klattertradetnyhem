@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Profile } from '../types';
-import { Page } from '../../public/types';
+import { Page } from '../../types';
 import { PERSONAS } from '../services/personas';
 import CommunityChat from './CommunityChat';
 import {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../gemenskap/services/supabase';
-import { Page } from '../public/types';
+import { Page } from '../types';
 import { ShieldCheck, Settings, X, ChevronDown, ChevronUp, Lock, Eye } from 'lucide-react';
 
 interface CookieBannerProps {

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Sparkles, Target, Users, BookOpen, Star, ShieldCheck, ArrowRight } from 'lucide-react';
-import { Page } from '../public/types';
+import { Page } from '../types';
 
 interface GestaltTrainingProps {
   setPage: (page: Page) => void;

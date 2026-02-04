@@ -6,7 +6,7 @@ import { requestNotificationPermission } from '../services/notifications';
 
 import CommunityChat from './CommunityChat';
 
-import { Page } from '../../public/types';
+import { Page } from '../../types';
 
 interface DashboardProps {
   user: Profile;

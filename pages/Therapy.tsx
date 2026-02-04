@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Heart, Sparkles, Activity, ShieldCheck, CheckCircle, Target, Users, Send, MessageSquare } from 'lucide-react';
-import { Page } from '../public/types';
+import { Page } from '../types';
 import TiltedImage from '../components/TiltedImage';
 
 type FormViewState = 'splash' | 'form' | 'confirmation';

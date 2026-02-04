@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { BookOpen, GraduationCap, ChevronDown, ChevronUp, Users, Calendar, ArrowRight, ShieldCheck } from 'lucide-react';
-import { Page } from '../public/types';
+import { Page } from '../types';
 import TiltedImage from '../components/TiltedImage';
 
 interface BehandlingsAssistentProps {

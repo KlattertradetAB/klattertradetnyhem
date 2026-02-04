@@ -52,24 +52,14 @@ const therapists = [
   },
   {
     id: 3,
-    name: "Linda Matta",
-    email: "linda@klattertradet.se",
-    age: 46,
-    role: "Samtalsterapeut & Hudterapeut",
-    subRole: "Holistisk Hälsa",
-    desc: "Erbjuder en unik helhetssyn där det inre och yttre välmåendet möts.",
-    image: "/assets/linda-matta-new.jpeg"
-  },
-  {
-    id: 4,
     name: "Malin Widerlöv",
     email: "malin@klattertradet.se",
     age: 42,
-    role: "Behandlingspedagog",
-    subRole: "Socialarbetare & Familjeombud",
-    desc: "Expertis inom socialt arbete och familjedynamik med fokus på trygga lösningar för hela familjen.",
+    role: "Behandlingspedagog & Socialarbetare",
+    subRole: "Familjeombud",
+    desc: "Specialiserad på familjefrågor och socialt stöd. Stöttar i komplexa livssituationer.",
     image: "/assets/malin-widerlov.png"
-  }
+  },
 ];
 
 const ContactUs: React.FC = () => {
@@ -182,12 +172,12 @@ Detta är ett automatiskt genererat utkast från hemsidan.
           <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tight">Välj en tid i kalendern</h1>
         </div>
 
-        <div className="inline-flex bg-white/5 p-1.5 rounded-2xl border border-white/10 backdrop-blur-xl">
+        <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/10 backdrop-blur-xl overflow-x-auto no-scrollbar w-full md:w-auto">
           {therapists.map((t) => (
             <button
               key={t.id}
               onClick={() => { setActiveTherapist(t.id); setBookingStep(1); setSelectedTime(null); setSelectedDate(null); }}
-              className={`px-6 md:px-8 py-3 rounded-xl text-sm font-bold transition-all duration-300 ${activeTherapist === t.id
+              className={`px-4 md:px-8 py-3 rounded-xl text-xs md:text-sm font-bold transition-all duration-300 whitespace-nowrap ${activeTherapist === t.id
                 ? 'bg-white/10 border border-white/20 text-white scale-105'
                 : 'text-white/50 hover:text-white hover:bg-white/5'
                 }`}
