@@ -25,6 +25,8 @@ import PremiumApplication from './pages/PremiumApplication';
 import FreeRegistration from './pages/FreeRegistration';
 import { Page } from './types';
 import GestaltApp from './gestalt-filosofi/App';
+import { LanguageProvider as SelfCareLanguageProvider } from './self-care/contexts/LanguageContext';
+import { ThemeProvider as SelfCareThemeProvider } from './self-care/contexts/ThemeContext';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>(Page.HOME);
@@ -122,7 +124,13 @@ const App: React.FC = () => {
             case Page.BLOG: return <Blog setPage={handleSetPage} />;
             case Page.COMMUNITY: return <Community />;
             case Page.CONTACT: return <ContactUs />;
-            case Page.SURVEY: return <SelfCareApp />;
+            case Page.SURVEY: return (
+              <SelfCareLanguageProvider>
+                <SelfCareThemeProvider>
+                  <SelfCareApp />
+                </SelfCareThemeProvider>
+              </SelfCareLanguageProvider>
+            );
             case Page.DOWNLOADS: return <Downloads setPage={handleSetPage} />;
             case Page.GESTALT_WORKSHEET: return <GestaltApp onBack={() => handleSetPage(Page.DOWNLOADS)} />;
             case Page.LOGIN: return <LoginPage setPage={handleSetPage} />;
