@@ -9,7 +9,7 @@ import Chat from './pages/Chat';
 import Therapy from './pages/Therapy';
 import GroupTherapy from './pages/GroupTherapy';
 import GestaltTraining from './pages/GestaltTraining';
-import BehandlingsAssistent from './pages/BehandlingsAssistent';
+import BehandlingsPedagog from './pages/BehandlingsPedagog';
 import Blog from './pages/Blog';
 import Community from './pages/Community';
 import ContactUs from './pages/ContactUs';
@@ -25,6 +25,7 @@ import PremiumApplication from './pages/PremiumApplication';
 import FreeRegistration from './pages/FreeRegistration';
 import { Page } from './types';
 import GestaltApp from './gestalt-filosofi/App';
+import { App as MiTEbookApp } from './myndighetsinducerat-trauma---från-subjekt-till-objekt/App';
 import { LanguageProvider as SelfCareLanguageProvider } from './self-care/contexts/LanguageContext';
 import { ThemeProvider as SelfCareThemeProvider } from './self-care/contexts/ThemeContext';
 
@@ -120,7 +121,7 @@ const App: React.FC = () => {
             case Page.THERAPY: return <Therapy setPage={handleSetPage} />;
             case Page.GROUP_THERAPY: return <GroupTherapy setPage={handleSetPage} />;
             case Page.GESTALT_TRAINING: return <GestaltTraining setPage={handleSetPage} />;
-            case Page.BEHANDLINGS_ASSISTENT: return <BehandlingsAssistent setPage={handleSetPage} />;
+            case Page.BEHANDLINGS_PEDAGOG: return <BehandlingsPedagog setPage={handleSetPage} />;
             case Page.BLOG: return <Blog setPage={handleSetPage} />;
             case Page.COMMUNITY: return <Community />;
             case Page.CONTACT: return <ContactUs />;
@@ -147,6 +148,7 @@ const App: React.FC = () => {
             case Page.TERMS: return <Terms setPage={handleSetPage} />;
             case Page.PREMIUM_APPLICATION: return <PremiumApplication setPage={handleSetPage} />;
             case Page.FREE_REGISTRATION: return <FreeRegistration setPage={handleSetPage} />;
+            case Page.MIT_EBOOK: return <MiTEbookApp onBack={() => handleSetPage(Page.DOWNLOADS)} />;
             case Page.GEMENSKAP_APP: return <GemenskapApp onBackToSite={(targetPage?: Page) => handleSetPage(targetPage || Page.HOME)} />;
             default: return <Home setPage={handleSetPage} />;
           }

@@ -106,11 +106,13 @@ const Therapy: React.FC<TherapyProps> = ({ setPage }) => {
           </div>
           <div className="hidden lg:block shrink-0">
             <TiltedImage
-              src="/hemsida-bild1.jpeg"
-              alt="Gestaltterapi"
+              src="/pic-enskildterapi.jpeg"
+              alt="Enskild terapi"
               className="w-72 h-96"
               grayscale={false}
-              defaultRotation="3deg"
+              blur="8px"
+              hoverBlur="0px"
+              defaultRotation="-3deg"
             />
           </div>
         </div>

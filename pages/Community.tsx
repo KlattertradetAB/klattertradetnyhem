@@ -23,17 +23,28 @@ const Community: React.FC = () => {
     <div className="container mx-auto px-4 md:px-6 py-6 md:py-10 animate-fade-in w-full space-y-12">
 
       {/* Hero Header */}
-      <div className="glass bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 md:p-16 text-center">
-        <h1 className="text-3xl md:text-5xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-orange-400">
-          Horizonten Gemenskap
-        </h1>
-        <p className="text-xl md:text-2xl text-white/90 font-light italic mb-8">
-          En trygg hamn för läkning, insikt och tillsammanskap.
-        </p>
-        <div className="flex justify-center gap-4 flex-wrap">
-          <div className="px-6 py-2 bg-white/10 rounded-full border border-white/20 text-sm">Appen</div>
-          <div className="px-6 py-2 bg-white/10 rounded-full border border-white/20 text-sm">Gemenskap</div>
-          <div className="px-6 py-2 bg-white/10 rounded-full border border-white/20 text-sm">Självhjälp</div>
+      <div className="glass bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 md:p-16 relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-12">
+        <div className="max-w-2xl text-center lg:text-left">
+          <h1 className="text-3xl md:text-5xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-orange-400">
+            Horizonten Gemenskap
+          </h1>
+          <p className="text-xl md:text-2xl text-white/90 font-light italic mb-8">
+            En trygg hamn för läkning, insikt och tillsammanskap.
+          </p>
+          <div className="flex justify-center lg:justify-start gap-4 flex-wrap">
+            <div className="px-6 py-2 bg-white/10 rounded-full border border-white/20 text-sm">Appen</div>
+            <div className="px-6 py-2 bg-white/10 rounded-full border border-white/20 text-sm">Gemenskap</div>
+            <div className="px-6 py-2 bg-white/10 rounded-full border border-white/20 text-sm">Självhjälp</div>
+          </div>
+        </div>
+        <div className="hidden lg:block shrink-0">
+          <TiltedImage
+            src="/bild-terapistol.jpeg"
+            alt="Gemenskap"
+            className="w-64 h-80"
+            grayscale={false}
+            defaultRotation="3deg"
+          />
         </div>
       </div>
 

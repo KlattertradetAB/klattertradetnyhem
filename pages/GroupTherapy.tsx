@@ -29,11 +29,13 @@ const GroupTherapy: React.FC<GroupTherapyProps> = ({ setPage }) => {
           </div>
           <div className="hidden lg:block shrink-0">
             <TiltedImage
-              src="/bild-terapistol.jpeg"
-              alt="Parterapi"
+              src="/Pic-gruppterapi.jpeg"
+              alt="Gruppterapi"
               className="w-64 h-80"
               grayscale={false}
               defaultRotation="-3deg"
+              blur="8px"
+              hoverBlur="0px"
             />
           </div>
         </div>
@@ -69,23 +71,28 @@ const GroupTherapy: React.FC<GroupTherapyProps> = ({ setPage }) => {
 
         {/* Gruppterapi Section */}
         <div className="glass bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12 hover:bg-white/10 transition-all duration-300">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="p-3 bg-indigo-500/20 rounded-2xl text-indigo-400">
-              <Users2 size={32} />
+          <div className="flex flex-col lg:flex-row gap-10 items-center">
+            <div className="flex-1">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="p-3 bg-indigo-500/20 rounded-2xl text-indigo-400">
+                  <Users2 size={32} />
+                </div>
+                <h3 className="text-2xl font-bold">Gruppterapi</h3>
+              </div>
+              <p className="text-white/80 leading-relaxed mb-6">
+                Gruppen fungerar som en spegel. Genom att dela sina upplevelser med andra i liknande situationer skapas en unik form av validering och igenkänning som är svår att nå i enskild terapi.
+              </p>
+              <div className="bg-black/20 p-6 rounded-2xl border border-white/5 space-y-4">
+                <div className="flex items-start gap-3">
+                  <Sparkles className="text-indigo-400 mt-1" size={20} />
+                  <p className="text-sm text-white/80 italic">"Att inse att jag inte är ensam är det första steget mot verklig förändring."</p>
+                </div>
+                <p className="text-xs text-white/50">
+                  Vi håller kontinuerligt grupper för t.ex. anhöriga, vuxna barn till missbrukare eller personer med liknande traumaupplevelser.
+                </p>
+              </div>
             </div>
-            <h3 className="text-2xl font-bold">Gruppterapi</h3>
-          </div>
-          <p className="text-white/80 leading-relaxed mb-6">
-            Gruppen fungerar som en spegel. Genom att dela sina upplevelser med andra i liknande situationer skapas en unik form av validering och igenkänning som är svår att nå i enskild terapi.
-          </p>
-          <div className="bg-black/20 p-6 rounded-2xl border border-white/5 space-y-4">
-            <div className="flex items-start gap-3">
-              <Sparkles className="text-indigo-400 mt-1" size={20} />
-              <p className="text-sm text-white/80 italic">"Att inse att jag inte är ensam är det första steget mot verklig förändring."</p>
-            </div>
-            <p className="text-xs text-white/50">
-              Vi håller kontinuerligt grupper för t.ex. anhöriga, vuxna barn till missbrukare eller personer med liknande traumaupplevelser.
-            </p>
+
           </div>
         </div>
       </div>

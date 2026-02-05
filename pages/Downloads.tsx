@@ -17,7 +17,8 @@ const Downloads: React.FC<DownloadsProps> = ({ setPage }) => {
           desc: "En sammanfattning av grunderna i MiT-modellen och hur du börjar din läkningsresa.",
           icon: Book,
           color: "text-amber-400",
-          size: "2.4 MB"
+          size: "Online",
+          page: Page.MIT_EBOOK
         },
         {
           title: "Gestaltterapi i vardagen",
@@ -138,7 +139,7 @@ const Downloads: React.FC<DownloadsProps> = ({ setPage }) => {
                     className="w-full py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
                   >
                     {(item as any).page ? <Sparkles size={18} /> : <Download size={18} />}
-                    {(item as any).page ? "Öppna arbetsblad" : "Ladda ner material"}
+                    {(item as any).page ? (section.category === "E-böcker" ? "Öppna e-bok" : "Öppna arbetsblad") : "Ladda ner material"}
                   </button>
                 </div>
               ))}

@@ -17,24 +17,33 @@ import { Chapter6 } from './components/Chapter6';
 import { Footer } from './components/Footer';
 import { PageWrapper } from './components/PageWrapper';
 
-export const App: React.FC = () => {
+interface AppProps {
+  onBack: () => void;
+}
+
+export const App: React.FC<AppProps> = ({ onBack }) => {
   const [currentTheme, setCurrentTheme] = useState<Theme>('light');
   let pageCounter = 1; // Global page counter
 
   // Apply theme-specific styles to body to cover the whole viewport background
   useEffect(() => {
     document.body.style.backgroundColor = THEMES[currentTheme]['--app-bg'];
+    return () => {
+      // Body style is handled by the main App's dynamic classes, 
+      // but we should clear the manual override here.
+      document.body.style.backgroundColor = '';
+    };
   }, [currentTheme]);
 
   return (
-    <div 
+    <div
       className="min-h-screen transition-colors duration-300 font-serif"
       style={THEMES[currentTheme] as React.CSSProperties}
     >
       {/* Outer App Container */}
       <div className="flex flex-col items-center pt-5 pb-20 bg-[var(--app-bg)] min-h-screen transition-colors duration-300">
-        
-        <Toolbar currentTheme={currentTheme} onThemeChange={setCurrentTheme} />
+
+        <Toolbar currentTheme={currentTheme} onThemeChange={setCurrentTheme} onBack={onBack} />
 
         {/* 
           Book Stack Container 
@@ -46,31 +55,31 @@ export const App: React.FC = () => {
           <div className="absolute inset-0 bg-black/5 translate-x-2 translate-y-2 rounded-md -z-20"></div>
 
           {/* Main Book Body */}
-          <div 
+          <div
             className="w-full p-8 md:p-20 bg-[var(--bg-color)] text-[var(--text-color)] shadow-[var(--paper-shadow)] rounded-md transition-colors duration-300 min-h-screen text-lg leading-relaxed relative overflow-hidden"
             role="main"
           >
             {/* Subtle paper texture overlay */}
             <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')]"></div>
-            
+
             <Cover />
-            
+
             <PageWrapper pageNumber={pageCounter++}>
               <TableOfContents />
             </PageWrapper>
-            
+
             <PageWrapper pageNumber={pageCounter++}>
               <Chapter1 />
             </PageWrapper>
-            
+
             <PageWrapper pageNumber={pageCounter++}>
               <Chapter2 />
             </PageWrapper>
-            
+
             <PageWrapper pageNumber={pageCounter++}>
               <TraumaCycleDiagram />
             </PageWrapper>
-            
+
             {/* Chapter 3 (MiV) - approx 6 pages (5-10) */}
             <Chapter3 startPageNumber={pageCounter} />
             {(() => { pageCounter += 6; return null; })()}
@@ -90,7 +99,7 @@ export const App: React.FC = () => {
 
             {/* Chapter 6 (Föräldern som restprodukt / Othering) */}
             <Chapter6 startPageNumber={pageCounter} />
-            
+
             <Footer />
 
           </div>

@@ -38,8 +38,8 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const isServicesActive = [Page.CHAT, Page.THERAPY, Page.GROUP_THERAPY, Page.GESTALT_TRAINING, Page.BEHANDLINGS_ASSISTENT].includes(currentPage);
-  const isResourcesActive = [Page.COMMUNITY, Page.SURVEY, Page.DOWNLOADS].includes(currentPage);
+  const isServicesActive = [Page.CHAT, Page.THERAPY, Page.GROUP_THERAPY, Page.GESTALT_TRAINING, Page.BEHANDLINGS_PEDAGOG].includes(currentPage);
+  const isResourcesActive = [Page.COMMUNITY, Page.SURVEY, Page.DOWNLOADS, Page.MIT_EBOOK].includes(currentPage);
 
   return (
     <header className="p-4 md:p-5">
@@ -96,8 +96,8 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
                       <BookOpen size={12} /> Utbildningar
                     </div>
                     <div className="space-y-1">
-                      <button onClick={() => handleNavClick(Page.BEHANDLINGS_ASSISTENT)} className={`w-full text-left px-3 py-2 rounded-xl transition-colors flex flex-col ${currentPage === Page.BEHANDLINGS_ASSISTENT ? 'bg-orange-600/20 text-orange-400' : 'hover:bg-white/5 text-white/90'}`}>
-                        <span className="font-bold text-sm">Behandlingsassistent</span>
+                      <button onClick={() => handleNavClick(Page.BEHANDLINGS_PEDAGOG)} className={`w-full text-left px-3 py-2 rounded-xl transition-colors flex flex-col ${currentPage === Page.BEHANDLINGS_PEDAGOG ? 'bg-orange-600/20 text-orange-400' : 'hover:bg-white/5 text-white/90'}`}>
+                        <span className="font-bold text-sm">Behandlingspedagog</span>
                         <span className="text-[10px] opacity-60">Yrkesutbildning</span>
                       </button>
                       <button onClick={() => handleNavClick(Page.CHAT)} className={`w-full text-left px-3 py-2 rounded-xl transition-colors flex flex-col ${currentPage === Page.CHAT ? 'bg-orange-600/20 text-orange-400' : 'hover:bg-white/5 text-white/90'}`}>
@@ -187,6 +187,19 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
                       <span className="text-[10px] opacity-60">E-böcker & material</span>
                     </div>
                   </button>
+
+                  <button
+                    onClick={() => handleNavClick(Page.MIT_EBOOK)}
+                    className={`w-full text-left px-3 py-3 rounded-xl transition-colors flex items-center gap-3 ${currentPage === Page.MIT_EBOOK ? 'bg-amber-600/20 text-amber-400' : 'hover:bg-white/5 text-white/90'}`}
+                  >
+                    <div className="p-2 bg-white/5 rounded-lg">
+                      <BookOpen size={18} />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-sm">MiT E-bok</span>
+                      <span className="text-[10px] opacity-60">Introduktion till MiT</span>
+                    </div>
+                  </button>
                 </div>
               )}
             </div>
@@ -247,7 +260,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
                 <div className="bg-white/5 rounded-2xl p-4 space-y-3">
                   <div className="px-1 text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Tjänster & Utbildning</div>
                   <div className="grid grid-cols-1 gap-1">
-                    <button onClick={() => handleNavClick(Page.BEHANDLINGS_ASSISTENT)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.BEHANDLINGS_ASSISTENT ? 'text-orange-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>Behandlingsassistent</button>
+                    <button onClick={() => handleNavClick(Page.BEHANDLINGS_PEDAGOG)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.BEHANDLINGS_PEDAGOG ? 'text-orange-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>Behandlingspedagog</button>
                     <button onClick={() => handleNavClick(Page.CHAT)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.CHAT ? 'text-orange-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>Myndighetsinducerat trauma</button>
                     <button onClick={() => handleNavClick(Page.GESTALT_TRAINING)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.GESTALT_TRAINING ? 'text-orange-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>Gestaltterapi</button>
                     <button onClick={() => handleNavClick(Page.THERAPY)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.THERAPY ? 'text-orange-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>Enskild Terapi</button>
@@ -261,6 +274,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
                     <button onClick={() => handleNavClick(Page.COMMUNITY)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.COMMUNITY ? 'text-amber-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>Gemenskap</button>
                     <button onClick={() => handleNavClick(Page.SURVEY)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.SURVEY ? 'text-blue-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>Enkät och utredning</button>
                     <button onClick={() => handleNavClick(Page.DOWNLOADS)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.DOWNLOADS ? 'text-emerald-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>Nedladdningar</button>
+                    <button onClick={() => handleNavClick(Page.MIT_EBOOK)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.MIT_EBOOK ? 'text-amber-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>MiT E-bok (Introduktion)</button>
                   </div>
                 </div>
 

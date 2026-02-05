@@ -4,11 +4,11 @@ import { BookOpen, GraduationCap, ChevronDown, ChevronUp, Users, Calendar, Arrow
 import { Page } from '../types';
 import TiltedImage from '../components/TiltedImage';
 
-interface BehandlingsAssistentProps {
+interface BehandlingsPedagogProps {
   setPage: (page: Page) => void;
 }
 
-const BehandlingsAssistent: React.FC<BehandlingsAssistentProps> = ({ setPage }) => {
+const BehandlingsPedagog: React.FC<BehandlingsPedagogProps> = ({ setPage }) => {
   const [expandedBlock, setExpandedBlock] = useState<number | null>(null);
 
   const toggleBlock = (id: number) => {
@@ -24,7 +24,7 @@ const BehandlingsAssistent: React.FC<BehandlingsAssistentProps> = ({ setPage }) 
     {
       id: 1,
       title: "Block 1: Introduktion & Yrkesroll",
-      content: "Här läggs grunden för yrkesrollen som behandlingsassistent. Vi går igenom etik, värdegrund och vad det innebär att arbeta professionellt med människor i utsatta situationer. Fokus på bemötande och empatisk förmåga."
+      content: "Här läggs grunden för yrkesrollen som behandlingspedagog. Vi går igenom etik, värdegrund och vad det innebär att arbeta professionellt med människor i utsatta situationer. Fokus på bemötande och empatisk förmåga."
     },
     {
       id: 2,
@@ -72,20 +72,20 @@ const BehandlingsAssistent: React.FC<BehandlingsAssistentProps> = ({ setPage }) 
         <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12">
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-6xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-teal-400 leading-tight">
-              Behandlingsassistent
+              Behandlingspedagog
             </h1>
             <h2 className="text-xl md:text-3xl text-white/90 font-light italic mb-8">
               En yrkesutbildning för framtidens vård och omsorg
             </h2>
             <p className="text-lg md:text-xl text-white/80 leading-relaxed font-light">
-              Vill du arbeta med människor och göra verklig skillnad? Vår utbildning till behandlingsassistent ger dig den teoretiska grund och de praktiska verktyg du behöver för att stå trygg i mötet med människor i förändring.
+              Vill du arbeta med människor och göra verklig skillnad? Vår utbildning till behandlingspedagog ger dig den teoretiska grund och de praktiska verktyg du behöver för att stå trygg i mötet med människor i förändring.
             </p>
           </div>
           <div className="hidden lg:block shrink-0">
             <TiltedImage
-              src="/hemsida-bild6.jpeg"
-              alt="Behandlingsassistent"
-              className="w-72 h-96"
+              src="/Pic-BIllyteavla.jpeg"
+              alt="Behandlingspedagog"
+              className="w-80 h-[28rem]"
               grayscale={false}
               defaultRotation="3deg"
             />
@@ -205,4 +205,4 @@ const BehandlingsAssistent: React.FC<BehandlingsAssistentProps> = ({ setPage }) 
   );
 };
 
-export default BehandlingsAssistent;
+export default BehandlingsPedagog;

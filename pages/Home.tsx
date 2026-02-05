@@ -333,21 +333,21 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
           <div className="glass bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-[1.5rem] p-5 md:p-8 flex flex-col justify-between group">
             <div className="space-y-3 md:space-y-4">
               <TiltedImage
-                src="/hemsida-bild6.jpeg"
-                alt="Utbildning"
-                className="w-full h-40"
+                src="/Pic-BIllyteavla.jpeg"
+                alt="Behandlingspedagog"
+                className="w-full h-56"
                 defaultRotation="-1deg"
               />
-              <h3 className="text-xl md:text-2xl font-bold text-white">Utbildning</h3>
+              <h3 className="text-xl md:text-2xl font-bold text-white">Behandlingspedagog</h3>
               <p className="text-zinc-400 text-xs md:text-sm leading-relaxed">
-                Specialistutbildningar för behandlare, inklusive Myndighetsinducerat Trauma (MiT) och Gestaltmetodik.
+                Vår yrkesutbildning för dig som vill arbeta professionellt med människor i förändring. 8 block av praktisk och teoretisk kunskap.
               </p>
             </div>
             <button
-              onClick={() => setPage(Page.CHAT)}
+              onClick={() => setPage(Page.BEHANDLINGS_PEDAGOG)}
               className="mt-4 md:mt-6 flex items-center gap-2 text-white font-bold hover:text-amber-400 transition-colors text-xs md:text-sm"
             >
-              Se våra utbildningar <ArrowRight size={18} />
+              Läs mer om behandlingspedagog <ArrowRight size={18} />
             </button>
           </div>
         </div>
