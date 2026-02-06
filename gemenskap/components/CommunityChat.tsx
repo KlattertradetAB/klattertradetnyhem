@@ -9,6 +9,7 @@ import {
     Smile, Paperclip, MoreVertical, Check, CheckCheck,
     Edit2, Trash2, XCircle, CheckCircle2
 } from 'lucide-react';
+import { getEffectiveAvatar, getUserInitials } from '../services/userUtils';
 
 interface CommunityChatProps {
     user: Profile;
@@ -259,7 +260,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
             timestamp: new Date(),
             senderName: user.full_name,
             senderEmail: user.email,
-            senderAvatar: user.avatar_url
+            senderAvatar: getEffectiveAvatar(user.email, user.avatar_url) || undefined
         };
         setMessages(prev => [...prev, optimisticMsg]);
 
@@ -436,13 +437,14 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                             {!nextMsgIsSame ? (
                                 <div className={`w-12 h-12 rounded-[1.25rem] flex items-center justify-center shrink-0 shadow-2xl relative group cursor-pointer overflow-hidden ${isUser ? 'bg-gradient-to-br from-orange-400 to-red-600 text-white' : (msg.persona?.color || 'bg-slate-800') + ' text-white'}`}>
                                     {isUser ? (
-                                        (msg.senderEmail === 'billy.ljungberg90@gmail.com' || (!msg.senderEmail && user.email === 'billy.ljungberg90@gmail.com')) ? (
-                                            <img src="/assets/logo2.png" alt="Admin" className="w-full h-full object-contain p-1.5 bg-slate-900" />
-                                        ) : msg.senderAvatar ? (
-                                            <img src={msg.senderAvatar} alt={msg.senderName} className="w-full h-full object-cover" />
-                                        ) : (
-                                            (msg.senderName || user.full_name).charAt(0)
-                                        )
+                                        (() => {
+                                            const avatar = getEffectiveAvatar(msg.senderEmail, msg.senderAvatar);
+                                            return avatar ? (
+                                                <img src={avatar} alt={msg.senderName} className={`w-full h-full ${avatar.includes('icon-512') ? 'object-contain p-1.5 bg-slate-900' : 'object-cover'}`} />
+                                            ) : (
+                                                getUserInitials(msg.senderName || user.full_name)
+                                            );
+                                        })()
                                     ) : (
                                         <div className="scale-125">{msg.persona?.avatar}</div>
                                     )}

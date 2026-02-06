@@ -4,7 +4,7 @@ import { getCurrentUser } from './auth';
 export interface NotificationItem {
     id: string;
     title: string;
-    message: string; // Changed from content to match DB
+    message: string;
     created_at: string;
     is_read: boolean;
 }
@@ -20,6 +20,25 @@ const notifyListeners = (notifications: NotificationItem[]) => {
 };
 
 export const getNotifications = () => cachedNotifications;
+
+const maintainLimit = async (userId: string) => {
+    // Get all notifications IDs ordered by date
+    const { data } = await supabase
+        .from('notifications')
+        .select('id')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+    if (data && data.length > 10) {
+        const idsToDelete = data.slice(10).map(n => n.id);
+        if (idsToDelete.length > 0) {
+            await supabase
+                .from('notifications')
+                .delete()
+                .in('id', idsToDelete);
+        }
+    }
+};
 
 export const addNotification = async (notification: { title: string; message: string }) => {
     const user = await getCurrentUser();
@@ -37,6 +56,7 @@ export const addNotification = async (notification: { title: string; message: st
         .single();
 
     if (!error) {
+        await maintainLimit(user.id);
         fetchNotifications();
     }
     return { data, error };
@@ -46,15 +66,12 @@ export const fetchNotifications = async () => {
     const user = await getCurrentUser();
     if (!user) return [];
 
-    // Filter by created_at > 24 hours ago
-    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-
     const { data, error } = await supabase
         .from('notifications')
         .select('*')
         .eq('user_id', user.id)
-        .gt('created_at', oneDayAgo)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(10);
 
     if (error) {
         console.error('Error fetching notifications:', error);
@@ -100,12 +117,7 @@ const setupSubscription = async () => {
                 filter: `user_id=eq.${user.id}`,
             },
             (payload) => {
-                // Determine if we should play sound (handled in frontend usually, but we can emit event)
-                // fetch new list to ensure correct order/state
                 fetchNotifications();
-
-                // Optional: Trigger system notification sound here if desired
-                // or let the UI component handle "new item" effects
             }
         )
         .subscribe();
@@ -126,8 +138,6 @@ export const clearNotifications = async () => {
     const user = await getCurrentUser();
     if (!user) return;
 
-    // We can either delete them or just mark all as read?
-    // User asked "tills man tar bort alla", implying delete.
     const { error } = await supabase
         .from('notifications')
         .delete()

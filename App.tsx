@@ -35,41 +35,67 @@ const App: React.FC = () => {
   const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
-    const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+    // Check for standalone mode
+    const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
     setIsStandalone(!!isStandaloneMode);
 
-    // Sync state with history on mount
+    // Initial routing logic
+    const handleInitialRoute = () => {
+      const hash = window.location.hash;
+      const historyState = window.history.state;
+
+      // Priority 1: Standalone Mode
+      if (isStandaloneMode) {
+        // If in standalone, we ALWAYS want to be in the GemenskapApp context
+        // unless we are already there (which strict routing below handles)
+
+        // If no hash or specific landing hash, force premium login
+        if (!hash || hash === '#' || hash.includes('#home')) {
+          window.location.hash = '#premium-login';
+          setCurrentPage(Page.GEMENSKAP_APP);
+          window.history.replaceState({ page: Page.GEMENSKAP_APP }, '');
+          return;
+        }
+
+        // If has hash related to app, ensure Page is correct
+        if (hash.includes('#premium-login') || hash.includes('#login') || hash.includes('#signup') ||
+          hash.includes('#chat') || hash.includes('#dashboard') || hash.includes('#welcome') || hash.includes('#experts')) {
+          setCurrentPage(Page.GEMENSKAP_APP);
+          return;
+        }
+      }
+
+      // Priority 2: Explicit Hashes (Deep Linking for Web)
+      if (hash.includes('#login') || hash.includes('#premium-login') || hash.includes('#signup')) {
+        setCurrentPage(Page.GEMENSKAP_APP);
+        window.history.replaceState({ page: Page.GEMENSKAP_APP }, '');
+        return;
+      }
+
+      // Priority 3: History State
+      if (historyState && historyState.page) {
+        setCurrentPage(historyState.page);
+        return;
+      }
+
+      // Default: Home
+      if (currentPage !== Page.HOME) {
+        setCurrentPage(Page.HOME);
+      }
+    };
+
+    handleInitialRoute();
+
+    // Browser navigation (Back/Forward) handling
     const handlePopState = (event: PopStateEvent) => {
       if (event.state && event.state.page) {
         setCurrentPage(event.state.page);
       } else {
-        // Check hash if no state
-        if (window.location.hash.includes('#login') || window.location.hash.includes('#premium-login')) {
-          setCurrentPage(Page.GEMENSKAP_APP);
-        } else {
-          setCurrentPage(Page.HOME);
-        }
+        handleInitialRoute();
       }
     };
 
     window.addEventListener('popstate', handlePopState);
-
-    // Initial state check
-    const hash = window.location.hash;
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
-
-    if (hash.includes('#login') || hash.includes('#premium-login') || hash.includes('#signup')) {
-      setCurrentPage(Page.GEMENSKAP_APP);
-      window.history.replaceState({ page: Page.GEMENSKAP_APP }, '');
-    } else if (isStandalone && (currentPage === Page.HOME || !hash)) {
-      // If standalone and at home, force to community app
-      setCurrentPage(Page.GEMENSKAP_APP);
-      window.location.hash = '#premium-login';
-      window.history.replaceState({ page: Page.GEMENSKAP_APP }, '');
-    } else if (!window.history.state) {
-      window.history.replaceState({ page: currentPage }, '');
-    }
-
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 

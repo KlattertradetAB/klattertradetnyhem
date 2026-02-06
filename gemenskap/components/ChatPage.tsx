@@ -14,6 +14,7 @@ import { InviteFriendModal } from './InviteFriendModal';
 import { VideoRoom } from './VideoRoom';
 import { getNotifications, subscribeToNotifications, clearNotifications, NotificationItem, addNotification } from '../services/notificationStore';
 import { supabase } from '../services/supabase';
+import { getEffectiveAvatar } from '../services/userUtils';
 
 interface ChatPageProps {
     user: Profile;
@@ -48,6 +49,8 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
     const [notifications, setNotifications] = useState<NotificationItem[]>(getNotifications());
     const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
     const [showInviteModal, setShowInviteModal] = useState(false);
+    // Default to false so mobile users land on the Room List (Hub), desktop unaffected
+    const [mobileShowChat, setMobileShowChat] = useState(false);
 
     useEffect(() => {
         const unsubscribe = subscribeToNotifications((updatedNotifications) => {
@@ -77,7 +80,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
                     await channel.track({
                         user_id: user.id,
                         full_name: user.full_name,
-                        avatar_url: user.avatar_url,
+                        avatar_url: getEffectiveAvatar(user.email, user.avatar_url),
                         role: user.role,
                         online_at: new Date().toISOString(),
                     });
@@ -108,14 +111,15 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
                 <div className="flex flex-col items-center gap-10 w-full">
                     {/* User Avatar with Pulse indicator */}
                     <div className="relative group cursor-pointer mb-4 overflow-hidden rounded-2.5rem p-0.5 bg-gradient-to-tr from-white/10 to-transparent">
-                        <div className={`w-14 h-14 rounded-2.5rem flex items-center justify-center text-xl font-black text-white shadow-2xl group-hover:scale-105 transition-transform duration-500 overflow-hidden ${user.email === 'billy.ljungberg90@gmail.com' ? 'bg-slate-950 p-2' : 'bg-gradient-to-br from-orange-400 to-red-600'}`}>
-                            {user.email === 'billy.ljungberg90@gmail.com' ? (
-                                <img src="/assets/logo2.png" alt="Admin" className="w-full h-full object-contain" />
-                            ) : user.avatar_url ? (
-                                <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" />
-                            ) : (
-                                user.full_name.charAt(0)
-                            )}
+                        <div className={`w-14 h-14 rounded-2.5rem flex items-center justify-center text-xl font-black text-white shadow-2xl group-hover:scale-105 transition-transform duration-500 overflow-hidden ${getEffectiveAvatar(user.email, user.avatar_url)?.includes('icon-512') ? 'bg-slate-950 p-2' : 'bg-gradient-to-br from-orange-400 to-red-600'}`}>
+                            {(() => {
+                                const avatar = getEffectiveAvatar(user.email, user.avatar_url);
+                                return avatar ? (
+                                    <img src={avatar} alt={user.full_name} className={`w-full h-full ${avatar.includes('icon-512') ? 'object-contain' : 'object-cover'}`} />
+                                ) : (
+                                    user.full_name.charAt(0)
+                                );
+                            })()}
                         </div>
                         <div className="absolute bottom-1 right-1 w-4 h-4 bg-green-500 border-4 border-slate-900 rounded-full shadow-lg z-10"></div>
                         <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
@@ -163,8 +167,8 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
                 </div>
             </div>
 
-            {/* 2. Middle Sidebar (Content List) */}
-            <div className="hidden lg:flex w-80 bg-slate-900/40 border-r border-white/5 flex-col shrink-0 h-full">
+            {/* 2. Middle Sidebar (Content List) - Responsive: Full width on mobile when chat hidden, fixed width on desktop */}
+            <div className={`${mobileShowChat ? 'hidden lg:flex' : 'flex w-full'} lg:w-80 bg-slate-900/40 border-r border-white/5 flex-col shrink-0 h-full transition-all duration-300`}>
                 {activeNav === 'discussions' && (
                     <>
                         <div className="p-8 pb-6">
@@ -188,7 +192,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
                             </div>
                         </div>
 
-                        <div className="flex-grow overflow-y-auto px-2 pb-8 space-y-8 no-scrollbar scroll-smooth">
+                        <div className="flex-grow overflow-y-auto px-2 pb-24 md:pb-8 space-y-8 no-scrollbar scroll-smooth">
                             {/* Category: Public Rooms */}
                             <div className="space-y-3">
                                 <div className="px-4 flex items-center justify-between">
@@ -201,7 +205,12 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
                                         return (
                                             <button
                                                 key={room.id}
-                                                onClick={() => !locked && setActiveRoom(room.id)}
+                                                onClick={() => {
+                                                    if (!locked) {
+                                                        setActiveRoom(room.id);
+                                                        setMobileShowChat(true);
+                                                    }
+                                                }}
                                                 disabled={locked}
                                                 className={`w-[calc(100%-1rem)] mx-2 flex items-center gap-4 px-4 py-5 rounded-[2rem] transition-all duration-500 group relative 
                                                 ${activeRoom === room.id ? 'bg-white/10 shadow-2xl border border-white/5' : locked ? 'opacity-50 cursor-not-allowed' : 'text-slate-500 hover:bg-white/5 hover:text-white'}
@@ -244,7 +253,12 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
                                         return (
                                             <button
                                                 key={room.id}
-                                                onClick={() => !locked && setActiveRoom(room.id)}
+                                                onClick={() => {
+                                                    if (!locked) {
+                                                        setActiveRoom(room.id);
+                                                        setMobileShowChat(true);
+                                                    }
+                                                }}
                                                 disabled={locked}
                                                 className={`w-[calc(100%-1rem)] mx-2 flex items-center gap-4 px-4 py-5 rounded-[2rem] transition-all duration-500 group relative 
                                                     ${activeRoom === room.id ? 'bg-white/10 shadow-2xl border border-white/5' : locked ? 'opacity-50 cursor-not-allowed' : 'text-slate-500 hover:bg-white/5 hover:text-white'}
@@ -281,7 +295,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
                                 <UserPlus size={22} />
                             </button>
                         </div>
-                        <div className="space-y-2 overflow-y-auto no-scrollbar pb-8">
+                        <div className="space-y-2 overflow-y-auto no-scrollbar pb-24 md:pb-8">
                             {/* Render Online Users from Presence */}
                             {onlineUsers.map(p => (
                                 <div key={p.user_id} className="flex items-center gap-4 p-4 rounded-[2rem] hover:bg-white/5 transition-all cursor-pointer group border border-transparent hover:border-white/5">
@@ -334,7 +348,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
                                 Rensa alla
                             </button>
                         </div>
-                        <div className="space-y-4 overflow-y-auto no-scrollbar pb-10">
+                        <div className="space-y-4 overflow-y-auto no-scrollbar pb-24 md:pb-10">
                             {notifications.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
                                     <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center text-slate-700">
@@ -345,14 +359,14 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
                             ) : (
                                 notifications.map((n, i) => (
                                     <div key={n.id} className="flex gap-4 p-5 rounded-[2rem] bg-white/5 border border-white/5 hover:border-white/10 transition-all cursor-pointer group">
-                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${n.color} text-white`}>
-                                            {typeof n.icon === 'string' && n.icon.length < 4 ? <span className="text-lg">{n.icon}</span> : <Bell size={14} />}
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-orange-500/10 text-orange-400 border border-orange-500/20`}>
+                                            <Bell size={14} />
                                         </div>
                                         <div className="space-y-1">
                                             <h4 className="font-bold text-white text-sm group-hover:text-orange-400 transition-colors">{n.title}</h4>
-                                            <p className="text-xs text-zinc-500 leading-relaxed">{n.content}</p>
+                                            <p className="text-xs text-zinc-500 leading-relaxed">{n.message}</p>
                                             <p className="text-[10px] text-zinc-600 font-bold uppercase pt-1">
-                                                {new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                {new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </p>
                                         </div>
                                     </div>
@@ -416,11 +430,19 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
                 )}
             </div>
 
-            {/* 3. Main Chat Area */}
-            <div className="flex-1 flex flex-col bg-slate-950/20 min-w-0 max-w-full overflow-hidden">
+            {/* 3. Main Chat Area - Responsive: Hidden on mobile if viewing lists */}
+            <div className={`${!mobileShowChat ? 'hidden lg:flex' : 'flex'} flex-1 flex-col bg-slate-950/20 min-w-0 max-w-full overflow-hidden relative`}>
                 {/* Room Header (Exclusive Horizonten/Swipe Hybrid) */}
-                <div className="px-4 md:px-12 py-6 md:py-8 border-b border-white/5 flex items-center justify-between bg-slate-900/60 backdrop-blur-3xl relative z-20 shrink-0">
-                    <div className="flex items-center gap-4 md:gap-8">
+                <div className="px-4 md:px-12 py-4 md:py-8 border-b border-white/5 flex items-center justify-between bg-slate-900/60 backdrop-blur-3xl relative z-20 shrink-0">
+                    <div className="flex items-center gap-3 md:gap-8">
+                        {/* Mobile Back Button */}
+                        <button
+                            onClick={() => setMobileShowChat(false)}
+                            className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 text-slate-400 hover:text-white"
+                        >
+                            <ChevronLeft size={24} />
+                        </button>
+
                         <div className="relative">
                             <div className="w-20 h-20 bg-gradient-to-br from-slate-800 to-slate-900 rounded-[2.5rem] flex items-center justify-center text-orange-400 border border-white/10 shadow-2xl relative group cursor-pointer overflow-hidden">
                                 <div className="absolute inset-0 bg-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -496,6 +518,45 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
                     <NewThreadModal onClose={() => setShowNewThreadModal(false)} />
                 )
             }
+
+            {/* Mobile Bottom Navigation - Premium Glassmorphism (Hidden when in Chat) */}
+            {!mobileShowChat && (
+                <div className="md:hidden fixed bottom-0 left-0 right-0 bg-slate-950/80 backdrop-blur-xl border-t border-white/5 pb-safe pt-2 px-6 flex justify-between items-center z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+                    {[
+                        { id: 'chat', label: 'Chatt', icon: MessageCircle, action: () => setMobileShowChat(true) },
+                        { id: 'rooms', label: 'Rum', icon: LayoutGrid, action: () => { setMobileShowChat(false); setActiveNav('discussions'); } },
+                        { id: 'members', label: 'Medlemmar', icon: Users, action: () => { setMobileShowChat(false); setActiveNav('members'); } },
+                        { id: 'notifications', label: 'Notiser', icon: Bell, action: () => { setMobileShowChat(false); setActiveNav('notifications'); }, badge: notifications.length }
+                    ].map((item) => {
+                        const isActive = item.id === 'chat' ? mobileShowChat : (!mobileShowChat && activeNav === (item.id === 'rooms' ? 'discussions' : item.id));
+                        return (
+                            <button
+                                key={item.id}
+                                onClick={item.action}
+                                className={`flex flex-col items-center gap-1 p-2 rounded-2xl transition-all duration-300 relative group ${isActive ? 'text-orange-400' : 'text-slate-500'}`}
+                            >
+                                <div className={`
+                                p-2 rounded-2xl transition-all duration-300
+                                ${isActive ? 'bg-orange-500/10 scale-100' : 'group-active:scale-95'}
+                            `}>
+                                    <item.icon size={24} className={isActive ? 'fill-orange-500/20' : ''} />
+                                </div>
+                                <span className={`text-[10px] font-bold tracking-wide transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-60'}`}>
+                                    {item.label}
+                                </span>
+                                {isActive && (
+                                    <div className="absolute top-1 w-1 h-1 bg-orange-400 rounded-full shadow-[0_0_10px_rgba(249,115,22,1)]"></div>
+                                )}
+                                {item.badge ? (
+                                    <div className="absolute top-2 right-2 w-3.5 h-3.5 bg-red-500 rounded-full text-[9px] flex items-center justify-center text-white font-bold border border-slate-950">
+                                        {item.badge}
+                                    </div>
+                                ) : null}
+                            </button>
+                        )
+                    })}
+                </div>
+            )}
         </div >
     );
 };

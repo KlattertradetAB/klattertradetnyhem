@@ -17,6 +17,7 @@ import { LogOut, LayoutGrid, MessageSquare, ArrowLeft, Menu, X, Users, Bot, Mess
 import { SettingsModal } from './components/SettingsModal';
 import { InstallButton } from './components/InstallButton';
 import AssistantFab from './components/Assistant/AssistantFab';
+import { getEffectiveAvatar } from './services/userUtils';
 
 interface GemenskapAppProps {
   onBackToSite: (page?: Page) => void;
@@ -138,6 +139,11 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
           // Truncate content to first 3 words
           const snippet = newMsg.content.split(' ').slice(0, 3).join(' ') + (newMsg.content.split(' ').length > 3 ? '...' : '');
 
+          // Save to notification history (persisted in DB)
+          const { addNotification } = await import('./services/notificationStore');
+          await addNotification({ title: `Nytt från ${senderName}`, message: snippet });
+
+          // Show browser notification immediately
           sendNotification(`Nytt från ${senderName}`, snippet);
         }
       })
@@ -209,29 +215,6 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
     };
   }, [authStatus, isPremiumView]);
 
-  // TEMPORARY: Grant Admin Role to Billy
-  useEffect(() => {
-    const grantAdmin = async () => {
-      if (user?.email === 'billy.ljungberg90@gmail.com' && user.role !== 'admin') {
-        console.log('Attempting to grant admin role...');
-        const { error } = await supabase
-          .from('profiles')
-          .update({ role: 'admin' })
-          .eq('id', user.id);
-
-        if (!error) {
-          console.log('Admin role granted! Refreshing user data...');
-          setUser(prev => prev ? ({ ...prev, role: 'admin' }) : null);
-          alert('Admin-rättigheter har aktiverats för ditt konto! Du har nu tillgång till Admin-panelen.');
-        } else {
-          console.error('Failed to grant admin:', error);
-          alert('Kunde inte uppdatera rollen automatiskt (RLS stoppade det). Du måste köra SQL-skriptet i Supabase.');
-        }
-      }
-    };
-
-    if (user) grantAdmin();
-  }, [user]);
 
   // 3. Handlers
   const handleLoginClick = () => {
@@ -394,13 +377,14 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
               <div className="px-4 py-4 space-y-3">
                 <div className="flex items-center gap-3 px-2 mb-6">
                   <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-orange-400 to-red-600 flex items-center justify-center text-xs font-bold text-white border border-white/10">
-                    {user.email === 'billy.ljungberg90@gmail.com' ? (
-                      <img src="/assets/logo2.png" alt="Admin" className="w-full h-full object-cover p-1.5 bg-slate-900" />
-                    ) : user.avatar_url ? (
-                      <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" />
-                    ) : (
-                      user.full_name.charAt(0)
-                    )}
+                    {(() => {
+                      const avatar = getEffectiveAvatar(user.email, user.avatar_url);
+                      return avatar ? (
+                        <img src={avatar} alt={user.full_name} className={`w-full h-full ${getEffectiveAvatar(user.email) ? 'object-contain p-1.5 bg-slate-900' : 'object-cover'}`} />
+                      ) : (
+                        user.full_name.charAt(0)
+                      );
+                    })()}
                   </div>
                   <span className="font-semibold text-white">{user.full_name}</span>
                 </div>
@@ -511,11 +495,14 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
               <button onClick={() => setSettingsOpen(true)} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors text-slate-400 hover:text-white group">
                 <div className="relative">
                   <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-800">
-                    {user.avatar_url ? (
-                      <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-xs font-bold">{user.full_name?.[0]}</div>
-                    )}
+                    {(() => {
+                      const avatar = getEffectiveAvatar(user.email, user.avatar_url);
+                      return avatar ? (
+                        <img src={avatar} alt="" className={`w-full h-full ${getEffectiveAvatar(user.email) ? 'object-contain p-1.5 bg-slate-900' : 'object-cover'}`} />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-xs font-bold">{user.full_name?.[0]}</div>
+                      );
+                    })()}
                   </div>
                   <div className="absolute -bottom-1 -right-1 bg-green-500 w-3 h-3 rounded-full border-2 border-slate-950"></div>
                 </div>
@@ -610,13 +597,15 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
           <GL hovering={true} />
         </div>
 
-        <button
-          onClick={handleBackToLanding}
-          className="absolute top-8 left-8 text-slate-400 hover:text-white flex items-center gap-2 transition-colors z-50 group px-4 py-2 rounded-full hover:bg-white/5"
-        >
-          <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-          Tillbaka
-        </button>
+        {!isStandalone && (
+          <button
+            onClick={handleBackToLanding}
+            className="absolute top-8 left-8 text-slate-400 hover:text-white flex items-center gap-2 transition-colors z-50 group px-4 py-2 rounded-full hover:bg-white/5"
+          >
+            <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+            Tillbaka
+          </button>
+        )}
 
         <div className="relative z-10 w-full max-w-md bg-black/40 backdrop-blur-3xl p-8 rounded-[2.5rem] border border-white/5 shadow-2xl">
           <div className="mb-8 flex justify-center">
