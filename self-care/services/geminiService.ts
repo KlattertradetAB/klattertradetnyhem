@@ -2,13 +2,14 @@ import { GoogleGenAI, Type } from "@google/genai";
 import type { AnalysisResult, LanguageCode } from '../types';
 import { getTranslatedQuestions } from '../constants';
 
-const API_KEY = process.env.API_KEY;
-
-if (!API_KEY) {
-  throw new Error("API_KEY environment variable not set");
-}
-
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+const getAI = () => {
+  const API_KEY = process.env.API_KEY;
+  if (!API_KEY) {
+    console.error("API_KEY environment variable not set");
+    throw new Error("API_KEY environment variable not set");
+  }
+  return new GoogleGenAI({ apiKey: API_KEY });
+};
 
 const responseSchema = {
   type: Type.OBJECT,
@@ -101,6 +102,7 @@ export const analyzeAnswers = async (scores: number[], lang: LanguageCode): Prom
   `;
 
   try {
+    const ai = getAI();
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt,
