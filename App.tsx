@@ -25,7 +25,7 @@ import PremiumApplication from './pages/PremiumApplication';
 import FreeRegistration from './pages/FreeRegistration';
 import { Page } from './types';
 import GestaltApp from './gestalt-filosofi/App';
-import { App as MiTEbookApp } from './myndighetsinducerat-trauma---från-subjekt-till-objekt/App';
+import { App as MiTEbookApp } from './mit-ebook/App';
 import { LanguageProvider as SelfCareLanguageProvider } from './self-care/contexts/LanguageContext';
 import { ThemeProvider as SelfCareThemeProvider } from './self-care/contexts/ThemeContext';
 
