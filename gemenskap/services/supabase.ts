@@ -9,7 +9,29 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Missing Supabase environment variables. Please check .env.local');
 }
 
-export const supabase = createClient(
-  supabaseUrl || '',
-  supabaseAnonKey || ''
-);
+// Fallback dummy client to prevent crash if env vars are missing
+const MockClient = {
+  auth: {
+    getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+    onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => { } } } }),
+    getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+    startAutoRefresh: () => { },
+    stopAutoRefresh: () => { },
+  },
+  from: () => ({
+    select: () => ({
+      eq: () => ({ single: () => Promise.resolve({ data: null, error: null }) }),
+      insert: () => Promise.resolve({ data: null, error: null }),
+      upsert: () => Promise.resolve({ data: null, error: null }),
+    }),
+  }),
+  channel: () => ({
+    on: () => ({ subscribe: () => { } }),
+    unsubscribe: () => { },
+  }),
+  removeChannel: () => { },
+} as any;
+
+export const supabase = (supabaseUrl && supabaseAnonKey)
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : MockClient;
