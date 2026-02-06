@@ -67,7 +67,7 @@ const languageNames: Record<LanguageCode, string> = {
 
 export const analyzeAnswers = async (scores: number[], lang: LanguageCode): Promise<AnalysisResult> => {
   const quizQuestions = getTranslatedQuestions(lang);
-  const formattedAnswers = quizQuestions.map((q, i) => 
+  const formattedAnswers = quizQuestions.map((q, i) =>
     `Question ${q.id} (${q.category}): Score ${scores[i].toFixed(2)}`
   ).join('\n');
 
@@ -78,8 +78,8 @@ export const analyzeAnswers = async (scores: number[], lang: LanguageCode): Prom
     }
   });
   const categoryList = Array.from(categoryMap.entries())
-                            .map(([code, name]) => `${name} (${code})`)
-                            .join(', ');
+    .map(([code, name]) => `${name} (${code})`)
+    .join(', ');
 
   const prompt = `
     Analyze the following survey responses about core emotional wounds. The response MUST be in ${languageNames[lang]}.
@@ -110,7 +110,7 @@ export const analyzeAnswers = async (scores: number[], lang: LanguageCode): Prom
       },
     });
 
-    const jsonText = response.text.trim();
+    const jsonText = response.text?.trim() || '{}';
     const result = JSON.parse(jsonText) as AnalysisResult;
     result.allScores.forEach(s => s.score = Math.round(s.score));
     result.primaryWound.score = Math.round(result.primaryWound.score);
