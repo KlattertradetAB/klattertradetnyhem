@@ -13,14 +13,6 @@ const Downloads: React.FC<DownloadsProps> = ({ setPage }) => {
       category: "E-böcker",
       items: [
         {
-          title: "Myndighetsinducerat trauma - En introduktion",
-          desc: "En sammanfattning av grunderna i MiT-modellen och hur du börjar din läkningsresa.",
-          icon: Book,
-          color: "text-amber-400",
-          size: "Online",
-          page: Page.MIT_EBOOK
-        },
-        {
           title: "Gestaltterapi i vardagen",
           desc: "Praktiska verktyg för att använda gestaltmetodik i dina nära relationer.",
           icon: Book,

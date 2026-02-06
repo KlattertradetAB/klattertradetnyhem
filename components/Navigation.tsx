@@ -39,7 +39,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
   }, []);
 
   const isServicesActive = [Page.CHAT, Page.THERAPY, Page.GROUP_THERAPY, Page.GESTALT_TRAINING, Page.BEHANDLINGS_PEDAGOG].includes(currentPage);
-  const isResourcesActive = [Page.COMMUNITY, Page.SURVEY, Page.DOWNLOADS, Page.MIT_EBOOK].includes(currentPage);
+  const isResourcesActive = [Page.COMMUNITY, Page.SURVEY, Page.DOWNLOADS].includes(currentPage);
 
   return (
     <header className="p-4 md:p-5">
@@ -188,18 +188,6 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
                     </div>
                   </button>
 
-                  <button
-                    onClick={() => handleNavClick(Page.MIT_EBOOK)}
-                    className={`w-full text-left px-3 py-3 rounded-xl transition-colors flex items-center gap-3 ${currentPage === Page.MIT_EBOOK ? 'bg-amber-600/20 text-amber-400' : 'hover:bg-white/5 text-white/90'}`}
-                  >
-                    <div className="p-2 bg-white/5 rounded-lg">
-                      <BookOpen size={18} />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="font-bold text-sm">MiT E-bok</span>
-                      <span className="text-[10px] opacity-60">Introduktion till MiT</span>
-                    </div>
-                  </button>
                 </div>
               )}
             </div>
@@ -274,7 +262,6 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
                     <button onClick={() => handleNavClick(Page.COMMUNITY)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.COMMUNITY ? 'text-amber-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>Gemenskap</button>
                     <button onClick={() => handleNavClick(Page.SURVEY)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.SURVEY ? 'text-blue-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>Enkät och utredning</button>
                     <button onClick={() => handleNavClick(Page.DOWNLOADS)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.DOWNLOADS ? 'text-emerald-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>Nedladdningar</button>
-                    <button onClick={() => handleNavClick(Page.MIT_EBOOK)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.MIT_EBOOK ? 'text-amber-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>MiT E-bok (Introduktion)</button>
                   </div>
                 </div>
 
