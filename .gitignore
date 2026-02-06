@@ -9,6 +9,8 @@
 
 # production
 /build
+/dist
+/dist-ssr
 
 # debug
 npm-debug.log*
