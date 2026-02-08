@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Mail, Phone, User, Send, CheckCircle2, ArrowLeft, CreditCard } from 'lucide-react';
+import { Mail, Phone, User, Send, CheckCircle2, ArrowLeft, Lock, Loader2 } from 'lucide-react';
 import { Page } from '../types';
+import { supabase } from '../gemenskap/services/supabase';
 
 interface PremiumApplicationProps {
     setPage: (page: Page) => void;
@@ -8,39 +9,54 @@ interface PremiumApplicationProps {
 
 const PremiumApplication: React.FC<PremiumApplicationProps> = ({ setPage }) => {
     const [submitted, setSubmitted] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         phone: '',
+        password: '',
         reason: '',
-        paymentInterval: 'monthly',
-        paymentMethod: 'swish'
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setLoading(true);
+        setError(null);
 
-        // In a real app, this would send to a server. 
-        // For now, we simulate success and provide instructions or use mailto if desired.
-        // The user requested data to be sent to billy@klattertradet.se
+        try {
+            const { data, error: signUpError } = await supabase.auth.signUp({
+                email: formData.email,
+                password: formData.password,
+                options: {
+                    emailRedirectTo: window.location.origin,
+                    data: {
+                        full_name: formData.name,
+                        phone: formData.phone,
+                        application_reason: formData.reason,
+                        membership_level: 2, // Default to premium level since it's free now
+                        role: 'medlem',
+                        membership_active: true
+                    }
+                }
+            });
 
-        const subject = encodeURIComponent(`Ansökan om Premium Medlemskap: ${formData.name}`);
-        const body = encodeURIComponent(
-            `Namn: ${formData.name}\n` +
-            `E-post: ${formData.email}\n` +
-            `Telefon: ${formData.phone}\n` +
-            `Betalningsintervall: ${formData.paymentInterval === 'monthly' ? 'Månadsvis (250 kr/mån)' : 'Årsvis (2500 kr/år)'}\n\n` +
-            `Motivering/Bakgrund:\n${formData.reason}`
-        );
+            if (signUpError) throw signUpError;
 
-        // We can trigger mailto or just show success. 
-        // Showing success is cleaner for UX, but mailto ensures the data reaches the destination if no backend.
-        window.location.href = `mailto:billy@klattertradet.se?subject=${subject}&body=${body}`;
+            // If signup successful, show success screen
+            if (data.user) {
+                setSubmitted(true);
+            }
 
-        setSubmitted(true);
+        } catch (err: any) {
+            console.error('Signup error:', err);
+            setError(err.message || 'Ett fel uppstod vid registreringen. Försök igen.');
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
@@ -55,53 +71,19 @@ const PremiumApplication: React.FC<PremiumApplicationProps> = ({ setPage }) => {
                         <CheckCircle2 className="w-10 h-10 text-amber-500" />
                     </div>
 
-                    <h2 className="text-3xl font-bold text-white mb-4">Ansökan mottagen!</h2>
+                    <h2 className="text-3xl font-bold text-white mb-4">Välkommen till Gemenskapen!</h2>
                     <p className="text-zinc-400 mb-10 leading-relaxed text-lg">
-                        För att slutföra din ansökan och få tillgång till gemenskapen behöver vi din betalning.
-                        (Under testperioden är detta steg <span className="text-orange-500 font-bold uppercase tracking-widest">valfritt</span>).
+                        Ditt konto har skapats. Vi har skickat ett verifieringsmail till <span className="text-white font-bold">{formData.email}</span>.
                     </p>
 
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-8 mb-10 text-left space-y-6">
-                        <h3 className="text-white font-black uppercase tracking-widest text-xs text-center border-b border-white/10 pb-4">Betalningsinstruktioner</h3>
-
-                        <div className="space-y-4">
-                            <div className="flex justify-between items-center group">
-                                <span className="text-zinc-500 text-sm">Belopp att betala:</span>
-                                <span className="text-white font-bold text-xl">{formData.paymentInterval === 'monthly' ? '250 kr' : '2500 kr'}</span>
-                            </div>
-
-                            <div className="space-y-4 pt-2">
-                                <div className="p-4 bg-orange-500/10 border border-orange-500/30 rounded-xl flex items-center justify-between">
-                                    <div className="flex flex-col">
-                                        <span className="text-orange-500 text-[10px] font-black uppercase tracking-wider mb-1">Swish</span>
-                                        <span className="text-white font-sans font-bold text-lg tracking-wider">123 456 78 90</span>
-                                    </div>
-                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Swish_Logo.svg/1200px-Swish_Logo.svg.png" alt="Swish" className="w-10 h-10 object-contain" />
-                                </div>
-
-                                <div className="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between">
-                                    <div className="flex flex-col">
-                                        <span className="text-zinc-500 text-[10px] font-black uppercase tracking-wider mb-1">Bankgiro</span>
-                                        <span className="text-white font-sans font-bold text-lg tracking-wider">XXXX-XXXX</span>
-                                    </div>
-                                    <div className="w-10 h-10 flex items-center justify-center">
-                                        <CreditCard className="text-zinc-500" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="pt-4 border-t border-white/10">
-                                <p className="text-zinc-500 text-[11px] leading-relaxed">
-                                    <span className="text-white font-bold">Viktigt:</span> Ange ditt fullständiga namn ({formData.name}) som meddelande vid betalning så att vi kan koppla den till din ansökan.
-                                </p>
-                            </div>
-                        </div>
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-8 mb-10 text-left space-y-4">
+                        <h3 className="text-white font-bold text-center">Nästa steg</h3>
+                        <ol className="list-decimal pl-5 space-y-3 text-zinc-300 text-sm">
+                            <li>Öppna din e-postkorg.</li>
+                            <li>Klicka på länken i mailet från oss.</li>
+                            <li>När du verifierat din e-post kan du logga in direkt.</li>
+                        </ol>
                     </div>
-
-                    <p className="text-zinc-500 text-sm mb-10">
-                        Ett bekräftelsemejl har skickats till <span className="text-white">{formData.email}</span>.
-                        När betalningen registrerats (vanligtvis inom 24h) skickas dina inloggningsuppgifter.
-                    </p>
 
                     <div className="flex flex-col gap-3">
                         <button
@@ -111,16 +93,9 @@ const PremiumApplication: React.FC<PremiumApplicationProps> = ({ setPage }) => {
                             }}
                             className="w-full py-4 bg-orange-500 hover:bg-orange-400 text-black font-bold rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-orange-500/20"
                         >
-                            Logga in direkt (Testläge - ingen betalning krävs)
-                        </button>
-                        <button
-                            onClick={() => setPage(Page.HOME)}
-                            className="w-full py-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold rounded-xl transition-all active:scale-[0.98]"
-                        >
-                            Tillbaka till startsidan
+                            Till inloggningen
                         </button>
                     </div>
-                    <p className="text-[10px] text-zinc-600 mt-6 italic">Frågor? Kontakta oss på billy@klattertradet.se</p>
                 </div>
             </div>
         );
@@ -139,13 +114,19 @@ const PremiumApplication: React.FC<PremiumApplicationProps> = ({ setPage }) => {
 
                 <div className="glass-card p-8 md:p-12">
                     <div className="mb-12">
-                        <h1 className="text-4xl font-bold text-white mb-4">Ansök om Premium Medlemskap</h1>
+                        <h1 className="text-4xl font-bold text-white mb-4">Bli medlem i Gemenskapen</h1>
                         <p className="text-zinc-400 text-lg">
-                            Fyll i formuläret nedan för att påbörja din ansökan. Vi granskar alla medlemskap manuellt för att säkerställa kvaliteten i vår community.
+                            Just nu är det kostnadsfritt att gå med. Fyll i dina uppgifter nedan för att skapa ditt konto.
                         </p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
+                        {error && (
+                            <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl text-red-200 text-sm">
+                                {error}
+                            </div>
+                        )}
+
                         <div className="grid md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-zinc-300 ml-1">Fullständigt namn</label>
@@ -198,91 +179,46 @@ const PremiumApplication: React.FC<PremiumApplicationProps> = ({ setPage }) => {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-zinc-300 ml-1">Önskad betalningsplan</label>
+                                <label className="text-sm font-medium text-zinc-300 ml-1">Lösenord</label>
                                 <div className="relative">
-                                    <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
-                                    <select
-                                        name="paymentInterval"
-                                        value={formData.paymentInterval}
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
+                                    <input
+                                        required
+                                        type="password"
+                                        name="password"
+                                        value={formData.password}
                                         onChange={handleChange}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white appearance-none focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all font-medium cursor-pointer"
-                                    >
-                                        <option value="monthly">250 kr / månad</option>
-                                        <option value="yearly">2500 kr / år (Spara 500 kr)</option>
-                                    </select>
+                                        placeholder="Välj ett starkt lösenord"
+                                        minLength={6}
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all font-medium"
+                                    />
                                 </div>
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-zinc-300 ml-1">Varför vill du gå med i Premium?</label>
+                            <label className="text-sm font-medium text-zinc-300 ml-1">Varför vill du gå med?</label>
                             <textarea
                                 required
                                 name="reason"
                                 value={formData.reason}
                                 onChange={handleChange}
-                                placeholder="Berätta lite kort om dig själv och vad du hoppas få ut av gemenskapen..."
-                                rows={5}
+                                placeholder="Berätta lite kort om dig själv..."
+                                rows={3}
                                 className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all font-medium resize-none"
                             />
                         </div>
 
-                        <div className="space-y-4">
-                            <label className="text-sm font-medium text-zinc-300 ml-1">Välj betalsätt</label>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <label className={`flex items-center gap-4 p-4 rounded-xl border transition-all cursor-pointer ${formData.paymentMethod === 'swish' ? 'bg-orange-500/10 border-orange-500' : 'bg-white/5 border-white/10 hover:border-white/20'}`}>
-                                    <input
-                                        type="radio"
-                                        name="paymentMethod"
-                                        value="swish"
-                                        checked={formData.paymentMethod === 'swish'}
-                                        onChange={handleChange}
-                                        className="hidden"
-                                    />
-                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${formData.paymentMethod === 'swish' ? 'border-orange-500' : 'border-zinc-600'}`}>
-                                        {formData.paymentMethod === 'swish' && <div className="w-2.5 h-2.5 bg-orange-500 rounded-full" />}
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="font-bold text-white text-sm">Swish</span>
-                                        <span className="text-[10px] text-zinc-500 uppercase font-black">Direktbetalning</span>
-                                    </div>
-                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Swish_Logo.svg/1200px-Swish_Logo.svg.png" alt="Swish" className="w-8 h-8 ml-auto object-contain" />
-                                </label>
-
-                                <label className={`flex items-center gap-4 p-4 rounded-xl border transition-all cursor-pointer ${formData.paymentMethod === 'card' ? 'bg-orange-500/10 border-orange-500' : 'bg-white/5 border-white/10 hover:border-white/20'}`}>
-                                    <input
-                                        type="radio"
-                                        name="paymentMethod"
-                                        value="card"
-                                        checked={formData.paymentMethod === 'card'}
-                                        onChange={handleChange}
-                                        className="hidden"
-                                    />
-                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${formData.paymentMethod === 'card' ? 'border-orange-500' : 'border-zinc-600'}`}>
-                                        {formData.paymentMethod === 'card' && <div className="w-2.5 h-2.5 bg-orange-500 rounded-full" />}
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="font-bold text-white text-sm">Kort</span>
-                                        <span className="text-[10px] text-zinc-500 uppercase font-black">Visa / Mastercard</span>
-                                    </div>
-                                    <div className="flex gap-1 ml-auto">
-                                        <CreditCard size={20} className="text-zinc-400" />
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-
                         {/* Terms and Conditions */}
                         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-4">
-                            <h3 className="text-white font-bold text-sm">Betalnings- och medlemsvillkor</h3>
+                            <h3 className="text-white font-bold text-sm">Medlemsvillkor</h3>
                             <div className="text-xs text-zinc-400 leading-relaxed space-y-2 max-h-32 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/10">
-                                <p>Genom att slutföra ansökan och betalning godkänner du följande villkor:</p>
+                                <p>Genom att skapa ett konto godkänner du följande:</p>
                                 <ul className="list-disc pl-4 space-y-1">
-                                    <li>Medlemskapet aktiveras så snart betalningen har registrerats och din profil har verifierats manuellt.</li>
-                                    <li>Betalning sker i förskott och förnyas automatiskt enligt valt intervall (månad/år).</li>
-                                    <li>Du kan när som helst säga upp ditt medlemskap via dina inställningar. Ingen återbetalning sker för påbörjad period.</li>
-                                    <li>Innehåll i gemenskapen är skyddat och får inte spridas utanför plattformen.</li>
+                                    <li>Vi sparar dina uppgifter för att administrera ditt medlemskap.</li>
+                                    <li>Du måste verifiera din e-postadress för att kunna logga in.</li>
                                     <li>Respektfullt bemötande är ett krav för fortsatt medlemskap.</li>
+                                    <li>Innehåll i gemenskapen får ej spridas vidare.</li>
                                 </ul>
                             </div>
                             <label className="flex items-start gap-3 cursor-pointer group pt-2">
@@ -292,17 +228,24 @@ const PremiumApplication: React.FC<PremiumApplicationProps> = ({ setPage }) => {
                                     className="mt-1 w-4 h-4 rounded border-white/20 bg-white/5 text-orange-500 focus:ring-orange-500 focus:ring-offset-0"
                                 />
                                 <span className="text-xs text-zinc-500 group-hover:text-zinc-300 transition-colors">
-                                    Jag godkänner betalningsvillkoren och bekräftar att jag förstår att tillgång till gemenskapen kräver genomförd betalning.
+                                    Jag godkänner medlemsvillkoren.
                                 </span>
                             </label>
                         </div>
 
                         <button
                             type="submit"
-                            className="w-full py-5 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl transition-all flex items-center justify-center gap-3 text-lg group active:scale-95 shadow-[0_10px_30px_rgba(245,158,11,0.2)]"
+                            disabled={loading}
+                            className="w-full py-5 bg-amber-500 hover:bg-amber-400 disabled:bg-amber-500/50 text-black font-bold rounded-xl transition-all flex items-center justify-center gap-3 text-lg group active:scale-95 shadow-[0_10px_30px_rgba(245,158,11,0.2)]"
                         >
-                            <Send className="w-5 h-5 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-                            Gå vidare till betalning
+                            {loading ? (
+                                <Loader2 className="w-6 h-6 animate-spin" />
+                            ) : (
+                                <>
+                                    <Send className="w-5 h-5 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                                    Skapa konto
+                                </>
+                            )}
                         </button>
                     </form>
                 </div>

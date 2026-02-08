@@ -98,15 +98,166 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                         </div>
                     </div>
                 )}
+                {activeSection === 'blog' && (
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-xl font-bold text-white">Skapa nytt blogginlägg</h3>
+                            <button onClick={() => setActiveSection('overview')} className="text-orange-500 hover:text-orange-400 font-bold text-sm">
+                                Avbryt
+                            </button>
+                        </div>
+                        <form onSubmit={async (e) => {
+                            e.preventDefault();
+                            const form = e.target as HTMLFormElement;
+                            const title = (form.elements.namedItem('title') as HTMLInputElement).value;
+                            const description = (form.elements.namedItem('description') as HTMLTextAreaElement).value;
+                            const content = (form.elements.namedItem('content') as HTMLTextAreaElement).value;
 
-                {activeSection !== 'overview' && (
+                            try {
+                                const { error } = await supabase.from('blogs').insert({
+                                    title,
+                                    description,
+                                    content,
+                                    user_id: user.id,
+                                    author_name: user.full_name || 'Admin',
+                                    created_at: new Date().toISOString(),
+                                });
+
+                                if (error) throw error;
+
+                                alert('Blogginlägg skapat!');
+                                form.reset();
+                                setActiveSection('overview');
+                            } catch (error) {
+                                console.error('Error creating blog post:', error);
+                                alert('Kunde inte skapa blogginlägg. Försök igen.');
+                            }
+                        }} className="space-y-4">
+                            <div>
+                                <label className="block text-slate-400 text-sm font-bold mb-2">Rubrik</label>
+                                <input
+                                    name="title"
+                                    type="text"
+                                    required
+                                    className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-colors"
+                                    placeholder="Vad ska blogginlägget heta?"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-slate-400 text-sm font-bold mb-2">Kort beskrivning</label>
+                                <textarea
+                                    name="description"
+                                    required
+                                    rows={2}
+                                    className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-colors resize-none"
+                                    placeholder="En kort ingress som lockar till läsning..."
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-slate-400 text-sm font-bold mb-2">Bloggtext</label>
+                                <textarea
+                                    name="content"
+                                    required
+                                    rows={12}
+                                    className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-colors resize-none font-mono text-sm leading-relaxed"
+                                    placeholder="Skriv ditt inlägg här..."
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                className="w-full bg-orange-500 hover:bg-orange-600 text-slate-950 font-black py-4 rounded-xl transition-all shadow-lg shadow-orange-500/20"
+                            >
+                                Publicera inlägg
+                            </button>
+                        </form>
+                    </div>
+                )}
+
+                {activeSection === 'threads' && (
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-xl font-bold text-white">Skapa ny tråd</h3>
+                            <button onClick={() => setActiveSection('overview')} className="text-orange-500 hover:text-orange-400 font-bold text-sm">
+                                Avbryt
+                            </button>
+                        </div>
+                        <form onSubmit={async (e) => {
+                            e.preventDefault();
+                            const form = e.target as HTMLFormElement;
+                            const title = (form.elements.namedItem('title') as HTMLInputElement).value;
+                            const description = (form.elements.namedItem('description') as HTMLTextAreaElement).value;
+                            const category = (form.elements.namedItem('category') as HTMLSelectElement).value;
+
+                            try {
+                                const { error } = await supabase.from('threads').insert({
+                                    title,
+                                    description,
+                                    category,
+                                    user_id: user.id,
+                                    author_name: user.full_name || 'Admin',
+                                    created_at: new Date().toISOString(),
+                                });
+
+                                if (error) throw error;
+
+                                alert('Tråd skapad!');
+                                form.reset();
+                                setActiveSection('overview');
+                            } catch (error) {
+                                console.error('Error creating thread:', error);
+                                alert('Kunde inte skapa tråd. Försök igen.');
+                            }
+                        }} className="space-y-4">
+                            <div>
+                                <label className="block text-slate-400 text-sm font-bold mb-2">Rubrik</label>
+                                <input
+                                    name="title"
+                                    type="text"
+                                    required
+                                    className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-colors"
+                                    placeholder="Vad handlar tråden om?"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-slate-400 text-sm font-bold mb-2">Kategori</label>
+                                <select
+                                    name="category"
+                                    className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-colors"
+                                >
+                                    <option value="general">Allmänt</option>
+                                    <option value="announcements">Meddelanden</option>
+                                    <option value="support">Stöd</option>
+                                    <option value="events">Event</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-slate-400 text-sm font-bold mb-2">Beskrivning</label>
+                                <textarea
+                                    name="description"
+                                    required
+                                    rows={4}
+                                    className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-colors resize-none"
+                                    placeholder="Beskriv ämnet..."
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                className="w-full bg-orange-500 hover:bg-orange-600 text-slate-950 font-black py-4 rounded-xl transition-all shadow-lg shadow-orange-500/20"
+                            >
+                                Publicera tråd
+                            </button>
+                        </form>
+                    </div>
+                )}
+
+                {activeSection !== 'overview' && activeSection !== 'threads' && activeSection !== 'blog' && (
                     <div className="flex flex-col items-center justify-center py-20 text-center space-y-6">
                         <div className="w-20 h-20 bg-orange-500/10 rounded-3xl flex items-center justify-center animate-pulse">
                             <Plus size={40} className="text-orange-500" />
                         </div>
                         <div className="space-y-2">
                             <h3 className="text-2xl font-bold text-white">Hantering av {activeSection}</h3>
-                            <p className="text-slate-400 max-w-md mx-auto">Här kommer du kunna skapa, redigera och ta bort {activeSection === 'blog' ? 'blogginlägg' : activeSection === 'threads' ? 'trådar' : 'innehåll'}. Denna funktion byggs ut i nästa steg.</p>
+                            <p className="text-slate-400 max-w-md mx-auto">Här kommer du kunna skapa, redigera och ta bort innehåll. Denna funktion byggs ut i nästa steg.</p>
                         </div>
                         <button onClick={() => setActiveSection('overview')} className="px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-white font-bold transition-all flex items-center gap-2">
                             <ArrowLeft size={18} /> Tillbaka till överblick

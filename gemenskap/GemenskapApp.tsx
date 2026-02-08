@@ -32,7 +32,7 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showPremiumIntro, setShowPremiumIntro] = useState(false);
-  const [isPremiumView, setIsPremiumView] = useState(false);
+  const [isPremiumView, setIsPremiumView] = useState(true);
   const [initialView, setInitialView] = useState<'login' | 'signup'>('login');
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [navHistory, setNavHistory] = useState<{ tab: string; topic: string | null }[]>([]);
@@ -513,8 +513,12 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
                 <Settings size={16} className="opacity-0 group-hover:opacity-100 transition-opacity" />
               </button>
 
-              <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-500 hover:text-red-400 transition-colors uppercase tracking-widest pl-6">
-                <LogOut size={14} /> Logga ut
+              <button
+                onClick={handleLogout}
+                className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 backdrop-blur-sm transition-all duration-300 shadow-lg hover:shadow-red-900/20 group"
+              >
+                <LogOut size={16} className="text-red-400 group-hover:scale-110 transition-transform" />
+                <span className="font-medium text-red-200 group-hover:text-white transition-colors">Logga ut</span>
               </button>
             </div>
           </aside>
@@ -615,6 +619,7 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
             <PremiumLogin
               onLoginSuccess={handleLoginSuccess}
               isStandalone={isStandalone}
+              onRegister={() => onBackToSite(Page.PREMIUM_APPLICATION)}
               onBack={() => {
                 setShowPremiumIntro(true);
                 setShowLogin(false);

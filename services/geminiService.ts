@@ -9,9 +9,10 @@ export const streamChatResponse = async (
   history: { role: 'user' | 'model'; parts: { text: string }[] }[]
 ): Promise<AsyncGenerator<string, void, unknown>> => {
   // Create a new instance right before use to ensure it uses the most up-to-date API key.
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyDB3okRgXzyM5Hxo9BjknJZ6mF1f6qMS1U';
+  const ai = new GoogleGenAI({ apiKey });
   // Using gemini-3-flash-preview as recommended for general text and multi-modal tasks.
-  const model = "gemini-3-flash-preview";
+  const model = "gemini-2.0-flash-exp";
 
   if (base64Image) {
     // Single turn with image
@@ -26,10 +27,10 @@ export const streamChatResponse = async (
     });
 
     return (async function* () {
-        for await (const chunk of responseStream) {
-            // chunk.text is a getter property.
-            yield chunk.text || "";
-        }
+      for await (const chunk of responseStream) {
+        // chunk.text is a getter property.
+        yield chunk.text || "";
+      }
     })();
 
   } else {
@@ -43,16 +44,16 @@ export const streamChatResponse = async (
         // For standard @google/genai, passing history to create() is supported.
       }
     });
-    
+
     // If your SDK version requires setting history separately:
     // (chat as any).history = history;
 
     const result = await chat.sendMessageStream({ message });
-    
+
     return (async function* () {
       for await (const chunk of result) {
-         // chunk.text is a getter property.
-         yield chunk.text || "";
+        // chunk.text is a getter property.
+        yield chunk.text || "";
       }
     })();
   }

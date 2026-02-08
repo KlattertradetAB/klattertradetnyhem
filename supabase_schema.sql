@@ -6,6 +6,8 @@ create table profiles (
   role text default 'user',
   membership_level int default 0,
   membership_active boolean default false,
+  phone text,
+  application_reason text,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
@@ -76,8 +78,17 @@ create policy "Authenticated users can send messages."
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  insert into public.profiles (id, email, full_name, role)
-  values (new.id, new.email, new.raw_user_meta_data->>'full_name', 'user');
+  insert into public.profiles (id, email, full_name, role, membership_level, membership_active, phone, application_reason)
+  values (
+    new.id, 
+    new.email, 
+    new.raw_user_meta_data->>'full_name', 
+    coalesce(new.raw_user_meta_data->>'role', 'user'),
+    coalesce((new.raw_user_meta_data->>'membership_level')::int, 0),
+    coalesce((new.raw_user_meta_data->>'membership_active')::boolean, false),
+    new.raw_user_meta_data->>'phone',
+    new.raw_user_meta_data->>'application_reason'
+  );
   return new;
 end;
 $$ language plpgsql security definer;

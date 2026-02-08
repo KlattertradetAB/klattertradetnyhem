@@ -1,42 +1,84 @@
 import React, { useState } from 'react';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft, ShieldCheck, AlertCircle, ArrowRight } from 'lucide-react';
 import { Profile } from '../types';
 import { supabase } from '../services/supabase';
 
 interface PremiumLoginProps {
     onLoginSuccess: (profile: Profile) => void;
     onBack: () => void;
+    onRegister?: () => void;
     isStandalone?: boolean;
 }
 
 const PremiumLogin: React.FC<PremiumLoginProps> = ({ onLoginSuccess, onBack, isStandalone }) => {
+    const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [fullName, setFullName] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [message, setMessage] = useState<string | null>(null);
+    const [acceptedTerms, setAcceptedTerms] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         setError(null);
+        setMessage(null);
 
         try {
-            const { data, error: loginError } = await supabase.auth.signInWithPassword({
-                email,
-                password,
-            });
-
-            if (loginError) {
-                setError(loginError.message);
-                setIsLoading(false);
-            } else if (data.user) {
-                console.log('Premium Login successful:', data.user);
-                // Record login event
-                await supabase.from('login_events').insert({
-                    user_id: data.user.id,
-                    logged_in_at: new Date().toISOString(),
+            if (isLogin) {
+                // LOGIN
+                const { data, error: loginError } = await supabase.auth.signInWithPassword({
+                    email,
+                    password,
                 });
-                // Success is handled by the auth state listener in GemenskapApp
+
+                if (loginError) {
+                    setError(loginError.message);
+                    setIsLoading(false);
+                } else if (data.user) {
+                    console.log('Premium Login successful:', data.user);
+                    // Record login event
+                    await supabase.from('login_events').insert({
+                        user_id: data.user.id,
+                        logged_in_at: new Date().toISOString(),
+                    });
+                    // Success is handled by the auth state listener in GemenskapApp
+                }
+            } else {
+                // SIGN UP
+                const { data, error: signUpError } = await supabase.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        emailRedirectTo: window.location.origin,
+                        data: {
+                            full_name: fullName,
+                            role: 'medlem',
+                            membership_level: 2,
+                            membership_active: true,
+                            avatar_url: '', // optional or random default
+                        },
+                    },
+                });
+
+                if (signUpError) {
+                    setError(signUpError.message);
+                    setIsLoading(false);
+                } else if (data.user) {
+                    console.log('Signup successful, user created:', data.user);
+
+                    // Check if email confirmation is required
+                    if (data.session) {
+                        console.log('Signup successful, session created');
+                        // Success is handled by the auth state listener
+                    } else {
+                        setMessage('Tack för din registrering! Ett bekräftelsemail har skickats till din e-post.');
+                        setIsLogin(true); // Switch back to login view
+                    }
+                    setIsLoading(false);
+                }
             }
         } catch (err) {
             setError('Ett oväntat fel uppstod.');
@@ -57,18 +99,42 @@ const PremiumLogin: React.FC<PremiumLoginProps> = ({ onLoginSuccess, onBack, isS
                     <span className="text-white text-xl font-medium">Horizonten gemenskap</span>
                 </div>
                 <h1 className="text-2xl sm:text-3xl text-white font-light tracking-wide">
-                    Logga in på ditt konto
+                    {isLogin ? 'Logga in på ditt konto' : 'Skapa ett konto'}
                 </h1>
                 <p className="text-slate-400 mt-3 text-sm">
-                    Välkommen tillbaka till vår community för betalmedlemmar
+                    {isLogin ? 'Välkommen tillbaka till vår gemenskap' : 'Bli en del av Horizonten idag'}
                 </p>
             </div>
 
             {/* Login Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
                 {error && (
-                    <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl text-sm text-red-200 animate-bounce-subtle">
+                    <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl text-sm text-red-200 flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
+                        <AlertCircle className="text-red-400 shrink-0 mt-0.5" size={18} />
                         {error}
+                    </div>
+                )}
+                {message && (
+                    <div className="bg-green-500/10 border border-green-500/20 p-4 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
+                        <ShieldCheck className="text-green-400 shrink-0 mt-0.5" size={18} />
+                        <p className="text-sm text-green-200">{message}</p>
+                    </div>
+                )}
+
+                {!isLogin && (
+                    <div className="animate-in fade-in slide-in-from-top-4">
+                        <label htmlFor="fullName" className="block text-sm font-medium text-slate-300 mb-2">
+                            Namn (Visas för andra)
+                        </label>
+                        <input
+                            id="fullName"
+                            type="text"
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
+                            required={!isLogin}
+                            placeholder="Förnamn Efternamn"
+                            className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder:text-white/20 focus:outline-none focus:border-[#b35c2a] focus:ring-1 focus:ring-[#b35c2a] transition-colors"
+                        />
                     </div>
                 )}
 
@@ -98,43 +164,70 @@ const PremiumLogin: React.FC<PremiumLoginProps> = ({ onLoginSuccess, onBack, isS
                         onChange={(e) => setPassword(e.target.value)}
                         required
                         placeholder="Ange ditt lösenord"
+                        minLength={6}
                         className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder:text-white/20 focus:outline-none focus:border-[#b35c2a] focus:ring-1 focus:ring-[#b35c2a] transition-colors"
                     />
                 </div>
 
-                <div className="flex items-center justify-between text-sm">
-                    <label className="flex items-center gap-2 cursor-pointer group">
+                {isLogin && (
+                    <div className="flex items-center justify-between text-sm">
+                        <label className="flex items-center gap-2 cursor-pointer group">
+                            <input
+                                type="checkbox"
+                                className="w-4 h-4 rounded border-white/20 bg-white/5 text-[#b35c2a] focus:ring-[#b35c2a] focus:ring-offset-0"
+                            />
+                            <span className="text-slate-400 group-hover:text-slate-200 transition-colors">Kom ihåg mig</span>
+                        </label>
+                        <button type="button" className="text-[#b35c2a] hover:text-[#9a4f24] transition-colors">
+                            Glömt lösenord?
+                        </button>
+                    </div>
+                )}
+
+                {!isLogin && (
+                    <div className="flex items-start gap-3 mt-4 animate-in fade-in slide-in-from-top-2">
                         <input
                             type="checkbox"
-                            className="w-4 h-4 rounded border-white/20 bg-white/5 text-[#b35c2a] focus:ring-[#b35c2a] focus:ring-offset-0"
+                            id="terms"
+                            checked={acceptedTerms}
+                            onChange={(e) => setAcceptedTerms(e.target.checked)}
+                            className="mt-1 w-4 h-4 bg-white/5 border-white/20 rounded text-[#b35c2a] focus:ring-[#b35c2a] focus:ring-offset-0"
                         />
-                        <span className="text-slate-400 group-hover:text-slate-200 transition-colors">Kom ihåg mig</span>
-                    </label>
-                    <button type="button" className="text-[#b35c2a] hover:text-[#9a4f24] transition-colors">
-                        Glömt lösenord?
-                    </button>
-                </div>
+                        <label htmlFor="terms" className="text-xs text-slate-400 leading-tight">
+                            Jag godkänner{' '}
+                            <button type="button" className="text-[#b35c2a] hover:text-[#9a4f24] underline">medlemsvillkoren</button>
+                            {' '}och att mina uppgifter hanteras enligt integritetspolicyn.
+                        </label>
+                    </div>
+                )}
 
                 <button
                     type="submit"
-                    disabled={isLoading}
+                    disabled={isLoading || (!isLogin && !acceptedTerms)}
                     className="w-full px-8 py-3 bg-[#b35c2a] hover:bg-[#9a4f24] disabled:bg-[#b35c2a]/50 text-white font-medium rounded-lg transition-all duration-200 shadow-lg shadow-[#b35c2a]/20 flex items-center justify-center gap-2"
                 >
                     {isLoading ? (
                         <Loader2 className="animate-spin" size={20} />
                     ) : (
-                        "Logga in"
+                        <>
+                            {isLogin ? 'Logga in' : 'Skapa konto'}
+                            {!isLogin && <ArrowRight size={20} />}
+                        </>
                     )}
                 </button>
             </form>
 
             {/* Footer */}
             {!isStandalone && (
-                <div className="mt-8 text-center">
-                    <p className="text-slate-500 text-sm">
-                        Inte medlem än?{" "}
-                        <button onClick={onBack} className="text-[#b35c2a] hover:text-[#9a4f24] transition-colors font-medium">
-                            Bli medlem idag
+                <div className="mt-8 text-center text-slate-500 text-sm">
+                    <p>
+                        {isLogin ? 'Inte medlem än?' : 'Har du redan ett konto?'}
+                        {' '}
+                        <button
+                            onClick={() => setIsLogin(!isLogin)}
+                            className="text-[#b35c2a] hover:text-[#9a4f24] transition-colors font-medium ml-1"
+                        >
+                            {isLogin ? 'Skapa ett konto' : 'Logga in'}
                         </button>
                     </p>
                 </div>

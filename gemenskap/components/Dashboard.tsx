@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Profile } from '../types';
+import { Profile, Thread } from '../types';
+import { supabase } from '../services/supabase';
 import { Calendar, Users, MessageSquareText, Star, ChevronRight, MapPin, MessageCircle, FileText, BookOpen, Bot, ArrowRight, Sparkles } from 'lucide-react';
 import PDFViewer from '../../components/PDFViewer';
 import { requestNotificationPermission } from '../services/notifications';
@@ -37,12 +38,27 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onThreadClick, onBackToSite
     { id: 3, title: 'Här har du möjlighet att söka en plats som styrelsemedlem inför -2027!', date: 'Inför 2027', location: 'Socialt', type: 'Styrelse', page: Page.COMMUNITY },
   ];
 
-  const threads = [
-    { id: 'general', title: 'Att navigera i motvind – När livet utmanar vår grundtrygghet', lastUser: 'Admin', count: 14, time: '2 tim sedan', description: 'Strategier för att hitta fotfäste när tillvaron gungar.' },
-    { id: 'trygghet', title: 'Från sår till styrka: Att förstå våra fixerade markörer', lastUser: 'Lina', count: 32, time: '5 tim sedan', description: 'Hur vi kan vända gamla mönster och sår till nya styrkor.' },
-    { id: 'self-care', title: 'Relationellt fadder-skap – Konsten att bära och bli buren', lastUser: 'Kalle', count: 8, time: 'Igår', description: 'Om vikten av ömsesidigt stöd och tillit i en gemenskap.' },
-    { id: 'trygghet', title: 'Nyfikenhet som kompass – Att våga tänka och göra nytt', lastUser: 'Axel', count: 19, time: 'Igår', description: 'Att våga utmana sina egna sanningar och växa.' },
-  ];
+  const [threads, setThreads] = useState<Thread[]>([]);
+
+  useEffect(() => {
+    const fetchThreads = async () => {
+      const { data, error } = await supabase
+        .from('threads')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (error) {
+        console.error('Error fetching threads:', error);
+      } else {
+        setThreads(data || []);
+      }
+    };
+
+    fetchThreads();
+  }, []);
+
+
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-in fade-in duration-700">
@@ -79,7 +95,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onThreadClick, onBackToSite
               </span>
             </h2>
             <p className="text-white/90 font-semibold text-lg md:text-xl max-w-xl leading-relaxed">
-              Här är de senaste uppdateringarna för din Nivå 2 gemenskap.
+              Här är de senaste uppdateringarna för din gemenskap.
             </p>
           </div>
 
@@ -89,7 +105,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onThreadClick, onBackToSite
               <span className="text-[10px] uppercase font-bold text-white/70 tracking-[0.2em]">Medlemmar</span>
             </div>
             <div className="bg-white/10 backdrop-blur-3xl px-6 py-6 rounded-[2rem] border border-white/20 text-center shadow-xl group hover:bg-white/15 transition-all">
-              <span className="block text-4xl font-black text-white group-hover:scale-110 transition-transform">8</span>
+              <span className="block text-4xl font-black text-white group-hover:scale-110 transition-transform">{threads.length}</span>
               <span className="text-[10px] uppercase font-bold text-white/70 tracking-[0.2em]">Nya trådar</span>
             </div>
           </div>
@@ -163,9 +179,6 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onThreadClick, onBackToSite
                 </div>
               </div>
 
-              {/* Premium App Download Card (Only for Level 3 and not yet installed) */}
-              {/* Premium App Download Card (Only for Level 3 and not yet installed) - REMOVED, using global button instead */}
-
               {/* Biblioteket Card */}
               <div className="bg-slate-950/50 backdrop-blur-md border border-white/5 p-8 rounded-[2rem] group hover:border-orange-500/50 transition-all shadow-xl">
                 <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400 mb-6 group-hover:scale-110 transition-transform border border-blue-500/20">
@@ -236,6 +249,54 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onThreadClick, onBackToSite
 
         {/* Sidebar */}
         <div className="space-y-8">
+          {/* Threads Widget */}
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
+            <div className="px-6 py-4 border-b border-slate-800 bg-slate-800/30">
+              <h3 className="font-bold flex items-center gap-2 text-white">
+                <MessageSquareText className="text-orange-500" size={18} />
+                Senaste Trådar
+              </h3>
+            </div>
+            <div className="p-2">
+              {threads.length === 0 ? (
+                <div className="p-4 text-center text-slate-500 text-sm italic">
+                  Inga trådar än.
+                </div>
+              ) : (
+                threads.map((thread) => (
+                  <div
+                    key={thread.id}
+                    onClick={() => onThreadClick(thread.id)}
+                    className="p-4 rounded-xl hover:bg-slate-800 transition-colors cursor-pointer group border-b border-slate-800/50 last:border-0"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider truncate max-w-[80px]">
+                        {thread.category || 'Allmänt'}
+                      </span>
+                      <span className="text-[10px] text-slate-500 font-medium whitespace-nowrap ml-2">
+                        {new Date(thread.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <h4 className="font-bold text-slate-100 group-hover:text-orange-400 transition-colors leading-snug mb-1">
+                      {thread.title}
+                    </h4>
+                    <p className="text-xs text-slate-500 line-clamp-2">
+                      {thread.description}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+            <div className="p-4 bg-slate-800/50">
+              <button
+                onClick={() => onThreadClick('general')}
+                className="w-full bg-slate-700 hover:bg-slate-600 py-2 rounded-lg text-sm font-bold transition-colors"
+              >
+                Gå till forumet
+              </button>
+            </div>
+          </div>
+
           <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
             <div className="px-6 py-4 border-b border-slate-800 bg-slate-800/30">
               <h3 className="font-bold flex items-center gap-2 text-white">
@@ -270,7 +331,6 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onThreadClick, onBackToSite
               </button>
             </div>
           </div>
-
         </div>
       </div>
     </div>

@@ -51,6 +51,33 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
     const [showInviteModal, setShowInviteModal] = useState(false);
     // Default to false so mobile users land on the Room List (Hub), desktop unaffected
     const [mobileShowChat, setMobileShowChat] = useState(false);
+    const [threads, setThreads] = useState<any[]>([]);
+
+    useEffect(() => {
+        const fetchThreads = async () => {
+            const { data, error } = await supabase
+                .from('threads')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (!error && data) {
+                setThreads(data);
+            }
+        };
+
+        fetchThreads();
+
+        const subscription = supabase
+            .channel('public:threads')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'threads' }, (payload: any) => {
+                setThreads(prev => [payload.new, ...prev]);
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(subscription);
+        };
+    }, []);
 
     useEffect(() => {
         const unsubscribe = subscribeToNotifications((updatedNotifications) => {
@@ -71,11 +98,11 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
                 const uniqueUsers = Array.from(new Map(users.map((u: any) => [u.user_id, u])).values());
                 setOnlineUsers(uniqueUsers);
             })
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload: any) => {
                 // Global notifications now handled in GemenskapApp.tsx
                 // This local listener can be removed if not needed for local UI state in ChatPage
             })
-            .subscribe(async (status) => {
+            .subscribe(async (status: string) => {
                 if (status === 'SUBSCRIBED') {
                     await channel.track({
                         user_id: user.id,
@@ -94,13 +121,21 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
 
     // Helper to check if a room is locked for the current user
     const isRoomLocked = (roomId: string) => {
-        if (!user.membership_level || user.membership_level <= 2) {
-            return !['general', 'video'].includes(roomId);
-        }
+        // Unlock all rooms for everyone as per new community guidelines
         return false;
     };
 
-    const currentRoom = CHAT_ROOMS.find(r => r.id === activeRoom) || CHAT_ROOMS[0];
+    const dynamicRooms: ChatRoom[] = threads.map(t => ({
+        id: t.id,
+        name: t.title,
+        icon: <MessageSquare size={18} />,
+        description: t.description,
+        category: (t.category === 'support' || t.category === 'private') ? 'support' : 'public',
+    }));
+
+    const allRooms = [...CHAT_ROOMS, ...dynamicRooms];
+
+    const currentRoom = allRooms.find(r => r.id === activeRoom) || CHAT_ROOMS[0];
 
     return (
         <div className="flex h-full bg-slate-950/80 backdrop-blur-3xl animate-in fade-in zoom-in-95 duration-700">
@@ -200,7 +235,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
                                     <div className="h-[1px] flex-grow ml-4 bg-gradient-to-r from-white/10 to-transparent"></div>
                                 </div>
                                 <div className="space-y-1">
-                                    {CHAT_ROOMS.filter(r => r.category === 'public').map(room => {
+                                    {allRooms.filter(r => r.category === 'public').map(room => {
                                         const locked = isRoomLocked(room.id);
                                         return (
                                             <button
@@ -248,7 +283,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
                                     <div className="h-[1px] flex-grow ml-4 bg-gradient-to-r from-white/10 to-transparent"></div>
                                 </div>
                                 <div className="space-y-1">
-                                    {CHAT_ROOMS.filter(r => r.category === 'private' || r.category === 'support').map(room => {
+                                    {allRooms.filter(r => r.category === 'private' || r.category === 'support').map(room => {
                                         const locked = isRoomLocked(room.id);
                                         return (
                                             <button

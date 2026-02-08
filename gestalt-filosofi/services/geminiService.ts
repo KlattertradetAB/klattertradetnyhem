@@ -1,10 +1,14 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const getAI = () => {
+  const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyDB3okRgXzyM5Hxo9BjknJZ6mF1f6qMS1U';
+  return new GoogleGenAI({ apiKey });
+};
 
 export const getPhilosophicalInsight = async (prompt: string): Promise<string> => {
   try {
+    const ai = getAI();
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: prompt,
@@ -28,6 +32,7 @@ export const analyzeReflections = async (answers: Record<string, string>): Promi
   const prompt = `Här är en användares reflektioner från ett arbetsblad om Existentialism och Fenomenologi inom Gestaltterapi:\n\n${summary}\n\nKan du ge en sammanfattande reflektion över deras insikter? Lyft fram teman som frihet, ansvar eller fenomenologisk närvaro om de förekommer. Ge dem en uppmuntrande avslutning.`;
 
   try {
+    const ai = getAI();
     const response = await ai.models.generateContent({
       model: "gemini-3-pro-preview",
       contents: prompt,
