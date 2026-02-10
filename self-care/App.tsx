@@ -3,7 +3,7 @@ import { getTranslatedQuestions } from './constants';
 import QuestionCard from './components/QuestionCard';
 import ResultsDisplay from './components/ResultsDisplay';
 import LoadingSpinner from './components/LoadingSpinner';
-import { analyzeAnswers } from './services/geminiService';
+import { analyzeAnswers, saveSurveyResponse } from './services/geminiService';
 import type { AnalysisResult } from './types';
 import Header from './components/Header';
 import { useLanguage } from './contexts/LanguageContext';
@@ -60,10 +60,16 @@ const App: React.FC = () => {
       const scores = answers.map(answer => answer * (20 / 6));
       const result = await analyzeAnswers(scores, language);
       setAnalysisResult(result);
+      // Save result to Supabase
+      await saveSurveyResponse(userEmail, answers, result);
       setQuizState('complete');
     } catch (e) {
-      console.error("Error analyzing answers:", e);
-      setError(t.analysisError);
+      console.error("Error analyzing answers or saving:", e);
+      if (e instanceof Error) {
+        console.error("Error message:", e.message);
+        console.error("Error stack:", e.stack);
+      }
+      setError(t.analysisError + (e instanceof Error ? ` (${e.message})` : ""));
       setQuizState('error');
     }
   };

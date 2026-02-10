@@ -14,12 +14,12 @@ const QuestionCard = forwardRef<HTMLDivElement, QuestionCardProps>(({
   selectedAnswer,
   onAnswerSelect,
 }, ref) => {
-  
+
   const animationDelay = `${100 + questionIndex * 75}ms`;
 
   return (
-    <div 
-      ref={ref} 
+    <div
+      ref={ref}
       className="bg-white/40 dark:bg-brand-dark-surface/40 backdrop-blur-2xl p-6 rounded-3xl shadow-2xl border border-white/50 dark:border-white/20 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 opacity-0"
       style={{ animation: `slideInUp 0.5s ease-out ${animationDelay} forwards` }}
     >
@@ -37,11 +37,10 @@ const QuestionCard = forwardRef<HTMLDivElement, QuestionCardProps>(({
               return (
                 <label
                   key={index}
-                  className={`flex items-center p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 ease-in-out transform active:scale-[0.98] focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-brand-secondary dark:focus-within:ring-offset-brand-dark-surface ${
-                    isSelected
+                  className={`flex items-center p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 ease-in-out transform active:scale-[0.98] focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-brand-secondary dark:focus-within:ring-offset-brand-dark-surface ${isSelected
                       ? 'bg-brand-secondary/90 border-brand-primary text-white font-bold shadow-inner scale-[1.02]'
-                      : 'bg-white/40 dark:bg-brand-dark-surface/40 border-white/50 dark:border-white/20 text-brand-text dark:text-brand-dark-text hover:border-brand-secondary hover:bg-white/60 dark:hover:bg-brand-dark-surface/60 hover:scale-[1.02]'
-                  }`}
+                      : 'bg-white/90 dark:bg-brand-dark-surface/80 border-gray-200 dark:border-gray-700 text-brand-text dark:text-brand-dark-text hover:border-brand-secondary hover:bg-white dark:hover:bg-brand-dark-surface hover:scale-[1.02]'
+                    }`}
                 >
                   <input
                     type="radio"

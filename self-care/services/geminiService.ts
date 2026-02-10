@@ -3,7 +3,7 @@ import type { AnalysisResult, LanguageCode } from '../types';
 import { getTranslatedQuestions } from '../constants';
 
 const getAI = () => {
-  const API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyDB3okRgXzyM5Hxo9BjknJZ6mF1f6qMS1U';
+  const API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyA00Bg-t-9fKaDQYPpCYwMRihemCnifF_c';
   if (!API_KEY) {
     console.error("API_KEY environment variable not set");
     throw new Error("API_KEY environment variable not set");
@@ -23,6 +23,25 @@ const responseSchema = {
         code: { type: Type.STRING },
       },
       required: ['name', 'score', 'description', 'code'],
+    },
+    secondaryWound: {
+      type: Type.OBJECT,
+      properties: {
+        name: { type: Type.STRING },
+        score: { type: Type.NUMBER },
+        description: { type: Type.STRING },
+        code: { type: Type.STRING },
+      },
+      required: ['name', 'score', 'description', 'code'],
+    },
+    emotionalState: {
+      type: Type.OBJECT,
+      properties: {
+        state: { type: Type.STRING, enum: ['Regulated', 'Compensated', 'Overwhelmed'] },
+        score: { type: Type.NUMBER },
+        description: { type: Type.STRING },
+      },
+      required: ['state', 'score', 'description'],
     },
     secondaryWounds: {
       type: Type.ARRAY,
@@ -54,7 +73,7 @@ const responseSchema = {
       type: Type.STRING,
     },
   },
-  required: ['primaryWound', 'secondaryWounds', 'summary', 'allScores'],
+  required: ['primaryWound', 'secondaryWound', 'emotionalState', 'secondaryWounds', 'summary', 'allScores'],
 };
 
 const languageNames: Record<LanguageCode, string> = {
@@ -94,11 +113,17 @@ export const analyzeAnswers = async (scores: number[], lang: LanguageCode): Prom
 
     Your task:
     1.  Calculate the total score for each category (the wound) by summing the scores for the three associated questions. Each category will have a score between 0 and 20. Round the score to an integer in the result.
-    2.  Identify the primary wound (the one with the highest score). If there is a tie, choose one of them as primary.
-    3.  Identify the secondary wounds (those with the next highest scores or other high scores).
-    4.  Generate a short, supportive, and insightful description for each wound in ${languageNames[lang]}. Ensure the description for each of the 6 wounds is returned in the 'allScores' array.
-    5.  Write a summary analysis in ${languageNames[lang]}. The tone should be empathetic and constructive.
-    6.  Structure your entire response as a JSON object that follows the provided schema. Ensure you include ALL 6 wounds in the 'allScores' array, sorted from highest to lowest score. The 'name' property for each wound MUST be in ${languageNames[lang]}.
+    2.  Identify the **Primary Wound** (highest score) and the **Secondary Wound** (second highest score).
+    3.  Analyze the user's **Emotional State** based on the overall pattern of answers. Classify them into one of three states:
+        *   **Regulated**: Generally lower scores, balanced responses, indicates stability.
+        *   **Compensated**: Mixed scores, some high but manageable, indicates coping mechanisms are active.
+        *   **Overwhelmed**: Consistently high scores across multiple wounds, indicates distress.
+        Assign a score to this state (0-100) reflecting the intensity of this state (e.g., how overwhelmed they are).
+    4.  Generate short descriptions for the wounds and the emotional state in ${languageNames[lang]}.
+    5.  Write a summary analysis in ${languageNames[lang]}.
+    6.  Structure response as JSON matching the schema. include ALL 6 wounds in 'allScores'.
+
+    Return ONLY JSON.
   `;
 
   try {
@@ -112,15 +137,156 @@ export const analyzeAnswers = async (scores: number[], lang: LanguageCode): Prom
       },
     });
 
-    const jsonText = response.text?.trim() || '{}';
-    const result = JSON.parse(jsonText) as AnalysisResult;
+    console.log("Gemini Raw Response:", response);
+
+    let jsonText = '';
+    const rawResponse = response as any;
+    // Check if response.text is a function (SDK v0.2.0+) or property
+    if (typeof rawResponse.text === 'function') {
+      jsonText = rawResponse.text();
+    } else if (typeof rawResponse.text === 'string') {
+      jsonText = rawResponse.text;
+    } else if (response.candidates && response.candidates.length > 0) {
+      // Manual fallback extraction
+      const part = response.candidates[0].content?.parts?.[0];
+      if (part && 'text' in part) {
+        jsonText = part.text as string;
+      }
+    }
+
+    console.log("Gemini JSON Text:", jsonText);
+
+    if (!jsonText) {
+      throw new Error("Empty response from AI");
+    }
+
+    const result = JSON.parse(jsonText.trim()) as AnalysisResult;
+
+    // Validate result structure
+    if (!result.allScores || !Array.isArray(result.allScores)) {
+      console.error("Invalid AI response structure:", result);
+      throw new Error("Invalid AI response structure: " + JSON.stringify(result));
+    }
+
     result.allScores.forEach(s => s.score = Math.round(s.score));
     result.primaryWound.score = Math.round(result.primaryWound.score);
+    if (result.secondaryWound) result.secondaryWound.score = Math.round(result.secondaryWound.score);
+    if (result.emotionalState) result.emotionalState.score = Math.round(result.emotionalState.score);
     result.secondaryWounds.forEach(s => s.score = Math.round(s.score));
 
     return result;
   } catch (error) {
     console.error("Gemini API call failed:", error);
+    // Rethrow with more context if possible
+    if (error instanceof Error) {
+      throw new Error(`Failed to analyze answers: ${error.message}`);
+    }
     throw new Error("Failed to get analysis from Gemini API.");
+  }
+};
+
+import { supabase } from '../../gemenskap/services/supabase';
+
+export const saveSurveyResponse = async (email: string | null, answers: number[], result: AnalysisResult) => {
+  try {
+    const { error } = await supabase
+      .from('survey_responses')
+      .insert([
+        {
+          email,
+          answers,
+          scores: result, // Saving the full result object including emotionalState and secondaryWound
+          created_at: new Date().toISOString(),
+        }
+      ]);
+
+    if (error) {
+      console.error('Error saving survey response:', error);
+      // We don't throw here to avoid disrupting the user experience if saving fails
+    } else {
+      console.log('Survey response saved successfully');
+    }
+  } catch (err) {
+    console.error('Unexpected error saving survey response:', err);
+  }
+};
+
+export const getSurveyStatistics = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('survey_responses')
+      .select('scores');
+
+    if (error) throw error;
+
+    // Aggregate scores
+    const woundCounts: Record<string, number> = {};
+    const secondaryWoundCounts: Record<string, number> = {};
+    const emotionalStateCounts: Record<string, number> = {};
+    const totalResponses = data.length;
+
+    console.log(`Fetching stats. Total rows: ${totalResponses}`);
+    let legacyCount = 0;
+    let newFormatCount = 0;
+
+    data.forEach((response: any) => {
+      const result = response.scores; // This is now the full AnalysisResult object (or old array)
+
+      // Handle legacy data (array) vs new data (object)
+      if (Array.isArray(result)) {
+        legacyCount++;
+        // Legacy format: array of wounds
+        const sorted = [...result].sort((a: any, b: any) => b.score - a.score);
+        if (sorted.length > 0) {
+          const primaryCode = sorted[0].code || sorted[0].name;
+          woundCounts[primaryCode] = (woundCounts[primaryCode] || 0) + 1;
+        }
+      } else if (result && typeof result === 'object') {
+        newFormatCount++;
+        // New format: AnalysisResult object
+
+        // Primary Wound
+        if (result.primaryWound) {
+          const code = result.primaryWound.code || result.primaryWound.name;
+          if (code) {
+            woundCounts[code] = (woundCounts[code] || 0) + 1;
+          } else {
+            console.warn("Missing code/name in primaryWound:", result.primaryWound);
+          }
+        }
+
+        // Secondary Wound
+        if (result.secondaryWound) {
+          const code = result.secondaryWound.code || result.secondaryWound.name;
+          secondaryWoundCounts[code] = (secondaryWoundCounts[code] || 0) + 1;
+        }
+
+        // Emotional State
+        if (result.emotionalState) {
+          const state = result.emotionalState.state;
+          emotionalStateCounts[state] = (emotionalStateCounts[state] || 0) + 1;
+        }
+      } else {
+        console.warn("Unknown scores format:", result);
+      }
+    });
+
+    console.log(`Stats aggregation complete. Legacy: ${legacyCount}, New: ${newFormatCount}`);
+    console.log("Wound Counts:", woundCounts);
+    console.log("Secondary Counts:", secondaryWoundCounts);
+    console.log("Emotional State Counts:", emotionalStateCounts);
+
+    return {
+      totalResponses,
+      woundCounts,
+      secondaryWoundCounts,
+      emotionalStateCounts,
+      legacyCount,
+      newFormatCount
+    };
+
+  } catch (error) {
+    console.error('Error fetching survey statistics:', error);
+    return { totalResponses: 0, woundCounts: {}, secondaryWoundCounts: {}, emotionalStateCounts: {} };
   }
 };

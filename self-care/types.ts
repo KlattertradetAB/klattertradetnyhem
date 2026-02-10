@@ -24,9 +24,19 @@ export interface WoundScore {
   [key: string]: any;
 }
 
+export type EmotionalState = 'Regulated' | 'Compensated' | 'Overwhelmed';
+
+export interface EmotionalStatus {
+  state: EmotionalState;
+  score: number;
+  description: string;
+}
+
 export interface AnalysisResult {
   primaryWound: WoundScore;
-  secondaryWounds: WoundScore[];
+  secondaryWound: WoundScore; // The second highest wound
+  emotionalState: EmotionalStatus;
+  secondaryWounds: WoundScore[]; // Remaining wounds, possibly empty or just the rest
   summary: string;
   allScores: WoundScore[];
 }

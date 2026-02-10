@@ -27,6 +27,7 @@ import { Page } from './types';
 import GestaltApp from './gestalt-filosofi/App';
 import { LanguageProvider as SelfCareLanguageProvider } from './self-care/contexts/LanguageContext';
 import { ThemeProvider as SelfCareThemeProvider } from './self-care/contexts/ThemeContext';
+import AdminDashboard from './self-care/components/AdminDashboard';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>(Page.HOME);
@@ -45,16 +46,7 @@ const App: React.FC = () => {
 
       // Priority 1: Standalone Mode
       if (isStandaloneMode) {
-        // If in standalone, we ALWAYS want to be in the GemenskapApp context
-        // unless we are already there (which strict routing below handles)
 
-        // If no hash or specific landing hash, force premium login
-        if (!hash || hash === '#' || hash.includes('#home')) {
-          window.location.hash = '#premium-login';
-          setCurrentPage(Page.GEMENSKAP_APP);
-          window.history.replaceState({ page: Page.GEMENSKAP_APP }, '');
-          return;
-        }
 
         // If has hash related to app, ensure Page is correct
         if (hash.includes('#premium-login') || hash.includes('#login') || hash.includes('#signup') ||
@@ -68,6 +60,11 @@ const App: React.FC = () => {
       if (hash.includes('#login') || hash.includes('#premium-login') || hash.includes('#signup')) {
         setCurrentPage(Page.GEMENSKAP_APP);
         window.history.replaceState({ page: Page.GEMENSKAP_APP }, '');
+        return;
+      }
+
+      if (hash.includes('#admin/survey-stats')) {
+        setCurrentPage(Page.ADMIN_SURVEY_STATS);
         return;
       }
 
@@ -173,6 +170,7 @@ const App: React.FC = () => {
             case Page.TERMS: return <Terms setPage={handleSetPage} />;
             case Page.PREMIUM_APPLICATION: return <PremiumApplication setPage={handleSetPage} />;
             case Page.FREE_REGISTRATION: return <FreeRegistration setPage={handleSetPage} />;
+            case Page.ADMIN_SURVEY_STATS: return <AdminDashboard />;
             case Page.GEMENSKAP_APP: return <GemenskapApp onBackToSite={(targetPage?: Page) => handleSetPage(targetPage || Page.HOME)} />;
             default: return <Home setPage={handleSetPage} />;
           }
