@@ -5,22 +5,16 @@ import { ShieldCheck, Settings, X, ChevronDown, ChevronUp, Lock, Eye } from 'luc
 
 interface CookieBannerProps {
     setPage: (page: Page) => void;
+    isVisible: boolean;
+    onClose: () => void;
 }
 
-const CookieBanner: React.FC<CookieBannerProps> = ({ setPage }) => {
-    const [isVisible, setIsVisible] = useState(false);
+const CookieBanner: React.FC<CookieBannerProps> = ({ setPage, isVisible, onClose }) => {
     const [showSettings, setShowSettings] = useState(false);
-
-    useEffect(() => {
-        const consent = localStorage.getItem('cookie-consent-v4');
-        if (!consent) {
-            setIsVisible(true);
-        }
-    }, []);
 
     const handleAcceptAll = async () => {
         localStorage.setItem('cookie-consent-v4', 'all');
-        setIsVisible(false);
+        onClose();
 
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
@@ -34,7 +28,7 @@ const CookieBanner: React.FC<CookieBannerProps> = ({ setPage }) => {
 
     const handleAcceptNecessary = async () => {
         localStorage.setItem('cookie-consent-v4', 'necessary');
-        setIsVisible(false);
+        onClose();
 
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
@@ -136,7 +130,7 @@ const CookieBanner: React.FC<CookieBannerProps> = ({ setPage }) => {
                 </div>
 
                 <button
-                    onClick={() => setIsVisible(false)}
+                    onClick={onClose}
                     className="absolute top-6 right-6 text-slate-500 hover:text-white transition-colors"
                     aria-label="Stäng"
                 >

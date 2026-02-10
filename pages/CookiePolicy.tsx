@@ -4,9 +4,10 @@ import { ArrowLeft, ShieldCheck, Info, Eye, Shield, Lock, Clock, Mail } from 'lu
 
 interface CookiePolicyProps {
     setPage: (page: Page) => void;
+    onOpenSettings: () => void;
 }
 
-const CookiePolicy: React.FC<CookiePolicyProps> = ({ setPage }) => {
+const CookiePolicy: React.FC<CookiePolicyProps> = ({ setPage, onOpenSettings }) => {
     return (
         <div className="container mx-auto px-4 md:px-6 py-12 animate-fade-in max-w-4xl">
             <button
@@ -50,6 +51,15 @@ const CookiePolicy: React.FC<CookiePolicyProps> = ({ setPage }) => {
                         <p className="text-slate-400">
                             En cookie är en liten textfil som sparas på din enhet (dator eller mobil). Man kan se det som ett litet digitalt minne som hjälper hemsidan att komma ihåg dina val. Det finns dock olika typer av "minnen", och vi skiljer noga på dem:
                         </p>
+
+                        <div className="py-6">
+                            <button
+                                onClick={onOpenSettings}
+                                className="px-6 py-3 bg-orange-500 hover:bg-orange-400 text-slate-950 rounded-xl font-bold transition-all hover:scale-105 shadow-xl shadow-orange-500/20 text-sm"
+                            >
+                                Ändra dina cookie-inställningar
+                            </button>
+                        </div>
                     </section>
 
                     <div className="grid md:grid-cols-2 gap-8">

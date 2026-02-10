@@ -33,11 +33,18 @@ const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>(Page.HOME);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
+  const [isCookieBannerVisible, setIsCookieBannerVisible] = useState(false);
 
   useEffect(() => {
     // Check for standalone mode
     const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
     setIsStandalone(!!isStandaloneMode);
+
+    // Check helper for cookie consent
+    const consent = localStorage.getItem('cookie-consent-v4');
+    if (!consent) {
+      setIsCookieBannerVisible(true);
+    }
 
     // Initial routing logic
     const handleInitialRoute = () => {
@@ -124,7 +131,11 @@ const App: React.FC = () => {
   return (
     <div className={`relative min-h-screen flex flex-col transition-all duration-700 ease-in-out ${isDarkMode ? 'bg-glossy-gradient-dark' : 'bg-glossy-gradient'}`}>
       <BackgroundShapes />
-      <CookieBanner setPage={handleSetPage} />
+      <CookieBanner
+        setPage={handleSetPage}
+        isVisible={isCookieBannerVisible}
+        onClose={() => setIsCookieBannerVisible(false)}
+      />
       {currentPage !== Page.GEMENSKAP_APP && !isStandalone && (
         <Navigation
           currentPage={currentPage}
@@ -166,7 +177,12 @@ const App: React.FC = () => {
               </div>
             );
             case Page.PRIVACY: return <PrivacyPolicy setPage={handleSetPage} />;
-            case Page.COOKIE_POLICY: return <CookiePolicy setPage={handleSetPage} />;
+            case Page.COOKIE_POLICY: return (
+              <CookiePolicy
+                setPage={handleSetPage}
+                onOpenSettings={() => setIsCookieBannerVisible(true)}
+              />
+            );
             case Page.TERMS: return <Terms setPage={handleSetPage} />;
             case Page.PREMIUM_APPLICATION: return <PremiumApplication setPage={handleSetPage} />;
             case Page.FREE_REGISTRATION: return <FreeRegistration setPage={handleSetPage} />;
