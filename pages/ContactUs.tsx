@@ -58,7 +58,7 @@ const therapists = [
     role: "Behandlingspedagog & Socialarbetare",
     subRole: "Familjeombud",
     desc: "Specialiserad på familjefrågor och socialt stöd. Stöttar i komplexa livssituationer.",
-    image: "/assets/malin-widerlov.png"
+    image: "/Malin-profil-hemsida.png"
   },
 ];
 
