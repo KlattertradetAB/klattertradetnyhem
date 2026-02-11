@@ -33,18 +33,14 @@ const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>(Page.HOME);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
-  const [isCookieBannerVisible, setIsCookieBannerVisible] = useState(false);
+  const [isCookieBannerVisible, setIsCookieBannerVisible] = useState(true);
 
   useEffect(() => {
     // Check for standalone mode
     const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
     setIsStandalone(!!isStandaloneMode);
 
-    // Check helper for cookie consent
-    const consent = localStorage.getItem('cookie-consent-v4');
-    if (!consent) {
-      setIsCookieBannerVisible(true);
-    }
+
 
     // Initial routing logic
     const handleInitialRoute = () => {
