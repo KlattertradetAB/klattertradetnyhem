@@ -2,7 +2,7 @@ import { ChatMessage } from "../types";
 
 // Access the API key injected by Vite via define/process.env OR from localStorage (Admin override)
 const getApiKey = () => {
-  return localStorage.getItem('gemini_api_key') || process.env.GEMINI_API_KEY;
+  return localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY;
 };
 
 const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";

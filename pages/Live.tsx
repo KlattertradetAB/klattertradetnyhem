@@ -72,8 +72,8 @@ const Live: React.FC = () => {
     setStatus('connecting');
     setErrorMsg('');
     try {
-      // Use process.env.API_KEY directly and recreate instance on each connection.
-      const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyC6RE-isFzuCBOsJZ1SlMG0j-vM7K9foxI';
+      // Use import.meta.env.VITE_GEMINI_API_KEY directly and recreate instance on each connection.
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyC6RE-isFzuCBOsJZ1SlMG0j-vM7K9foxI';
       const ai = new GoogleGenAI({ apiKey });
 
       // Initialize Input Audio
