@@ -21,7 +21,10 @@
       "@/*": [
         "./*"
       ]
-    }
+    },
+    "types": [
+      "vite/client"
+    ]
   },
   "include": [
     "vite-env.d.ts",

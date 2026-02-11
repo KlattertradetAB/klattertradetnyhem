@@ -12,8 +12,8 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     define: {
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY || ''),
-      'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(env.VITE_SUPABASE_URL || 'https://tkvogxqtylddfzzsgmtv.supabase.co'),
-      'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrdm9neHF0eWxkZGZ6enNnbXR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxNTQ5MTIsImV4cCI6MjA4MzczMDkxMn0.3WKSkeFCj8BmZwBBdnMFUwJRzzp8KP42k1HmoiBZce4')
+      'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(env.VITE_SUPABASE_URL),
+      'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(env.VITE_SUPABASE_ANON_KEY)
     },
     resolve: {
       alias: {

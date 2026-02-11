@@ -9,7 +9,7 @@ export const streamChatResponse = async (
   history: { role: 'user' | 'model'; parts: { text: string }[] }[]
 ): Promise<AsyncGenerator<string, void, unknown>> => {
   // Create a new instance right before use to ensure it uses the most up-to-date API key.
-  const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyDB3okRgXzyM5Hxo9BjknJZ6mF1f6qMS1U';
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   const ai = new GoogleGenAI({ apiKey });
   // Using gemini-3-flash-preview as recommended for general text and multi-modal tasks.
   const model = "gemini-2.0-flash-exp";

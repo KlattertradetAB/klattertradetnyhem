@@ -3,7 +3,7 @@ import type { AnalysisResult, LanguageCode } from '../types';
 import { getTranslatedQuestions } from '../constants';
 
 const getAI = () => {
-  const API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyA00Bg-t-9fKaDQYPpCYwMRihemCnifF_c';
+  const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
   if (!API_KEY) {
     console.error("API_KEY environment variable not set");
     throw new Error("API_KEY environment variable not set");
