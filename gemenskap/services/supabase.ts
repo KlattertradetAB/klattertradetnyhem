@@ -3,13 +3,20 @@
 import { createClient } from '@supabase/supabase-js';
 
 let supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+let supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Fix for common Vercel configuration error where value includes the key
 if (supabaseUrl && supabaseUrl.startsWith('VITE_SUPABASE_URL=')) {
   console.warn('Detected malformed VITE_SUPABASE_URL. Attempting to fix...');
   supabaseUrl = supabaseUrl.replace('VITE_SUPABASE_URL=', '');
 }
+
+if (supabaseAnonKey && supabaseAnonKey.startsWith('VITE_SUPABASE_ANON_KEY=')) {
+  console.warn('Detected malformed VITE_SUPABASE_ANON_KEY. Attempting to fix...');
+  supabaseAnonKey = supabaseAnonKey.replace('VITE_SUPABASE_ANON_KEY=', '');
+}
+
+
 
 console.log('Supabase initializing with URL:', supabaseUrl);
 
