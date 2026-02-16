@@ -129,7 +129,7 @@ export const analyzeAnswers = async (scores: number[], lang: LanguageCode): Prom
   try {
     const ai = getAI();
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-1.5-flash',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',

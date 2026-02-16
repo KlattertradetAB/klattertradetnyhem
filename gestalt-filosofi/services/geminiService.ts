@@ -10,7 +10,7 @@ export const getPhilosophicalInsight = async (prompt: string): Promise<string> =
   try {
     const ai = getAI();
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-1.5-flash",
       contents: prompt,
       config: {
         systemInstruction: "Du är en expert på gestaltterapi, fenomenologi och existentialism. Svara på svenska. Ge korta, insiktsfulla och reflekterande svar som hjälper användaren att fördjupa sin förståelse av arbetsbladet. Undvik att ge 'rätta svar', fokusera istället på att stimulera vidare tänkande.",
@@ -34,7 +34,7 @@ export const analyzeReflections = async (answers: Record<string, string>): Promi
   try {
     const ai = getAI();
     const response = await ai.models.generateContent({
-      model: "gemini-3-pro-preview",
+      model: "gemini-1.5-pro",
       contents: prompt,
       config: {
         systemInstruction: "Du är en varm och professionell gestaltterapeutisk mentor.",

@@ -5,7 +5,7 @@ const getApiKey = () => {
   return localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY;
 };
 
-const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
 
 export const getAIResponse = async (history: { role: 'user' | 'model'; text: string }[], userPrompt: string, overrideSystemInstruction?: string) => {
   const API_KEY = getApiKey();

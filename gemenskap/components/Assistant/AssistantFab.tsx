@@ -5,9 +5,10 @@ import { Profile } from '../../types';
 
 interface AssistantFabProps {
     user: Profile | null;
+    isChatActive?: boolean;
 }
 
-const AssistantFab: React.FC<AssistantFabProps> = ({ user }) => {
+const AssistantFab: React.FC<AssistantFabProps> = ({ user, isChatActive = false }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -16,7 +17,7 @@ const AssistantFab: React.FC<AssistantFabProps> = ({ user }) => {
             <div className={`
                 fixed z-50 transition-all duration-500 ease-in-out
                 ${isOpen
-                    ? 'bottom-24 right-4 md:right-8 w-[calc(100vw-2rem)] md:w-[400px] h-[600px] max-h-[80vh] opacity-100 translate-y-0 scale-100'
+                    ? `bottom-24 ${isChatActive ? 'mb-20' : ''} right-4 md:right-8 w-[calc(100vw-2rem)] md:w-[400px] h-[600px] max-h-[80vh] opacity-100 translate-y-0 scale-100`
                     : 'bottom-8 right-8 w-0 h-0 opacity-0 translate-y-20 scale-90 pointer-events-none'}
             `}>
                 <AssistantChat user={user} onClose={() => setIsOpen(false)} />
@@ -26,7 +27,7 @@ const AssistantFab: React.FC<AssistantFabProps> = ({ user }) => {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={`
-                    fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50
+                    fixed ${isChatActive ? 'bottom-24 md:bottom-8' : 'bottom-6 md:bottom-8'} right-6 md:right-8 z-50
                     w-14 h-14 md:w-16 md:h-16 rounded-full 
                     bg-gradient-to-r from-indigo-600 to-purple-600 
                     text-white shadow-lg shadow-indigo-500/40 
