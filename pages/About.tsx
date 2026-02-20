@@ -4,8 +4,8 @@ import { BookOpen, Heart, Users, MapPin, Quote, Sparkles, Anchor, Target, Award,
 
 const About: React.FC = () => {
   return (
-    <div className="container mx-auto px-4 md:px-6 py-6 md:py-10 animate-fade-in space-y-16">
-      
+    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-6 md:py-10 animate-fade-in space-y-16">
+
       {/* Intro Header */}
       <div className="glass bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 md:p-16 text-center relative overflow-hidden">
         <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-orange-500/10 to-transparent pointer-events-none"></div>
@@ -41,10 +41,10 @@ const About: React.FC = () => {
             </p>
           </div>
         </div>
-        
+
         <div className="glass bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12 flex flex-col justify-center">
           <h3 className="text-2xl font-bold mb-6 flex items-center gap-3">
-             <Anchor className="text-amber-400" /> Vår verksamhet
+            <Anchor className="text-amber-400" /> Vår verksamhet
           </h3>
           <p className="text-white/80 leading-relaxed mb-6">
             Vi erbjuder utbildningar till <strong>behandlingspedagog</strong> och <strong>socialpedagog</strong>, samt handledning och kvalificerad terapi inom beroendeproblematik, trauma och relationsarbete.
@@ -79,7 +79,7 @@ const About: React.FC = () => {
               Kunskap måste landa i kroppen. Våra utbildningar bygger på kvalitet, närvaro och mångårig erfarenhet där vi varvar teori med praktisk implementation.
             </p>
           </div>
-          
+
           <div className="glass bg-white/5 p-8 rounded-2xl border border-white/10">
             <div className="mb-4 bg-red-500/20 w-12 h-12 rounded-lg flex items-center justify-center text-red-300">
               <Heart size={24} />
@@ -108,7 +108,7 @@ const About: React.FC = () => {
         <p className="text-white/80 max-w-2xl mx-auto mb-8">
           Vi bedriver vår verksamhet i ljusa lokaler centralt i Gävle. Här möts vi för utbildningsträffar, terapi och fördjupade samtal.
         </p>
-        
+
         <div className="inline-flex flex-col md:flex-row gap-6 md:gap-12 justify-center items-center text-white/90 font-medium">
           <div className="flex items-center gap-3">
             <MapPin className="text-orange-400" />
@@ -116,8 +116,8 @@ const About: React.FC = () => {
           </div>
           <div className="hidden md:block w-1.5 h-1.5 bg-white/30 rounded-full"></div>
           <div className="flex items-center gap-3">
-             <BookOpen className="text-orange-400" size={20} />
-             <span>info@klattertradet.se</span>
+            <BookOpen className="text-orange-400" size={20} />
+            <span>info@klattertradet.se</span>
           </div>
         </div>
       </div>

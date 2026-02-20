@@ -152,7 +152,7 @@ const App: React.FC = () => {
             case Page.GESTALT_TRAINING: return <GestaltTraining setPage={handleSetPage} />;
             case Page.BEHANDLINGS_PEDAGOG: return <BehandlingsPedagog setPage={handleSetPage} />;
             case Page.BLOG: return <Blog setPage={handleSetPage} />;
-            case Page.COMMUNITY: return <Community />;
+            case Page.COMMUNITY: return <Community setPage={handleSetPage} />;
             case Page.CONTACT: return <ContactUs />;
             case Page.SURVEY: return (
               <SelfCareLanguageProvider>

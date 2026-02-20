@@ -179,6 +179,9 @@ export const analyzeAnswers = async (scores: number[], lang: LanguageCode): Prom
     console.error("Gemini API call failed:", error);
     // Rethrow with more context if possible
     if (error instanceof Error) {
+      if (error.message.includes('403') || error.message.includes('permission denied')) {
+        throw new Error("Access Denied (403): The AI service refused the request. This usually means the API Key in Vercel is missing, invalid, or restricted.");
+      }
       throw new Error(`Failed to analyze answers: ${error.message}`);
     }
     throw new Error("Failed to get analysis from Gemini API.");

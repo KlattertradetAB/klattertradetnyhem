@@ -3,7 +3,13 @@ import React, { useState } from 'react';
 import { Smartphone, Users, Calendar, BookOpen, Heart, Sparkles, X, Send, CheckCircle } from 'lucide-react';
 import TiltedImage from '../components/TiltedImage';
 
-const Community: React.FC = () => {
+import { Page } from '../types';
+
+interface CommunityProps {
+  setPage?: (page: Page) => void;
+}
+
+const Community: React.FC<CommunityProps> = ({ setPage }) => {
   const [viewState, setViewState] = useState<'info' | 'form' | 'success'>('info');
   const [formData, setFormData] = useState({
     name: '',
@@ -19,8 +25,15 @@ const Community: React.FC = () => {
     setViewState('success');
   };
 
+  const handleLoginClick = () => {
+    if (setPage) {
+      window.location.hash = '#premium-login';
+      setPage(Page.GEMENSKAP_APP);
+    }
+  };
+
   return (
-    <div className="container mx-auto px-4 md:px-6 py-6 md:py-10 animate-fade-in w-full space-y-12">
+    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-6 md:py-10 animate-fade-in w-full space-y-12">
 
       {/* Hero Header */}
       <div className="glass bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 md:p-16 relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-12">
@@ -31,7 +44,13 @@ const Community: React.FC = () => {
           <p className="text-xl md:text-2xl text-white/90 font-light italic mb-8">
             En trygg hamn för läkning, insikt och tillsammanskap.
           </p>
-          <div className="flex justify-center lg:justify-start gap-4 flex-wrap">
+          <div className="flex justify-center lg:justify-start gap-4 flex-wrap items-center">
+            <button
+              onClick={handleLoginClick}
+              className="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full transition-colors shadow-lg hover:shadow-orange-500/20"
+            >
+              Logga in
+            </button>
             <div className="px-6 py-2 bg-white/10 rounded-full border border-white/20 text-sm">Appen</div>
             <div className="px-6 py-2 bg-white/10 rounded-full border border-white/20 text-sm">Gemenskap</div>
             <div className="px-6 py-2 bg-white/10 rounded-full border border-white/20 text-sm">Självhjälp</div>

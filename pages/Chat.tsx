@@ -188,7 +188,7 @@ ${formData.message}
 
   // DEFAULT VIEW ('info')
   return (
-    <div className="container mx-auto px-4 md:px-6 py-6 md:py-10 animate-fade-in w-full">
+    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-6 md:py-10 animate-fade-in w-full">
 
       {/* Hero Header */}
       <div className="glass bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 md:p-12 mb-8 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">

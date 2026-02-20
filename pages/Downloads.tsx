@@ -85,7 +85,7 @@ const Downloads: React.FC<DownloadsProps> = ({ setPage }) => {
   ];
 
   return (
-    <div className="container mx-auto px-4 md:px-6 py-10 animate-fade-in space-y-12">
+    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-10 animate-fade-in space-y-12">
 
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto space-y-4">

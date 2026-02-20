@@ -42,7 +42,7 @@ const Blog: React.FC<BlogProps> = ({ setPage }) => {
   };
 
   return (
-    <div className="container mx-auto px-4 md:px-6 py-6 animate-fade-in space-y-12">
+    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-6 animate-fade-in space-y-12">
       <PDFViewer
         isOpen={isPdfOpen}
         onClose={() => setIsPdfOpen(false)}

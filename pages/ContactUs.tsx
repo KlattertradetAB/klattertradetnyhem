@@ -163,7 +163,7 @@ Detta är ett automatiskt genererat utkast från hemsidan.
   };
 
   return (
-    <div className="container mx-auto px-4 md:px-6 py-10 animate-fade-in space-y-16">
+    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-10 animate-fade-in space-y-16">
 
       {/* Booking Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between px-4 gap-6">
