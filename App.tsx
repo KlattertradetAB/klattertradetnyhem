@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import Navigation from './components/Navigation';
 import BackgroundShapes from './components/BackgroundShapes';
 import CookieBanner from './components/CookieBanner';
@@ -218,6 +219,7 @@ const App: React.FC = () => {
           </div>
         </footer>
       )}
+      <Analytics />
     </div>
   );
 };
