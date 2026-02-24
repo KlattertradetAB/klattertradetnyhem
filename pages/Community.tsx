@@ -123,7 +123,7 @@ const Community: React.FC<CommunityProps> = ({ setPage }) => {
               />
             </div>
             <div className="md:col-span-2 space-y-6">
-              <h2 className="text-3xl font-bold">Boken: Myndighetsinducerat trauma</h2>
+              <h2 className="text-3xl font-bold">Boken: Myndighetsinducerat trauma, från subjekt till objekt</h2>
               <p className="text-lg text-white/80 leading-relaxed">
                 Vår nyutgivna bok är en djupdykning i hur systemet kan skada och hur vi kan läka. Men boken är mer än bara text – den är en guide.
               </p>
@@ -238,7 +238,7 @@ const Community: React.FC<CommunityProps> = ({ setPage }) => {
             </div>
             <h2 className="text-3xl font-bold text-white mb-4">Tack för din beställning!</h2>
             <p className="text-white/70 max-w-md mx-auto mb-8">
-              Vi har mottagit din order av boken "Myndighetsinducerat trauma". En bekräftelse och faktura kommer att skickas till {formData.email}.
+              Vi har mottagit din order av boken "Myndighetsinducerat trauma, från subjekt till objekt". En bekräftelse och faktura kommer att skickas till {formData.email}.
             </p>
             <button
               onClick={() => setViewState('info')}

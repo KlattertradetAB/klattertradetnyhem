@@ -18,6 +18,7 @@ import { getEffectiveAvatar } from '../services/userUtils';
 
 interface ChatPageProps {
     user: Profile;
+    onlineUsers: Set<string>;
     initialThread?: string | null;
     onOpenSettings?: () => void;
     onLogout: () => void;
@@ -41,13 +42,12 @@ const CHAT_ROOMS: ChatRoom[] = [
     { id: 'info', name: 'Information', icon: <Info size={18} />, description: 'Viktiga meddelanden från administratörer.', category: 'support' },
 ];
 
-const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings, onLogout, onBackToSite }) => {
+const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUsers, initialThread, onOpenSettings, onLogout, onBackToSite }) => {
     const [activeRoom, setActiveRoom] = useState<string>(initialThread || 'general');
     const [activeNav, setActiveNav] = useState<'discussions' | 'members' | 'notifications' | 'settings'>('discussions');
     const [isDarkMode, setIsDarkMode] = useState(true);
     const [showNewThreadModal, setShowNewThreadModal] = useState(false);
     const [notifications, setNotifications] = useState<NotificationItem[]>(getNotifications());
-    const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
     const [showInviteModal, setShowInviteModal] = useState(false);
     // Default to false so mobile users land on the Room List (Hub), desktop unaffected
     const [mobileShowChat, setMobileShowChat] = useState(false);
@@ -86,38 +86,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
         return () => unsubscribe();
     }, []);
 
-    // Presence & Global Notifications
-    useEffect(() => {
-        const channel = supabase.channel('global_presence');
-
-        channel
-            .on('presence', { event: 'sync' }, () => {
-                const newState = channel.presenceState();
-                const users = Object.values(newState).flat();
-                // Deduplicate by user_id if needed, but for now assuming one session per user or showing all
-                const uniqueUsers = Array.from(new Map(users.map((u: any) => [u.user_id, u])).values());
-                setOnlineUsers(uniqueUsers);
-            })
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload: any) => {
-                // Global notifications now handled in GemenskapApp.tsx
-                // This local listener can be removed if not needed for local UI state in ChatPage
-            })
-            .subscribe(async (status: string) => {
-                if (status === 'SUBSCRIBED') {
-                    await channel.track({
-                        user_id: user.id,
-                        full_name: user.full_name,
-                        avatar_url: getEffectiveAvatar(user.email, user.avatar_url),
-                        role: user.role,
-                        online_at: new Date().toISOString(),
-                    });
-                }
-            });
-
-        return () => {
-            supabase.removeChannel(channel);
-        };
-    }, [user.id, user.full_name, user.avatar_url, user.role, user.notifications_enabled]);
+    // Presence & Global Notifications handled in GemenskapApp.tsx
 
     // Helper to check if a room is locked for the current user
     const isRoomLocked = (roomId: string) => {
@@ -331,30 +300,24 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
                             </button>
                         </div>
                         <div className="space-y-2 overflow-y-auto no-scrollbar pb-24 md:pb-8">
-                            {/* Render Online Users from Presence */}
-                            {onlineUsers.map(p => (
-                                <div key={p.user_id} className="flex items-center gap-4 p-4 rounded-[2rem] hover:bg-white/5 transition-all cursor-pointer group border border-transparent hover:border-white/5">
+                            {/* Render Online Users from Global Presence */}
+                            {Array.from(globalOnlineUsers).map(userId => (
+                                <div key={userId} className="flex items-center gap-4 p-4 rounded-[2rem] hover:bg-white/5 transition-all cursor-pointer group border border-transparent hover:border-white/5">
                                     <div className="relative">
                                         <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-xl transition-transform group-hover:scale-105 duration-500`}>
-                                            {p.avatar_url ? (
-                                                <img src={p.avatar_url} alt={p.full_name} className="w-full h-full object-cover rounded-2xl" />
-                                            ) : (
-                                                <span className="font-bold">{p.full_name?.charAt(0) || '?'}</span>
-                                            )}
+                                            <span className="font-bold">?</span>
                                         </div>
                                         <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-4 border-slate-900 rounded-full shadow-lg"></div>
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-white group-hover:text-orange-400 transition-colors">{p.full_name || 'Anonym'}</h4>
+                                        <h4 className="font-bold text-white group-hover:text-orange-400 transition-colors">Medlem</h4>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">{p.role || 'Medlem'}</span>
-                                            <span className="w-1 h-1 bg-zinc-700 rounded-full"></span>
-                                            <span className="text-[10px] text-green-500/60 font-bold uppercase">Online</span>
+                                            <span className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Online</span>
                                         </div>
                                     </div>
                                 </div>
                             ))}
-                            {onlineUsers.length === 0 && (
+                            {globalOnlineUsers.size === 0 && (
                                 <div className="text-center py-10 text-slate-500 italic">Laddar medlemmar...</div>
                             )}
                         </div>
@@ -495,7 +458,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
                                 </div>
                             </div>
                             <div className="flex items-center gap-2 md:gap-4 text-xs font-semibold text-slate-500">
-                                <span className="flex items-center gap-2 hover:text-white transition-colors cursor-pointer"><Users size={14} className="text-orange-500" /> <span className="hidden sm:inline">24 medlemmar online</span><span className="sm:hidden">24</span></span>
+                                <span className="flex items-center gap-2 hover:text-white transition-colors cursor-pointer"><Users size={14} className="text-orange-500" /> <span className="hidden sm:inline">{globalOnlineUsers.size} medlemmar online</span><span className="sm:hidden">{globalOnlineUsers.size}</span></span>
                                 <span className="w-1.5 h-1.5 bg-slate-800 rounded-full"></span>
                                 <span className="italic opacity-80 font-medium line-clamp-1 max-w-[150px] md:max-w-none">"{currentRoom.description}"</span>
                             </div>
@@ -504,15 +467,12 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
 
                     <div className="flex items-center gap-10">
                         <div className="hidden xl:flex -space-x-4 items-center">
-                            {PERSONAS.slice(0, 4).map(p => (
+                            {PERSONAS.map(p => (
                                 <div key={p.id} className={`w-12 h-12 rounded-[1.25rem] border-4 border-slate-950 flex items-center justify-center text-lg ${p.color} text-white shadow-2xl hover:translate-y-[-6px] transition-all cursor-pointer relative group`} title={p.name}>
                                     {p.avatar}
                                     <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-[1.25rem]"></div>
                                 </div>
                             ))}
-                            <div className="w-12 h-12 rounded-[1.25rem] border-4 border-slate-950 bg-slate-800 flex items-center justify-center text-xs font-black text-slate-400 shadow-2xl hover:bg-slate-700 transition-colors cursor-pointer">
-                                +12
-                            </div>
                         </div>
 
                         <div className="flex items-center gap-3">
@@ -535,7 +495,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, initialThread, onOpenSettings
                     {currentRoom.hasVideo ? (
                         <VideoRoom roomId={currentRoom.name} user={user} onEndCall={() => setActiveRoom('general')} />
                     ) : (
-                        <CommunityChat user={user} threadId={currentRoom.id} showHeader={false} />
+                        <CommunityChat user={user} threadId={currentRoom.id} showHeader={false} onlineUsers={globalOnlineUsers} />
                     )}
 
                     {/* Subtle decoration to match Swipe vibe */}

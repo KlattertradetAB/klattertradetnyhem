@@ -31,24 +31,33 @@ const FreeRegistration: React.FC<FreeRegistrationProps> = ({ setPage }) => {
                     emailRedirectTo: window.location.origin,
                     data: {
                         full_name: formData.name,
+                        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                        language: navigator.language,
                         avatar_url: '',
                     },
                 },
             });
 
             if (signUpError) {
+                console.error('Signup Error:', signUpError);
                 setError(signUpError.message);
                 setIsLoading(false);
             } else if (data.user) {
-                // Ensure profile exists
-                await supabase.from('profiles').upsert({
+                // Ensure profile exists with all metadata
+                const { error: profileError } = await supabase.from('profiles').upsert({
                     id: data.user.id,
                     email: formData.email,
                     full_name: formData.name,
                     membership_level: 1, // Free tier
                     membership_active: true,
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    last_localization: navigator.language,
                     updated_at: new Date().toISOString(),
                 });
+
+                if (profileError) {
+                    console.error('Profile Creation Error:', profileError);
+                }
 
                 setSubmitted(true);
                 setIsLoading(false);

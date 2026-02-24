@@ -28,6 +28,7 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
   // 1. State Declarations (MUST be at the top)
   const [authStatus, setAuthStatus] = useState<AuthStatus>(AuthStatus.IDLE);
   const [user, setUser] = useState<Profile | null>(null);
+  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<'welcome' | 'dashboard' | 'chat' | 'experts' | 'admin'>('welcome');
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -199,6 +200,18 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
           notifications_enabled: profileData?.notifications_enabled ?? true,
         });
 
+        // Update login metadata
+        await supabase
+          .from('profiles')
+          .update({
+            last_login: new Date().toISOString(),
+            login_count: (profileData?.login_count || 0) + 1,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            last_ip: 'stored-via-supabase-auth', // Supabase handles IP in auth.audit_log, but we can store it here too if needed
+            last_localization: navigator.language
+          })
+          .eq('id', session.user.id);
+
         // If logging in via premium flow, go straight to the new deluxe chat template
         if (isPremiumView || window.location.hash === '#premium-login') {
           setActiveTab('chat');
@@ -209,12 +222,46 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
       }
     });
 
+    // Presence Listener
+    let presenceChannel: any = null;
+    if (user) {
+      presenceChannel = supabase.channel('online-users', {
+        config: {
+          presence: {
+            key: user.id,
+          },
+        },
+      });
+
+      presenceChannel
+        .on('presence', { event: 'sync' }, () => {
+          const state = presenceChannel.presenceState();
+          const onlineIds = new Set(Object.keys(state));
+          setOnlineUsers(onlineIds);
+        })
+        .on('presence', { event: 'join' }, ({ key, newPresences }: any) => {
+          console.log('join', key, newPresences);
+        })
+        .on('presence', { event: 'leave' }, ({ key, leftPresences }: any) => {
+          console.log('leave', key, leftPresences);
+        })
+        .subscribe(async (status: string) => {
+          if (status === 'SUBSCRIBED') {
+            await presenceChannel.track({
+              user_id: user.id,
+              online_at: new Date().toISOString(),
+            });
+          }
+        });
+    }
+
     return () => {
       window.removeEventListener('popstate', handlePopState);
       subscription.unsubscribe();
       supabase.removeChannel(notificationChannel);
+      if (presenceChannel) supabase.removeChannel(presenceChannel);
     };
-  }, [authStatus, isPremiumView]);
+  }, [authStatus, isPremiumView, user?.id]);
 
 
   // 3. Handlers
@@ -551,6 +598,7 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
                 <div className="flex-1 h-full w-full animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-hidden">
                   <ChatPage
                     user={user}
+                    onlineUsers={onlineUsers}
                     initialThread={selectedTopic}
                     onOpenSettings={() => setSettingsOpen(true)}
                     onLogout={handleLogout}

@@ -36,16 +36,45 @@ export default function RegisterPage({ setPage }: RegisterPageProps) {
                 data: {
                     full_name: fullName,
                     country: country,
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    language: navigator.language,
                 },
                 emailRedirectTo: window.location.origin
             },
         })
 
         if (signUpError) {
+            console.error('Signup Error:', signUpError);
             setError(signUpError.message)
             setLoading(false)
+        } else if (data.user) {
+            try {
+                // Explicitly create profile to ensure it exists
+                const { error: profileError } = await supabase.from('profiles').upsert({
+                    id: data.user.id,
+                    email: email,
+                    full_name: fullName,
+                    membership_level: 2,
+                    membership_active: true,
+                    country: country,
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    last_localization: navigator.language,
+                    updated_at: new Date().toISOString(),
+                });
+
+                if (profileError) {
+                    console.error('Profile Creation Error:', profileError);
+                    // We don't necessarily block the user here if they need to confirm email first,
+                    // but it's good to know if it failed.
+                }
+
+                setSuccess(true)
+            } catch (err) {
+                console.error('Unexpected error during profile creation:', err);
+            } finally {
+                setLoading(false)
+            }
         } else {
-            setSuccess(true)
             setLoading(false)
         }
     }

@@ -16,6 +16,7 @@ interface CommunityChatProps {
     threadId?: string;
     showHeader?: boolean;
     className?: string;
+    onlineUsers?: Set<string>;
 }
 
 interface CommunityMessage extends ChatMessage {
@@ -28,7 +29,7 @@ interface CommunityMessage extends ChatMessage {
     is_ai?: boolean;
 }
 
-const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general', showHeader = true, className }) => {
+const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general', showHeader = true, className, onlineUsers }) => {
     const [messages, setMessages] = useState<CommunityMessage[]>([]);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState<Persona | null>(null);
@@ -448,7 +449,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                                     ) : (
                                         <div className="scale-125">{msg.persona?.avatar}</div>
                                     )}
-                                    <div className={`absolute -bottom-1 -right-1 w-4 h-4 border-4 border-slate-950 rounded-full ${isUser ? 'bg-green-500' : 'bg-green-500'}`}></div>
+                                    <div className={`absolute -bottom-1 -right-1 w-4 h-4 border-4 border-slate-950 rounded-full ${isUser || (msg.user_id && onlineUsers?.has(msg.user_id)) ? 'bg-green-500' : 'bg-slate-500'}`}></div>
                                 </div>
                             ) : (
                                 <div className="w-12 shrink-0"></div>

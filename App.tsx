@@ -18,7 +18,6 @@ import Downloads from './pages/Downloads';
 import LoginPage from './pages/Auth/LoginPage';
 import RegisterPage from './pages/Auth/RegisterPage';
 import ForgotPasswordPage from './pages/Auth/ForgotPasswordPage';
-import AuthLanding from './pages/LoginPage';
 import BookPromotion from './pages/BookPromotion';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import CookiePolicy from './pages/CookiePolicy';
@@ -31,19 +30,33 @@ import GestaltApp from './gestalt-filosofi/App';
 import { LanguageProvider as SelfCareLanguageProvider } from './self-care/contexts/LanguageContext';
 import { ThemeProvider as SelfCareThemeProvider } from './self-care/contexts/ThemeContext';
 import AdminDashboard from './self-care/components/AdminDashboard';
+import { supabase } from './gemenskap/services/supabase';
+import { AuthStatus } from './gemenskap/types';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>(Page.HOME);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
   const [isCookieBannerVisible, setIsCookieBannerVisible] = useState(true);
+  const [authStatus, setAuthStatus] = useState<AuthStatus>(AuthStatus.IDLE);
 
   useEffect(() => {
     // Check for standalone mode
     const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
     setIsStandalone(!!isStandaloneMode);
 
-
+    // Supabase Auth Listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: string, session: any) => {
+      if (session) {
+        setAuthStatus(AuthStatus.AUTHENTICATED);
+        // If on a public auth page, move to app
+        if ([Page.LOGIN, Page.REGISTER, Page.FORGOT_PASSWORD].includes(currentPage)) {
+          handleSetPage(Page.GEMENSKAP_APP);
+        }
+      } else {
+        setAuthStatus(AuthStatus.UNAUTHENTICATED);
+      }
+    });
 
     // Initial routing logic
     const handleInitialRoute = () => {
@@ -52,8 +65,6 @@ const App: React.FC = () => {
 
       // Priority 1: Standalone Mode
       if (isStandaloneMode) {
-
-
         // If has hash related to app, ensure Page is correct
         if (hash.includes('#premium-login') || hash.includes('#login') || hash.includes('#signup') ||
           hash.includes('#chat') || hash.includes('#dashboard') || hash.includes('#welcome') || hash.includes('#experts')) {
@@ -98,8 +109,11 @@ const App: React.FC = () => {
     };
 
     window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [currentPage]);
 
   const handleSetPage = (page: Page, state?: any) => {
     if (page !== currentPage) {
@@ -186,7 +200,7 @@ const App: React.FC = () => {
             );
             case Page.TERMS: return <Terms setPage={handleSetPage} />;
             case Page.PREMIUM_APPLICATION: return <PremiumApplication setPage={handleSetPage} />;
-            case Page.FREE_REGISTRATION: return <RegisterPage setPage={handleSetPage} />;
+            case Page.FREE_REGISTRATION: return <FreeRegistration setPage={handleSetPage} />;
             case Page.ADMIN_SURVEY_STATS: return <AdminDashboard />;
             case Page.GEMENSKAP_APP: return <GemenskapApp onBackToSite={(targetPage?: Page) => handleSetPage(targetPage || Page.HOME)} />;
             default: return <Home setPage={handleSetPage} />;

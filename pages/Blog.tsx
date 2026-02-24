@@ -14,6 +14,27 @@ const Blog: React.FC<BlogProps> = ({ setPage }) => {
   const [isPdfOpen, setIsPdfOpen] = useState(false);
   const [selectedPdf, setSelectedPdf] = useState({ url: '', title: '' });
 
+  const featuredPosts = [
+    {
+      title: "Att förstå myndighetsinducerat trauma",
+      description: "Vår populäraste guide om systemets påverkan på individens hälsa och vägen till läkning.",
+      date: "POPULÄR",
+      category: "Djupdykning",
+      author: "Horizonten Team",
+      authorRole: "Forskning & Utveckling",
+      image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=600&h=400"
+    },
+    {
+      title: "Gemenskapens kraft i återhämtning",
+      description: "Varför läkning sker bäst tillsammans och hur vi bygger tryggare rum för alla.",
+      date: "UTVALD",
+      category: "Gemenskap",
+      author: "Billy Ljungberg",
+      authorRole: "Grundare",
+      image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&q=80&w=600&h=400"
+    }
+  ];
+
   const blogPosts = [
     {
       title: "Ett grundläggande attributionsfel",
@@ -50,20 +71,52 @@ const Blog: React.FC<BlogProps> = ({ setPage }) => {
         title={selectedPdf.title}
       />
 
-      {/* Header */}
-      <div className="text-center max-w-3xl mx-auto space-y-4">
-        <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-orange-400">
-          Blogg & Reflektion
-        </h1>
-        <p className="text-lg text-white/70 italic font-light">
-          Tankar om trauma, återhämtning och mänsklig utveckling.
-        </p>
+      {/* Featured Section (from snippet) */}
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12 lg:py-20 glass bg-white/[0.02] border border-white/10 rounded-[4rem] relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500/10 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2"></div>
+
+        <div className="mx-auto max-w-2xl lg:mx-0 relative z-10">
+          <h2 className="text-4xl font-black tracking-tighter text-white sm:text-5xl">Utvalt & Populärt</h2>
+          <p className="mt-4 text-lg text-white/60 font-light italic">Våra mest lästa insikter för din personliga resa.</p>
+        </div>
+
+        <div className="mx-auto mt-10 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 border-t border-white/10 pt-10 sm:mt-16 sm:pt-16 lg:mx-0 lg:max-w-none lg:grid-cols-2 relative z-10">
+          {featuredPosts.map((post, idx) => (
+            <article key={idx} className="flex max-w-xl flex-col items-start justify-between group">
+              <div className="flex items-center gap-x-4 text-xs">
+                <time className="text-white/40 font-bold tracking-widest uppercase">{post.date}</time>
+                <span className="relative z-10 rounded-full bg-orange-500/20 px-3 py-1.5 font-black text-orange-400 uppercase tracking-widest">{post.category}</span>
+              </div>
+              <div className="group relative grow">
+                <h3 className="mt-6 text-2xl font-black text-white group-hover:text-amber-200 transition-colors leading-tight">
+                  <a href="#">
+                    <span className="absolute inset-0"></span>
+                    {post.title}
+                  </a>
+                </h3>
+                <p className="mt-5 line-clamp-3 text-sm/6 text-white/50 font-light italic">{post.description}</p>
+              </div>
+              <div className="relative mt-10 flex items-center gap-x-4">
+                <img src={post.image} alt={post.author} className="size-12 rounded-2xl bg-white/5 object-cover shadow-2xl border border-white/10" />
+                <div className="text-sm">
+                  <p className="font-black text-white uppercase tracking-wider text-[11px] mb-0.5">
+                    <a href="#">
+                      <span className="absolute inset-0"></span>
+                      {post.author}
+                    </a>
+                  </p>
+                  <p className="text-white/30 text-[10px] font-bold uppercase">{post.authorRole}</p>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
       </div>
 
       {/* Blog Posts List */}
       <div className="max-w-5xl mx-auto space-y-8">
         <h3 className="text-sm font-black px-4 text-white/30 uppercase tracking-[0.3em] flex items-center gap-3">
-          <Sparkles size={16} className="text-orange-500" /> Senaste inläggen
+          <Sparkles size={16} className="text-orange-500" /> Välkommen till vårt bibliotek
         </h3>
 
         <div className="grid gap-6">

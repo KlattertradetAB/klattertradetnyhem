@@ -29,22 +29,27 @@ const AssistantFab: React.FC<AssistantFabProps> = ({ user, isChatActive = false 
                 onClick={() => setIsOpen(!isOpen)}
                 className={`
                     fixed ${isChatActive ? 'bottom-24 md:bottom-8' : 'bottom-6 md:bottom-8'} right-6 md:right-8 z-[60]
-                    w-14 h-14 md:w-16 md:h-16 rounded-full 
-                    bg-white/10 backdrop-blur-xl border border-white/20
-                    shadow-2xl shadow-black/40
+                    w-14 h-14 md:w-16 md:h-16 rounded-[1.8rem] md:rounded-[2.2rem]
+                    bg-white/10 backdrop-blur-2xl border border-white/20
+                    shadow-[0_8px_32px_rgba(0,0,0,0.4)]
                     flex items-center justify-center 
-                    transition-all duration-300 hover:scale-110 active:scale-95 group
+                    transition-all duration-500 hover:scale-110 active:scale-95 group
+                    hover:bg-white/15 hover:border-white/30
                     ${isOpen ? 'rotate-90' : 'rotate-0'}
                 `}
             >
+                <div className="absolute inset-0 rounded-[inherit] bg-gradient-to-tr from-white/5 to-transparent pointer-events-none"></div>
+
                 {isOpen ? (
-                    <X size={28} className="text-white" />
+                    <X size={28} className="text-white drop-shadow-md" />
                 ) : (
-                    <img
-                        src="/logo2.png"
-                        alt="Assistent"
-                        className="w-8 h-8 md:w-10 md:h-10 object-contain drop-shadow-lg"
-                    />
+                    <div className="relative w-8 h-8 md:w-10 md:h-10 rounded-xl overflow-hidden group-hover:scale-110 transition-transform duration-300">
+                        <img
+                            src="/logo2.png"
+                            alt="Assistent"
+                            className="w-full h-full object-contain drop-shadow-lg p-0.5"
+                        />
+                    </div>
                 )}
 
                 {/* Tooltip */}

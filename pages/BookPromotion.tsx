@@ -125,28 +125,30 @@ const BookPromotion: React.FC<BookPromotionProps> = ({ setPage }) => {
                 </div>
 
                 <div className="mx-auto max-w-4xl text-center">
-                    <h2 className="text-base/7 font-semibold text-amber-500">Prissättning</h2>
-                    <p className="mt-2 text-balance text-5xl font-semibold tracking-tight text-white sm:text-6xl">Välj rätt format för dig</p>
+                    <h2 className="text-base/7 font-semibold text-amber-500 uppercase tracking-widest">Prissättning</h2>
+                    <p className="mt-2 text-balance text-5xl font-bold tracking-tight text-white sm:text-6xl">Välj rätt format för dig</p>
                 </div>
                 <p className="mx-auto mt-6 max-w-2xl text-pretty text-center text-lg font-medium text-zinc-400 sm:text-xl/8">
-                    Välj ett alternativ som passar bäst för ditt sätt att läsa och engagera dig i boken.
+                    Hitta det alternativ som passar bäst för ditt sätt att läsa och ta till dig kunskapen.
                 </p>
 
                 <div className="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-2">
-                    {/* Hobby Tier -> Online Access */}
+                    {/* Basic Tier -> Online Access */}
                     <div className="rounded-3xl rounded-t-3xl bg-white/5 p-8 ring-1 ring-white/10 sm:mx-8 sm:rounded-b-none sm:p-10 lg:mx-0 lg:rounded-bl-3xl lg:rounded-tr-none backdrop-blur-md">
-                        <h3 id="tier-online" className="text-base/7 font-semibold text-amber-500 uppercase tracking-widest">Online-läsning</h3>
+                        <h3 id="tier-online" className="text-base/7 font-semibold text-amber-500 uppercase tracking-widest italic">Digital läsning</h3>
                         <p className="mt-4 flex items-baseline gap-x-2">
                             <span className="text-5xl font-bold tracking-tight text-white">150:-</span>
-                            <span className="text-base text-zinc-500 italic">engångskostnad</span>
                         </p>
-                        <p className="mt-6 text-base/7 text-zinc-300">Läs boken direkt i din webbläsare på vår plattform. Perfekt för dig som vill ha tillgång överallt.</p>
+                        <p className="mt-6 text-base font-bold text-white uppercase tracking-tight">Få tillgång till- och läs din e-bok online</p>
+                        <p className="mt-4 text-sm text-zinc-400 leading-relaxed">
+                            Genom att läsa boken online på vår hemsida får du direkt tillgång till innehållet utan att behöva hantera filer. Det är ett miljövänligt och smidigt sätt att ta del av materialet på valfri skärm, samtidigt som du sparar utrymme på din enhet.
+                        </p>
                         <ul role="list" className="mt-8 space-y-3 text-sm/6 text-zinc-300 sm:mt-10">
                             {[
-                                "Tillgång via hemsidan",
-                                "Spara bokmärken",
-                                "Full sökbarhet",
-                                "Läs på valfri enhet"
+                                "Läs direkt i webbläsaren",
+                                "Spara bokmärken automatiskt",
+                                "Ingen nedladdning krävs",
+                                "Alltid senaste versionen"
                             ].map((feature) => (
                                 <li key={feature} className="flex gap-x-3">
                                     <CheckCircle className="h-6 w-5 flex-none text-amber-500" />
@@ -162,23 +164,25 @@ const BookPromotion: React.FC<BookPromotionProps> = ({ setPage }) => {
                         </button>
                     </div>
 
-                    {/* Enterprise Tier -> PDF Download */}
+                    {/* Featured Tier -> Full Download */}
                     <div className="relative rounded-3xl bg-amber-500/10 p-8 shadow-2xl ring-2 ring-amber-500/50 sm:p-10 backdrop-blur-xl lg:scale-105 lg:z-10">
                         <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-amber-500 rounded-full text-[10px] font-black uppercase text-slate-950 tracking-tighter">
-                            Populärast
+                            Mest flexibel
                         </div>
-                        <h3 id="tier-pdf" className="text-base/7 font-semibold text-amber-400 uppercase tracking-widest">PDF-Nedladdning</h3>
+                        <h3 id="tier-full" className="text-base/7 font-semibold text-amber-400 uppercase tracking-widest italic">Komplett ägandeskap</h3>
                         <p className="mt-4 flex items-baseline gap-x-2">
                             <span className="text-5xl font-bold tracking-tight text-white">200:-</span>
-                            <span className="text-base text-zinc-400 italic">engångskostnad</span>
                         </p>
-                        <p className="mt-6 text-base/7 text-zinc-300">Behåll boken för alltid. Ladda ner den som en högupplöst PDF-fil till din dator eller mobil.</p>
+                        <p className="mt-6 text-base font-bold text-white uppercase tracking-tight">Få tillgång till boken som e-pub eller pdf på den enhet du känner känns lämpligast</p>
+                        <p className="mt-4 text-sm text-zinc-400 leading-relaxed">
+                            Väljer du detta alternativ får du filerna skickade till dig så att du kan läsa boken i din favorit-app för e-böcker, på din Kindle, eller skriva ut delar som du vill ha fysiskt. Du äger din kopia offline och kan läsa den helt utan internetuppkoppling.
+                        </p>
                         <ul role="list" className="mt-8 space-y-3 text-sm/6 text-zinc-300 sm:mt-10">
                             {[
-                                "Egen PDF-fil",
-                                "Läs offline när som helst",
+                                "Nedladdningsbar PDF & ePub",
+                                "Läs offline på Kindle/iPad/Mobil",
                                 "Skriv ut kapitel vid behov",
-                                "Ingen inloggning krävs"
+                                "Ingen inloggning krävs efter köp"
                             ].map((feature) => (
                                 <li key={feature} className="flex gap-x-3">
                                     <CheckCircle className="h-6 w-5 flex-none text-amber-400" />
@@ -190,7 +194,7 @@ const BookPromotion: React.FC<BookPromotionProps> = ({ setPage }) => {
                             onClick={() => setPage(Page.CHECKOUT)}
                             className="mt-8 block w-full rounded-2xl bg-amber-500 px-3.5 py-3.5 text-center text-sm font-black text-slate-950 shadow-xl shadow-amber-500/20 hover:bg-amber-400 transition-all hover:scale-105 sm:mt-10"
                         >
-                            Beställ PDF-version
+                            Beställ Full tillgång
                         </button>
                     </div>
                 </div>

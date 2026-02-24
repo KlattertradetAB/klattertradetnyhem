@@ -225,7 +225,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
           />
         </div>
         <div className="md:w-3/4 space-y-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-white leading-tight">Vår nya bok: Myndighetsinducerat trauma</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-white leading-tight">Vår nya bok: Myndighetsinducerat trauma, från subjekt till objekt</h2>
           <p className="text-zinc-400 text-sm md:text-base leading-relaxed">
             En unik djupdykning i systemets påverkan på individen och vägen mot läkning.
             Innehåller praktiska verktyg och fallstudier för både drabbade och professionella.

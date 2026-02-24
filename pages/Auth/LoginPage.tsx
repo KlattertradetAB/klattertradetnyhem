@@ -34,9 +34,16 @@ export default function LoginPage({ setPage }: LoginPageProps) {
             setError(loginError.message)
             setLoading(false)
         } else {
-            // Redirect handled by App.tsx listener or force refresh
-            window.location.hash = '#'
-            window.location.reload()
+            const { data } = await supabase.auth.getUser();
+            if (data?.user) {
+                // Record login event for sync
+                await supabase.from('login_events').insert({
+                    user_id: data.user.id,
+                    logged_in_at: new Date().toISOString(),
+                });
+            }
+            // Redirect handled by App.tsx listener
+            setPage(Page.GEMENSKAP_APP)
         }
     }
 
