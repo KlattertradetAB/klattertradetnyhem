@@ -117,3 +117,25 @@ $$ language plpgsql security definer;
 create trigger on_chat_message_created
   after insert on public.chat_messages
   for each row execute procedure public.handle_new_chat_message();
+
+-- Create a table for Login Events (Analytics)
+create table if not exists public.login_events (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  logged_in_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  metadata jsonb default '{}'::jsonb
+);
+
+-- RLS for Login Events
+alter table public.login_events enable row level security;
+
+create policy "Users can insert their own login events."
+  on public.login_events for insert
+  with check ( auth.uid() = user_id );
+
+create policy "Admins can view all login events."
+  on public.login_events for select
+  using ( exists (
+    select 1 from public.profiles
+    where id = auth.uid() and role = 'admin'
+  ));

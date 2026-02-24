@@ -212,6 +212,18 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
           })
           .eq('id', session.user.id);
 
+        // Record Login Event (Analytics)
+        await supabase
+          .from('login_events')
+          .insert({
+            user_id: session.user.id,
+            metadata: {
+              url: window.location.href,
+              user_agent: navigator.userAgent,
+              localization: navigator.language
+            }
+          });
+
         // If logging in via premium flow, go straight to the new deluxe chat template
         if (isPremiumView || window.location.hash === '#premium-login') {
           setActiveTab('chat');
