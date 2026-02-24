@@ -3,7 +3,6 @@
 import { cn } from "@/lib/utils";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Menu, X } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
 
 interface MobileMenuProps {
@@ -60,24 +59,24 @@ export const MobileMenu = ({ className }: MobileMenuProps) => {
 
           <nav className="flex flex-col space-y-6 container mx-auto">
             {menuItems.map((item) => (
-              <Link
+              <a
                 key={item.name}
                 href={item.href}
                 onClick={handleLinkClick}
                 className="text-xl font-sans text-foreground/60 transition-colors ease-out duration-150 hover:text-foreground/100 py-2"
               >
                 {item.name}
-              </Link>
+              </a>
             ))}
 
             <div className="mt-6">
-              <Link
+              <a
                 href="/login"
                 onClick={handleLinkClick}
                 className="inline-block text-xl font-sans text-primary transition-colors ease-out duration-150 hover:text-primary/80 py-2"
               >
                 Logga in
-              </Link>
+              </a>
             </div>
           </nav>
         </Dialog.Content>

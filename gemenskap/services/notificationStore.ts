@@ -30,7 +30,7 @@ const maintainLimit = async (userId: string) => {
         .order('created_at', { ascending: false });
 
     if (data && data.length > 10) {
-        const idsToDelete = data.slice(10).map(n => n.id);
+        const idsToDelete = data.slice(10).map((n: { id: string }) => n.id);
         if (idsToDelete.length > 0) {
             await supabase
                 .from('notifications')
@@ -116,7 +116,7 @@ const setupSubscription = async () => {
                 table: 'notifications',
                 filter: `user_id=eq.${user.id}`,
             },
-            (payload) => {
+            (payload: any) => {
                 fetchNotifications();
             }
         )

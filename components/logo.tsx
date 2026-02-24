@@ -1,9 +1,7 @@
-import Image from "next/image";
-
 export const Logo = ({ className }: { className?: string }) => {
   return (
     <div className={`flex items-center gap-2 ${className || ""}`}>
-      <Image
+      <img
         src="/logo2.png"
         alt="Horizonten gemenskap"
         width={40}

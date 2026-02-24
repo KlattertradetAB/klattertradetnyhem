@@ -112,6 +112,84 @@ const BookPromotion: React.FC<BookPromotionProps> = ({ setPage }) => {
                 </div>
             </section>
 
+            {/* Pricing Section */}
+            <section className="relative isolate overflow-hidden py-12">
+                <div className="mx-auto max-w-4xl text-center space-y-4">
+                    <h2 className="text-amber-500 font-black uppercase tracking-widest text-sm">Prissättning</h2>
+                    <p className="text-4xl md:text-6xl font-bold tracking-tight text-white">Välj det alternativ som passar dig</p>
+                    <p className="mx-auto max-w-2xl text-lg text-zinc-400 leading-relaxed">
+                        Få omedelbar tillgång till boken "Myndighetsinducerat trauma, Från subjekt till objekt" genom att välja ett av våra digitala alternativ.
+                    </p>
+                </div>
+
+                <div className="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-2 lg:gap-8">
+                    {/* Hobby Tier -> Online Access */}
+                    <div className="glass bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-8 sm:p-10 lg:rounded-tr-none lg:rounded-br-none shadow-2xl">
+                        <h3 className="text-lg font-bold text-amber-500 uppercase tracking-widest">Online-läsning</h3>
+                        <p className="mt-4 flex items-baseline gap-x-2">
+                            <span className="text-5xl font-bold tracking-tight text-white">150:-</span>
+                            <span className="text-zinc-400 text-sm italic">engångskostnad</span>
+                        </p>
+                        <p className="mt-6 text-zinc-300 leading-relaxed">
+                            Läs boken direkt i din webbläsare på vår plattform. Perfekt för dig som vill ha tillgång överallt utan att ladda ner filer.
+                        </p>
+                        <ul className="mt-8 space-y-3 text-sm text-zinc-300">
+                            {[
+                                "Tillgång via hemsidan",
+                                "Spara bokmärken",
+                                "Full sökbarhet",
+                                "Läs på valfri enhet"
+                            ].map((feature, i) => (
+                                <li key={i} className="flex gap-x-3">
+                                    <CheckCircle className="h-5 w-5 flex-none text-amber-500" />
+                                    {feature}
+                                </li>
+                            ))}
+                        </ul>
+                        <button
+                            onClick={() => setPage(Page.CHECKOUT)}
+                            className="mt-8 block w-full rounded-2xl bg-white/10 px-4 py-3 text-center text-sm font-black text-white border border-white/20 transition-all hover:bg-white/20 hover:scale-[1.02]"
+                        >
+                            Välj Online-läsning
+                        </button>
+                    </div>
+
+                    {/* Enterprise Tier -> PDF Download */}
+                    <div className="relative glass bg-amber-500/10 backdrop-blur-md border-2 border-amber-500/50 rounded-3xl p-8 sm:p-10 shadow-2xl lg:scale-110 lg:z-10">
+                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-amber-500 rounded-full text-[10px] font-black uppercase text-slate-950 tracking-tighter">
+                            Populärast
+                        </div>
+                        <h3 className="text-lg font-bold text-amber-400 uppercase tracking-widest">PDF-Nedladdning</h3>
+                        <p className="mt-4 flex items-baseline gap-x-2">
+                            <span className="text-5xl font-bold tracking-tight text-white">200:-</span>
+                            <span className="text-zinc-400 text-sm italic">engångskostnad</span>
+                        </p>
+                        <p className="mt-6 text-zinc-300 leading-relaxed">
+                            Behåll boken för alltid. Ladda ner den som en högupplöst PDF-fil till din dator, surfplatta eller mobil.
+                        </p>
+                        <ul className="mt-8 space-y-3 text-sm text-zinc-300">
+                            {[
+                                "Egen PDF-fil",
+                                "Läs offline när som helst",
+                                "Skriv ut kapitel vid behov",
+                                "Ingen inloggning krävs efter nerladdning"
+                            ].map((feature, i) => (
+                                <li key={i} className="flex gap-x-3">
+                                    <CheckCircle className="h-5 w-5 flex-none text-amber-400" />
+                                    {feature}
+                                </li>
+                            ))}
+                        </ul>
+                        <button
+                            onClick={() => setPage(Page.CHECKOUT)}
+                            className="mt-8 block w-full rounded-2xl bg-amber-500 px-4 py-4 text-center text-sm font-black text-slate-950 transition-all hover:bg-amber-400 hover:scale-[1.02] shadow-xl shadow-amber-500/20"
+                        >
+                            Beställ PDF-version
+                        </button>
+                    </div>
+                </div>
+            </section>
+
             {/* Call to Order */}
             <section className="text-center py-12">
                 <div className="max-w-3xl mx-auto space-y-8">
