@@ -58,7 +58,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
             }
 
             if (messagesData) {
-                const userIds = [...new Set(messagesData.filter(m => !m.is_ai).map(m => m.user_id))];
+                const userIds = [...new Set(messagesData.filter((m: any) => !m.is_ai).map((m: any) => m.user_id))];
                 let profilesMap: Record<string, any> = {};
 
                 if (userIds.length > 0) {
@@ -68,7 +68,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                         .in('id', userIds);
 
                     if (profilesData) {
-                        profilesData.forEach(p => {
+                        profilesData.forEach((p: any) => {
                             profilesMap[p.id] = p;
                         });
                     }
@@ -164,7 +164,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                     table: 'chat_messages',
                     filter: threadId && threadId !== 'general' ? `thread_id=eq.${threadId}` : undefined
                 },
-                async (payload) => {
+                async (payload: any) => {
                     const newMsg = payload.new;
                     if ((threadId === 'general' || !threadId) && newMsg.thread_id) return;
 
@@ -213,7 +213,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                     table: 'chat_messages',
                     filter: threadId && threadId !== 'general' ? `thread_id=eq.${threadId}` : undefined
                 },
-                (payload) => {
+                (payload: any) => {
                     const updatedMsg = payload.new;
                     setMessages(prev => prev.map(m => m.id === updatedMsg.id ? {
                         ...m,
@@ -231,7 +231,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                     table: 'chat_messages',
                     filter: threadId && threadId !== 'general' ? `thread_id=eq.${threadId}` : undefined
                 },
-                (payload) => {
+                (payload: any) => {
                     setMessages(prev => prev.filter(m => m.id !== payload.old.id));
                 }
             )

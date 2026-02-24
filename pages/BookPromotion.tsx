@@ -112,77 +112,83 @@ const BookPromotion: React.FC<BookPromotionProps> = ({ setPage }) => {
                 </div>
             </section>
 
-            {/* Pricing Section */}
-            <section className="relative isolate overflow-hidden py-12">
-                <div className="mx-auto max-w-4xl text-center space-y-4">
-                    <h2 className="text-amber-500 font-black uppercase tracking-widest text-sm">Prissättning</h2>
-                    <p className="text-4xl md:text-6xl font-bold tracking-tight text-white">Välj det alternativ som passar dig</p>
-                    <p className="mx-auto max-w-2xl text-lg text-zinc-400 leading-relaxed">
-                        Få omedelbar tillgång till boken "Myndighetsinducerat trauma, Från subjekt till objekt" genom att välja ett av våra digitala alternativ.
-                    </p>
+            {/* Pricing Section - New Refined Template */}
+            <section className="relative isolate bg-transparent px-6 py-24 sm:py-32 lg:px-8">
+                {/* Background Glow */}
+                <div aria-hidden="true" className="absolute inset-x-0 -top-3 -z-10 transform-gpu overflow-hidden px-36 blur-3xl">
+                    <div
+                        style={{
+                            clipPath: 'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)'
+                        }}
+                        className="mx-auto aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-amber-500 to-amber-700 opacity-20"
+                    ></div>
                 </div>
 
-                <div className="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-2 lg:gap-8">
+                <div className="mx-auto max-w-4xl text-center">
+                    <h2 className="text-base/7 font-semibold text-amber-500">Prissättning</h2>
+                    <p className="mt-2 text-balance text-5xl font-semibold tracking-tight text-white sm:text-6xl">Välj rätt format för dig</p>
+                </div>
+                <p className="mx-auto mt-6 max-w-2xl text-pretty text-center text-lg font-medium text-zinc-400 sm:text-xl/8">
+                    Välj ett alternativ som passar bäst för ditt sätt att läsa och engagera dig i boken.
+                </p>
+
+                <div className="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-2">
                     {/* Hobby Tier -> Online Access */}
-                    <div className="glass bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-8 sm:p-10 lg:rounded-tr-none lg:rounded-br-none shadow-2xl">
-                        <h3 className="text-lg font-bold text-amber-500 uppercase tracking-widest">Online-läsning</h3>
+                    <div className="rounded-3xl rounded-t-3xl bg-white/5 p-8 ring-1 ring-white/10 sm:mx-8 sm:rounded-b-none sm:p-10 lg:mx-0 lg:rounded-bl-3xl lg:rounded-tr-none backdrop-blur-md">
+                        <h3 id="tier-online" className="text-base/7 font-semibold text-amber-500 uppercase tracking-widest">Online-läsning</h3>
                         <p className="mt-4 flex items-baseline gap-x-2">
                             <span className="text-5xl font-bold tracking-tight text-white">150:-</span>
-                            <span className="text-zinc-400 text-sm italic">engångskostnad</span>
+                            <span className="text-base text-zinc-500 italic">engångskostnad</span>
                         </p>
-                        <p className="mt-6 text-zinc-300 leading-relaxed">
-                            Läs boken direkt i din webbläsare på vår plattform. Perfekt för dig som vill ha tillgång överallt utan att ladda ner filer.
-                        </p>
-                        <ul className="mt-8 space-y-3 text-sm text-zinc-300">
+                        <p className="mt-6 text-base/7 text-zinc-300">Läs boken direkt i din webbläsare på vår plattform. Perfekt för dig som vill ha tillgång överallt.</p>
+                        <ul role="list" className="mt-8 space-y-3 text-sm/6 text-zinc-300 sm:mt-10">
                             {[
                                 "Tillgång via hemsidan",
                                 "Spara bokmärken",
                                 "Full sökbarhet",
                                 "Läs på valfri enhet"
-                            ].map((feature, i) => (
-                                <li key={i} className="flex gap-x-3">
-                                    <CheckCircle className="h-5 w-5 flex-none text-amber-500" />
+                            ].map((feature) => (
+                                <li key={feature} className="flex gap-x-3">
+                                    <CheckCircle className="h-6 w-5 flex-none text-amber-500" />
                                     {feature}
                                 </li>
                             ))}
                         </ul>
                         <button
                             onClick={() => setPage(Page.CHECKOUT)}
-                            className="mt-8 block w-full rounded-2xl bg-white/10 px-4 py-3 text-center text-sm font-black text-white border border-white/20 transition-all hover:bg-white/20 hover:scale-[1.02]"
+                            className="mt-8 block w-full rounded-2xl px-3.5 py-2.5 text-center text-sm font-black text-white ring-1 ring-inset ring-white/20 hover:bg-white/10 transition-all hover:scale-105 sm:mt-10"
                         >
                             Välj Online-läsning
                         </button>
                     </div>
 
                     {/* Enterprise Tier -> PDF Download */}
-                    <div className="relative glass bg-amber-500/10 backdrop-blur-md border-2 border-amber-500/50 rounded-3xl p-8 sm:p-10 shadow-2xl lg:scale-110 lg:z-10">
+                    <div className="relative rounded-3xl bg-amber-500/10 p-8 shadow-2xl ring-2 ring-amber-500/50 sm:p-10 backdrop-blur-xl lg:scale-105 lg:z-10">
                         <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-amber-500 rounded-full text-[10px] font-black uppercase text-slate-950 tracking-tighter">
                             Populärast
                         </div>
-                        <h3 className="text-lg font-bold text-amber-400 uppercase tracking-widest">PDF-Nedladdning</h3>
+                        <h3 id="tier-pdf" className="text-base/7 font-semibold text-amber-400 uppercase tracking-widest">PDF-Nedladdning</h3>
                         <p className="mt-4 flex items-baseline gap-x-2">
                             <span className="text-5xl font-bold tracking-tight text-white">200:-</span>
-                            <span className="text-zinc-400 text-sm italic">engångskostnad</span>
+                            <span className="text-base text-zinc-400 italic">engångskostnad</span>
                         </p>
-                        <p className="mt-6 text-zinc-300 leading-relaxed">
-                            Behåll boken för alltid. Ladda ner den som en högupplöst PDF-fil till din dator, surfplatta eller mobil.
-                        </p>
-                        <ul className="mt-8 space-y-3 text-sm text-zinc-300">
+                        <p className="mt-6 text-base/7 text-zinc-300">Behåll boken för alltid. Ladda ner den som en högupplöst PDF-fil till din dator eller mobil.</p>
+                        <ul role="list" className="mt-8 space-y-3 text-sm/6 text-zinc-300 sm:mt-10">
                             {[
                                 "Egen PDF-fil",
                                 "Läs offline när som helst",
                                 "Skriv ut kapitel vid behov",
-                                "Ingen inloggning krävs efter nerladdning"
-                            ].map((feature, i) => (
-                                <li key={i} className="flex gap-x-3">
-                                    <CheckCircle className="h-5 w-5 flex-none text-amber-400" />
+                                "Ingen inloggning krävs"
+                            ].map((feature) => (
+                                <li key={feature} className="flex gap-x-3">
+                                    <CheckCircle className="h-6 w-5 flex-none text-amber-400" />
                                     {feature}
                                 </li>
                             ))}
                         </ul>
                         <button
                             onClick={() => setPage(Page.CHECKOUT)}
-                            className="mt-8 block w-full rounded-2xl bg-amber-500 px-4 py-4 text-center text-sm font-black text-slate-950 transition-all hover:bg-amber-400 hover:scale-[1.02] shadow-xl shadow-amber-500/20"
+                            className="mt-8 block w-full rounded-2xl bg-amber-500 px-3.5 py-3.5 text-center text-sm font-black text-slate-950 shadow-xl shadow-amber-500/20 hover:bg-amber-400 transition-all hover:scale-105 sm:mt-10"
                         >
                             Beställ PDF-version
                         </button>

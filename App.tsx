@@ -15,7 +15,10 @@ import Community from './pages/Community';
 import ContactUs from './pages/ContactUs';
 import SelfCareApp from './self-care/App';
 import Downloads from './pages/Downloads';
-import LoginPage from './pages/LoginPage';
+import LoginPage from './pages/Auth/LoginPage';
+import RegisterPage from './pages/Auth/RegisterPage';
+import ForgotPasswordPage from './pages/Auth/ForgotPasswordPage';
+import AuthLanding from './pages/LoginPage';
 import BookPromotion from './pages/BookPromotion';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import CookiePolicy from './pages/CookiePolicy';
@@ -164,6 +167,8 @@ const App: React.FC = () => {
             case Page.DOWNLOADS: return <Downloads setPage={handleSetPage} />;
             case Page.GESTALT_WORKSHEET: return <GestaltApp onBack={() => handleSetPage(Page.DOWNLOADS)} />;
             case Page.LOGIN: return <LoginPage setPage={handleSetPage} />;
+            case Page.REGISTER: return <RegisterPage setPage={handleSetPage} />;
+            case Page.FORGOT_PASSWORD: return <ForgotPasswordPage setPage={handleSetPage} />;
             case Page.BOOK: return <BookPromotion setPage={handleSetPage} />;
             case Page.CHECKOUT: return (
               <div className="container mx-auto px-6 py-24 text-center">
@@ -181,7 +186,7 @@ const App: React.FC = () => {
             );
             case Page.TERMS: return <Terms setPage={handleSetPage} />;
             case Page.PREMIUM_APPLICATION: return <PremiumApplication setPage={handleSetPage} />;
-            case Page.FREE_REGISTRATION: return <FreeRegistration setPage={handleSetPage} />;
+            case Page.FREE_REGISTRATION: return <RegisterPage setPage={handleSetPage} />;
             case Page.ADMIN_SURVEY_STATS: return <AdminDashboard />;
             case Page.GEMENSKAP_APP: return <GemenskapApp onBackToSite={(targetPage?: Page) => handleSetPage(targetPage || Page.HOME)} />;
             default: return <Home setPage={handleSetPage} />;

@@ -9,7 +9,7 @@ export interface NotificationItem {
     is_read: boolean;
 }
 
-type NotificationListener = (notifications: NotificationItem[]) => void;
+export type NotificationListener = (notifications: NotificationItem[]) => void;
 let listeners: NotificationListener[] = [];
 let currentSubscription: any = null;
 let cachedNotifications: NotificationItem[] = [];

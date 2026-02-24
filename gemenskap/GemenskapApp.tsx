@@ -116,7 +116,7 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
     // Global Message Listener for Notifications
     const notificationChannel = supabase
       .channel('global_chat_notifications')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, async (payload) => {
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, async (payload: any) => {
         const newMsg = payload.new;
         if (user && newMsg.user_id !== user.id && user.notifications_enabled !== false) {
           const { sendNotification } = await import('./services/notifications');
@@ -175,7 +175,7 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
     window.addEventListener('popstate', handlePopState);
 
     // Supabase Auth Listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event: string, session: any) => {
       if (session) {
         setAuthStatus(AuthStatus.AUTHENTICATED);
         setShowLogin(false);
