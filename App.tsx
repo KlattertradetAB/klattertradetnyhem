@@ -75,12 +75,36 @@ const App: React.FC = () => {
     const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
     setIsStandalone(!!isStandaloneMode);
 
-    // Supabase Auth Listener
+    // 1. Handle Auth Callback (PKCE)
+    const handleAuthCallback = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('code');
+      const next = params.get('next') || '/';
+
+      if (code) {
+        console.log('🔄 Exchanging code for session...');
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (error) {
+          console.error('❌ Code exchange error:', error.message);
+        } else {
+          console.log('✅ Session established from code.');
+          // Remove code from URL for security and cleanliness
+          window.history.replaceState({}, '', next);
+        }
+      }
+    };
+
+    handleAuthCallback();
+
+    // 2. Supabase Auth Listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event: string, session: any) => {
+      console.log('🔔 Auth Event:', event);
+
       if (event === 'PASSWORD_RECOVERY') {
         handleSetPage(Page.RESET_PASSWORD);
         return;
       }
+
       if (session) {
         setAuthStatus(AuthStatus.AUTHENTICATED);
         // If on a public auth page, move to app
@@ -92,7 +116,7 @@ const App: React.FC = () => {
       }
     });
 
-    // Initial routing logic
+    // 3. Initial routing logic
     const handleInitialRoute = () => {
       const path = window.location.pathname;
       const hash = window.location.hash;

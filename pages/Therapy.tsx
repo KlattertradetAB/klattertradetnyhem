@@ -62,7 +62,7 @@ const Therapy: React.FC<TherapyProps> = ({ setPage }) => {
     // 1. Save to Supabase
     try {
       const { supabase } = await import('../gemenskap/services/supabase');
-      const { error } = await supabase.from('therapy_matchmaking').insert({
+      const { error } = await (supabase.from('therapy_matchmaking') as any).insert({
         previously_sought_therapy: formData.tidigare_erfarenhet,
         appreciated_aspects: formData.uppskattade,
         thoughts_on_experience: formData.tanke_delar,

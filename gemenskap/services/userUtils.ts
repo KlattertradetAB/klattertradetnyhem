@@ -18,5 +18,10 @@ export const getEffectiveAvatar = (email?: string, avatarUrl?: string | null): s
  * Useful for fallback when no avatar is present.
  */
 export const getUserInitials = (fullName?: string): string => {
-    return fullName?.charAt(0) || '?';
+    if (!fullName) return '?';
+    const parts = fullName.split(' ');
+    if (parts.length >= 2) {
+        return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+    }
+    return fullName.substring(0, 2).toUpperCase();
 };

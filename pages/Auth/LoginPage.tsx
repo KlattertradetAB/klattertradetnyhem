@@ -33,8 +33,8 @@ export default function LoginPage({ setPage }: LoginPageProps) {
         })
 
         if (loginError) {
-            if (loginError.message.includes('Email not confirmed')) {
-                setError('Din e-postadress är inte bekräftad ännu. Vänligen kontrollera din inkorg och klicka på aktiveringslänken.')
+            if (loginError.message.toLowerCase().includes('email not confirmed') || loginError.message.toLowerCase().includes('bekräftad')) {
+                setError('Din e-postadress är inte bekräftad ännu. Vänligen kontrollera din inkorg och klicka på aktiveringslänken. Om du inte hittar mailet, kolla skräpposten.')
             } else {
                 setError(loginError.message)
             }

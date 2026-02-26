@@ -65,3 +65,26 @@ begin
     role, 
     membership_level, 
     membership_active,
+    phone,
+    application_reason
+  )
+  values (
+    new.id,
+    new.email,
+    new.raw_user_meta_data->>'full_name',
+    coalesce(new.raw_user_meta_data->>'role', 'user'),
+    coalesce((new.raw_user_meta_data->>'membership_level')::int, 0),
+    coalesce((new.raw_user_meta_data->>'membership_active')::boolean, false),
+    new.raw_user_meta_data->>'phone',
+    new.raw_user_meta_data->>'application_reason'
+  )
+  on conflict (id) do nothing;
+  return new;
+end;
+$$;
+
+-- Trigger for new user signup
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();

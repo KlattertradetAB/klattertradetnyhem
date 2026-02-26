@@ -69,13 +69,13 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                         .in('id', userIds);
 
                     if (profilesData) {
-                        profilesData.forEach((p: any) => {
+                        profilesData.forEach((p) => {
                             profilesMap[p.id] = p;
                         });
                     }
                 }
 
-                const mappedMessages: CommunityMessage[] = messagesData.map((msg: any) => ({
+                const mappedMessages: CommunityMessage[] = messagesData.map((msg) => ({
                     id: msg.id,
                     role: msg.is_ai ? 'model' : 'user',
                     text: msg.content,
@@ -95,64 +95,12 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
         fetchMessages();
     }, [user.id, threadId]);
 
-    // 24h Interaction Gap & Daily Reflection Logic
+    /* AI Forum Automation Disabled for now
     useEffect(() => {
         if (messages.length === 0 || !user) return;
-
-        const checkForumActivity = async () => {
-            const lastMessage = messages[messages.length - 1];
-            const now = new Date();
-            const lastMessageTime = new Date(lastMessage.timestamp);
-            const hoursSinceLastMessage = (now.getTime() - lastMessageTime.getTime()) / (1000 * 60 * 60);
-
-            // 1. INTERACTION GAP (2h)
-            if (hoursSinceLastMessage >= 2) {
-                const welcomers = PERSONAS.filter(p => p.id === 'anneli' || p.id === 'andreas');
-                const responder = welcomers[Math.floor(Math.random() * welcomers.length)];
-                const followUpText = "Jag har tänkt lite på det vi pratade om här sist, hur har du det just nu?";
-
-                if (lastMessage.text !== followUpText) {
-                    await supabase.from('chat_messages').insert({
-                        content: followUpText,
-                        user_id: user.id,
-                        is_ai: true,
-                        persona_id: responder.id,
-                        thread_id: threadId === 'general' ? null : threadId
-                    });
-                }
-            }
-
-            // 2. DAILY REFLECTION
-            const reflections = [
-                "Utveckling handlar sällan om stora språng, utan om de där små stegen vi knappt märker att vi tar.",
-                "Ibland är den största utvecklingen att våga stanna upp och acceptera läget precis som det är.",
-                "Kom ihåg att bakslag inte är misslyckanden, det är information om vad vi behöver justera."
-            ];
-
-            const today = new Date().toLocaleDateString();
-            const hasReflectionToday = messages.some(m =>
-                new Date(m.timestamp).toLocaleDateString() === today &&
-                reflections.some(r => m.text.includes(r))
-            );
-
-            if (!hasReflectionToday && now.getHours() >= 8) {
-                const randomReflection = reflections[Math.floor(Math.random() * reflections.length)];
-                const welcomers = PERSONAS.filter(p => p.id === 'anneli' || p.id === 'andreas');
-                const responder = welcomers[Math.floor(Math.random() * welcomers.length)];
-
-                await supabase.from('chat_messages').insert({
-                    content: randomReflection,
-                    user_id: user.id,
-                    is_ai: true,
-                    persona_id: responder.id,
-                    thread_id: threadId === 'general' ? null : threadId
-                });
-            }
-        };
-
-        const timer = setTimeout(checkForumActivity, 5000);
-        return () => clearTimeout(timer);
+        // ... (logic)
     }, [messages.length, threadId, user]);
+    */
 
     useEffect(() => {
         const channel = supabase
@@ -166,22 +114,22 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                     filter: threadId && threadId !== 'general' ? `thread_id=eq.${threadId}` : undefined
                 },
                 async (payload: any) => {
-                    const newMsg = payload.new;
+                    const newMsg = payload.new as any;
                     if ((threadId === 'general' || !threadId) && newMsg.thread_id) return;
 
                     let senderName = 'Någon';
                     let senderEmail = '';
                     let senderAvatar = '';
                     if (!newMsg.is_ai) {
-                        const { data } = await supabase
+                        const { data } = await (supabase
                             .from('profiles')
                             .select('full_name, email, avatar_url')
                             .eq('id', newMsg.user_id)
-                            .single();
+                            .single() as any);
                         if (data) {
-                            senderName = data.full_name;
-                            senderEmail = data.email;
-                            senderAvatar = data.avatar_url;
+                            senderName = (data as any).full_name;
+                            senderEmail = (data as any).email;
+                            senderAvatar = (data as any).avatar_url;
                         }
                     }
 
@@ -215,7 +163,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                     filter: threadId && threadId !== 'general' ? `thread_id=eq.${threadId}` : undefined
                 },
                 (payload: any) => {
-                    const updatedMsg = payload.new;
+                    const updatedMsg = payload.new as any;
                     setMessages(prev => prev.map(m => m.id === updatedMsg.id ? {
                         ...m,
                         text: updatedMsg.content,
@@ -261,7 +209,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
             timestamp: new Date(),
             senderName: user.full_name,
             senderEmail: user.email,
-            senderAvatar: getEffectiveAvatar(user.email, user.avatar_url) || undefined
+            senderAvatar: getEffectiveAvatar(user.email, (user as any).avatar_url) || undefined
         };
         setMessages(prev => [...prev, optimisticMsg]);
 
@@ -273,97 +221,10 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                 thread_id: threadId === 'general' ? null : threadId
             });
 
+            /* AI Response Logic Disabled for now
             const userMessages = messages.filter(m => m.role === 'user');
-            const isFirstMessage = userMessages.length === 0;
-            let responders: Persona[] = [];
-            const lowText = textToSend.toLowerCase();
-
-            if (isFirstMessage) {
-                const welcomers = PERSONAS.filter(p => p.id === 'anneli' || p.id === 'andreas');
-                responders.push(welcomers[Math.floor(Math.random() * welcomers.length)]);
-            } else if (lowText.includes('nu först jag') || lowText.includes('först jag') || lowText.includes('hej') || lowText.includes('hallå')) {
-                const potentialResponders = PERSONAS.filter(p => p.id === 'linda' || p.id === 'kalle');
-                responders.push(potentialResponders[Math.floor(Math.random() * potentialResponders.length)]);
-            } else if (lowText.includes('stress') || lowText.includes('oro') || lowText.includes('ångest') || lowText.includes('jobbigt')) {
-                const potentialResponders = PERSONAS.filter(p => p.id === 'lina' || p.id === 'erik');
-                responders.push(potentialResponders[Math.floor(Math.random() * potentialResponders.length)]);
-            } else {
-                responders = [PERSONAS[Math.floor(Math.random() * PERSONAS.length)]];
-            }
-
-            const chainChance = (isFirstMessage || lowText.includes('nu först jag') || lowText.length > 50) ? 0.6 : 0.4;
-            if (Math.random() < chainChance) {
-                const alreadyPicked = responders[0].id;
-                const available = PERSONAS.filter(p => p.id !== alreadyPicked);
-                if (alreadyPicked === 'linda') {
-                    const friends = available.filter(p => p.id === 'kalle' || p.id === 'amanda');
-                    responders.push(friends[Math.floor(Math.random() * friends.length)]);
-                } else {
-                    responders.push(available[Math.floor(Math.random() * available.length)]);
-                }
-            }
-
-            for (const responder of responders) {
-                const isSecondResponder = responders.indexOf(responder) > 0;
-
-                // 30-120s delay for first responder, fixed shorter delay for chain
-                const randomDelay = Math.floor(Math.random() * (120000 - 30000 + 1)) + 30000;
-                const typingDelay = isSecondResponder ? 8000 : randomDelay;
-                const responseDelay = isSecondResponder ? 3000 : 0;
-
-                if (isSecondResponder) {
-                    await new Promise(resolve => setTimeout(resolve, responseDelay));
-                }
-
-                setIsTyping(responder);
-                await new Promise(resolve => setTimeout(resolve, typingDelay));
-
-                const contextMessages = messages.slice(-12).map(m => ({
-                    role: m.role,
-                    text: `${m.persona ? m.persona.name + ': ' : (m.senderName || 'Medlem') + ': '} ${m.text}`,
-                    timestamp: m.timestamp
-                }));
-
-                const isFirstTimeAnneliOrAndreas = isFirstMessage && (responder.id === 'anneli' || responder.id === 'andreas');
-                const aiInstruction = isFirstTimeAnneliOrAndreas
-                    ? `Svara EXAKT så här: "Hej ${user.full_name.split(' ')[0]}, vad fint att du hittat hit. Jag heter ${responder.name.split(' ')[0]} och jobbar som behandlingspedagog här. Hur känns det att ta steget att skriva här idag?"`
-                    : isSecondResponder
-                        ? `Du svarar nu direkt efter ${responders[0].name}. Bekräfta vad de sa eller bygg vidare på det som en del av en naturlig gruppchat. Prata som en människa, sök gemenskap.`
-                        : `Svara på användarens meddelande. Du är i ett öppet chatrum med dina vänner Amanda, Axel, Lina, Kalle, Marcus, Saga, Erik och Linda. Var varm, mänsklig och bekräftande.`;
-
-                try {
-                    const responseText = await getAIResponse(
-                        contextMessages,
-                        textToSend,
-                        `${responder.systemPrompt}\n\nKONTEXT: ${aiInstruction}\n\nVIKTIGT: Svara kort och kärnfullt (max 3 meningar om det inte är det specifika välkomstmeddelandet). Använd en mjuk, mänsklig ton. Avslöja aldrig att du är en AI.`
-                    );
-
-                    if (!responseText) continue;
-
-                    const { data: savedMsg, error: saveErr } = await supabase.from('chat_messages').insert({
-                        content: responseText,
-                        user_id: user.id,
-                        is_ai: true,
-                        persona_id: responder.id,
-                        thread_id: threadId === 'general' ? null : threadId
-                    }).select().single();
-
-                    if (!saveErr && savedMsg) {
-                        const newMapped: CommunityMessage = {
-                            id: savedMsg.id,
-                            role: 'model',
-                            text: responseText,
-                            timestamp: new Date(savedMsg.created_at),
-                            persona: responder
-                        };
-                        setMessages(prev => [...prev, newMapped]);
-                    }
-                } catch (aiErr) {
-                    console.error("AI Gen Error", aiErr);
-                } finally {
-                    setIsTyping(null);
-                }
-            }
+            // ... (AI loop)
+            */
         } catch (error) {
             console.error('Error sending message:', error);
         }
@@ -429,15 +290,15 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
             {/* Messages View */}
             <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 md:px-8 py-10 space-y-8 no-scrollbar scroll-smooth min-h-0">
                 {messages.map((msg, idx) => {
-                    const isUser = msg.role === 'user';
+                    const isCurrentUser = msg.user_id === user.id;
                     const nextMsgIsSame = messages[idx + 1]?.persona?.id === msg.persona?.id && messages[idx + 1]?.role === msg.role;
 
                     return (
-                        <div key={idx} className={`flex items-end gap-4 ${isUser ? 'flex-row-reverse' : 'flex-row'} animate-in fade-in slide-in-from-bottom-6 duration-700`}>
+                        <div key={idx} className={`flex items-end gap-4 ${isCurrentUser ? 'flex-row-reverse' : 'flex-row'} animate-in fade-in slide-in-from-bottom-6 duration-700`}>
                             {/* Avatar - only show if next message is not from same person */}
                             {!nextMsgIsSame ? (
-                                <div className={`w-12 h-12 rounded-[1.25rem] flex items-center justify-center shrink-0 shadow-2xl relative group cursor-pointer overflow-hidden ${isUser ? 'bg-gradient-to-br from-orange-400 to-red-600 text-white' : (msg.persona?.color || 'bg-slate-800') + ' text-white'}`}>
-                                    {isUser ? (
+                                <div className={`w-12 h-12 rounded-[1.25rem] flex items-center justify-center shrink-0 shadow-2xl relative group cursor-pointer overflow-hidden ${isCurrentUser ? 'bg-gradient-to-br from-orange-400 to-red-600 text-white' : (msg.persona?.color || 'bg-slate-800') + ' text-white'}`}>
+                                    {isCurrentUser || msg.role === 'user' ? (
                                         (() => {
                                             const avatar = getEffectiveAvatar(msg.senderEmail, msg.senderAvatar);
                                             return avatar ? (
@@ -449,29 +310,29 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                                     ) : (
                                         <div className="scale-125">{msg.persona?.avatar}</div>
                                     )}
-                                    <div className={`absolute -bottom-1 -right-1 w-4 h-4 border-4 border-slate-950 rounded-full ${isUser || (msg.user_id && onlineUsers?.has(msg.user_id)) ? 'bg-green-500' : 'bg-slate-500'}`}></div>
+                                    <div className={`absolute -bottom-1 -right-1 w-4 h-4 border-4 border-slate-950 rounded-full ${isCurrentUser || (msg.user_id && onlineUsers?.has(msg.user_id)) ? 'bg-green-500' : 'bg-slate-500'}`}></div>
                                 </div>
                             ) : (
                                 <div className="w-12 shrink-0"></div>
                             )}
 
                             {/* Message Content */}
-                            <div className={`flex flex-col max-w-[75%] ${isUser ? 'items-end' : 'items-start'}`}>
+                            <div className={`flex flex-col max-w-[75%] ${isCurrentUser ? 'items-end' : 'items-start'}`}>
                                 {/* Meta info only on first message of a group */}
                                 {(!messages[idx - 1] || messages[idx - 1].role !== msg.role || messages[idx - 1].persona?.id !== msg.persona?.id) && (
                                     <div className="flex items-center gap-3 mb-2 px-2">
-                                        <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em]">{isUser ? (msg.senderName || user.full_name) : msg.persona?.name}</span>
+                                        <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em]">{isCurrentUser ? (msg.senderName || user.full_name) : (msg.persona?.name || msg.senderName)}</span>
                                         <span className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">{msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                     </div>
                                 )}
 
                                 <div className={`
                                     relative px-7 py-5 text-[15px] leading-relaxed shadow-[0_15px_35px_rgba(0,0,0,0.3)] transition-all duration-500 hover:scale-[1.01] overflow-hidden group
-                                    ${isUser
+                                    ${isCurrentUser
                                         ? 'bg-orange-500 text-slate-950 font-bold rounded-[2.5rem] rounded-br-none'
                                         : 'bg-slate-900/80 text-slate-200 border border-white/5 rounded-[2.5rem] rounded-bl-none backdrop-blur-xl'}
                                 `}>
-                                    {isUser && <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>}
+                                    {isCurrentUser && <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>}
 
                                     {editingMessageId === msg.id ? (
                                         <div className="relative z-10 space-y-3">
@@ -490,7 +351,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                                     )}
 
                                     {/* Edit/Delete Controls */}
-                                    <div className={`absolute top-2 ${isUser ? 'left-2' : 'right-2'} flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity`}>
+                                    <div className={`absolute top-2 ${isCurrentUser ? 'left-2' : 'right-2'} flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity`}>
                                         {/* Own message: Edit 1x only OR Admin: Always edit */}
                                         {((msg.user_id === user.id && (msg.edit_count || 0) < 1) || (user.role === 'admin')) && !msg.is_ai && !editingMessageId && (
                                             <button onClick={() => startEditing(msg)} className="p-1.5 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors">
@@ -505,12 +366,12 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                                         )}
                                     </div>
 
-                                    {(isUser || msg.is_edited) && (
-                                        <div className={`absolute -bottom-6 ${isUser ? 'right-0' : 'left-0'} flex items-center gap-2 ${isUser ? 'text-orange-500/60' : 'text-slate-500/60'}`}>
+                                    {(isCurrentUser || msg.is_edited) && (
+                                        <div className={`absolute -bottom-6 ${isCurrentUser ? 'right-0' : 'left-0'} flex items-center gap-2 ${isCurrentUser ? 'text-orange-500/60' : 'text-slate-500/60'}`}>
                                             {msg.is_edited && (
                                                 <span className="text-[8px] font-black uppercase tracking-widest italic mr-2">(Redigerat)</span>
                                             )}
-                                            {isUser && (
+                                            {isCurrentUser && (
                                                 <>
                                                     <CheckCheck size={14} className="animate-pulse" />
                                                     <span className="text-[9px] font-black uppercase tracking-widest">Levererad</span>

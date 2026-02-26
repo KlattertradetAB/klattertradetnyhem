@@ -30,7 +30,7 @@ const Chat: React.FC = () => {
         workplace: formData.workplace,
         invoice_address: formData.invoiceAddress,
         message: formData.message
-      });
+      } as any);
       if (error) console.error('Supabase application error:', error);
     } catch (err) {
       console.error('Failed to save application to Supabase:', err);

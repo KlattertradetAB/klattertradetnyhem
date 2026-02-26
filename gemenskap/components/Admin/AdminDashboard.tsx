@@ -67,11 +67,11 @@ interface CourseApplication {
     course_type: string;
     applicant_name: string;
     email: string;
-    phone?: string;
-    workplace?: string;
-    invoice_address?: string;
-    message?: string;
-    status: string;
+    phone: string | null;
+    workplace: string | null;
+    invoice_address: string | null;
+    message: string | null;
+    status: string | null;
     created_at: string;
 }
 
@@ -79,10 +79,10 @@ interface TherapyRequest {
     id: string;
     applicant_name: string;
     email: string;
-    phone?: string;
-    challenges: string[];
-    meeting_form: string;
-    status: string;
+    phone: string | null;
+    challenges: string[] | null;
+    meeting_form: string | null;
+    status: string | null;
     created_at: string;
 }
 
@@ -150,10 +150,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
             if (messagesData) setMessages(messagesData);
 
             const { data: appsData } = await supabase.from('course_applications').select('*').order('created_at', { ascending: false });
-            if (appsData) setCourseApps(appsData as any);
+            if (appsData) setCourseApps(appsData as unknown as CourseApplication[]);
 
             const { data: therapyData } = await supabase.from('therapy_matchmaking').select('*').order('created_at', { ascending: false });
-            if (therapyData) setTherapyRequests(therapyData as any);
+            if (therapyData) setTherapyRequests(therapyData as unknown as TherapyRequest[]);
         }
         if (activeSection === 'moderation') {
             const { data: profilesData } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
@@ -547,7 +547,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                                     </div>
                                     <div className="flex-1">
                                         <div className="flex flex-wrap gap-2 mb-4">
-                                            {req.challenges.map(c => <span key={c} className="bg-white/5 border border-white/10 px-2 py-1 rounded text-[10px] text-slate-400 font-bold uppercase">{c}</span>)}
+                                            {req.challenges?.map(c => <span key={c} className="bg-white/5 border border-white/10 px-2 py-1 rounded text-[10px] text-slate-400 font-bold uppercase">{c}</span>)}
                                         </div>
                                         <p className="text-slate-300 text-sm">Söker: {req.meeting_form}</p>
                                     </div>
