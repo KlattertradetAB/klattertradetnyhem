@@ -2,7 +2,7 @@ import React from 'react'
 
 export function Text({ children, className = '' }: { children: React.ReactNode, className?: string }) {
     return (
-        <p className={`text-sm text-zinc-600 dark:text-zinc-400 ${className}`}>
+        <p className={`text-sm text-white/50 ${className}`}>
             {children}
         </p>
     )
@@ -10,7 +10,7 @@ export function Text({ children, className = '' }: { children: React.ReactNode, 
 
 export function Strong({ children, className = '' }: { children: React.ReactNode, className?: string }) {
     return (
-        <strong className={`font-semibold text-zinc-950 dark:text-white ${className}`}>
+        <strong className={`font-semibold text-white/90 hover:text-white transition-colors duration-200 ${className}`}>
             {children}
         </strong>
     )
@@ -20,7 +20,7 @@ export function TextLink({ href, children, className = '' }: { href: string, chi
     return (
         <a
             href={href}
-            className={`text-zinc-950 underline decoration-zinc-950/20 underline-offset-4 hover:decoration-zinc-950 dark:text-white dark:decoration-white/20 dark:hover:decoration-white ${className}`}
+            className={`text-white/80 underline decoration-white/20 underline-offset-4 hover:text-white hover:decoration-white/60 transition-all duration-200 ${className}`}
         >
             {children}
         </a>

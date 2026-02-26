@@ -10,7 +10,7 @@ export function Field({ children, className = '' }: { children: React.ReactNode,
 
 export function Label({ children, className = '' }: { children: React.ReactNode, className?: string }) {
     return (
-        <label className={`block text-sm font-medium text-zinc-100 ${className}`}>
+        <label className={`block text-sm font-medium text-white/70 ${className}`}>
             {children}
         </label>
     )
