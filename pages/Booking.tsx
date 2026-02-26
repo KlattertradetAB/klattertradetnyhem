@@ -30,12 +30,35 @@ const Booking: React.FC = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 1. Save to Supabase
+    try {
+      const { error } = await import('../gemenskap/services/supabase').then(m => m.supabase.from('contact_messages').insert({
+        sender_name: formData.namn,
+        email: formData.epost,
+        subject: 'Terapeut-matchning Enkät',
+        message: `
+Tidigare erfarenhet: ${formData.tidigare_erfarenhet}
+Uppskattade: ${formData.uppskattade}
+Tankar: ${formData.tanke_delar}
+Utmaningar: ${formData.utmaningar.join(', ')} ${formData.annan_utmaning_text}
+Mål: ${formData.mal} ${formData.annat_mal_text}
+Terapeut kön: ${formData.terapeut_kon}
+Mötesform: ${formData.motesform}
+Telefon: ${formData.telefon}
+        `.trim(),
+        is_read: false
+      }));
+      if (error) console.error('Supabase questionnaire error:', error);
+    } catch (err) {
+      console.error('Failed to save questionnaire to Supabase:', err);
+    }
 
     const recipient = 'billy@klattertradet.se';
     const subject = 'Enkät, hjälp med att hitta terapeut';
-    
+
     let body = "Här är svaren från din enkät:\n\n";
 
     body += "1. Dina tidigare erfarenheter av terapi:\n";
@@ -45,7 +68,7 @@ const Booking: React.FC = () => {
     body += "\n";
 
     body += "2. Vad söker du hjälp för?\n";
-    const displayUtmaningar = formData.utmaningar.map(u => 
+    const displayUtmaningar = formData.utmaningar.map(u =>
       u === 'annan' ? `Annan: ${formData.annan_utmaning_text}` : u
     );
     body += `   - Aktuell utmaning: ${displayUtmaningar.length > 0 ? displayUtmaningar.join(', ') : 'Inget svar'}\n`;
@@ -74,7 +97,7 @@ const Booking: React.FC = () => {
   if (view === 'splash') {
     return (
       <div className="container mx-auto px-4 py-20 flex items-center justify-center animate-fade-in min-h-[70vh]">
-        <button 
+        <button
           onClick={() => setView('form')}
           className="glass bg-white/10 backdrop-blur-xl border border-white/20 p-12 rounded-[40px] max-w-lg w-full text-center hover:bg-white/15 transition-all group shadow-2xl"
         >
@@ -107,7 +130,7 @@ const Booking: React.FC = () => {
           <h2 className="text-3xl font-bold text-white mb-4">Tack för ditt svar!</h2>
           <p className="text-lg text-white/80 mb-2">Vi har skapat ett e-postmeddelande med dina svar.</p>
           <p className="text-white/60">Klicka på "Skicka" i din e-postklient för att skicka det till oss. Vi återkommer så snart vi kan!</p>
-          <button 
+          <button
             onClick={() => setView('splash')}
             className="mt-8 text-white hover:text-amber-400 font-medium underline transition-colors"
           >
@@ -128,21 +151,21 @@ const Booking: React.FC = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-10">
-          
+
           {/* Sektion 1 */}
           <fieldset className="p-6 border border-white/10 rounded-2xl bg-white/5">
             <legend className="text-lg font-bold text-orange-300 px-3 mb-4">1. Dina tidigare erfarenheter av terapi</legend>
-            
+
             <div className="mb-6">
               <p className="font-medium text-white/90 mb-3">Har du sökt terapi tidigare?</p>
               <div className="space-y-3">
                 {['Ja, jag har gått i terapi.', 'Nej, det här är första gången jag funderar på det.', 'Jag har sökt, men inte fullföljt.'].map((opt) => (
                   <label key={opt} className="flex items-center gap-3 cursor-pointer group">
-                    <input 
-                      type="radio" 
-                      name="tidigare_erfarenhet" 
-                      value={opt} 
-                      onChange={(e) => setFormData({...formData, tidigare_erfarenhet: e.target.value})}
+                    <input
+                      type="radio"
+                      name="tidigare_erfarenhet"
+                      value={opt}
+                      onChange={(e) => setFormData({ ...formData, tidigare_erfarenhet: e.target.value })}
                       className="w-4 h-4 text-orange-500 bg-white/10 border-white/20 focus:ring-orange-500"
                     />
                     <span className="text-white/80 group-hover:text-white transition-colors">{opt}</span>
@@ -153,25 +176,25 @@ const Booking: React.FC = () => {
 
             <div className="mb-6">
               <label className="block font-medium text-white/90 mb-2">Om du har tidigare erfarenheter, vad uppskattade du mest/minst?</label>
-              <textarea 
-                rows={3} 
+              <textarea
+                rows={3}
                 maxLength={200}
                 placeholder="Max 200 tecken"
                 className="w-full p-4 bg-black/30 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-orange-500 outline-none resize-none transition-all"
                 value={formData.uppskattade}
-                onChange={(e) => setFormData({...formData, uppskattade: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, uppskattade: e.target.value })}
               />
             </div>
 
             <div>
               <label className="block font-medium text-white/90 mb-2">Vilka tankar har du kring tidigare upplevelser som du vill dela med oss?</label>
-              <textarea 
-                rows={3} 
+              <textarea
+                rows={3}
                 maxLength={200}
                 placeholder="Max 200 tecken"
                 className="w-full p-4 bg-black/30 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-orange-500 outline-none resize-none transition-all"
                 value={formData.tanke_delar}
-                onChange={(e) => setFormData({...formData, tanke_delar: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, tanke_delar: e.target.value })}
               />
             </div>
           </fieldset>
@@ -194,10 +217,10 @@ const Booking: React.FC = () => {
                   { id: 'annan', label: 'Annan utmaning:' }
                 ].map((item) => (
                   <label key={item.id} className="flex items-center gap-3 cursor-pointer group">
-                    <input 
-                      type="checkbox" 
-                      name="utmaning" 
-                      value={item.id} 
+                    <input
+                      type="checkbox"
+                      name="utmaning"
+                      value={item.id}
                       onChange={handleCheckboxChange}
                       className="w-4 h-4 rounded text-orange-500 bg-white/10 border-white/20 focus:ring-orange-500"
                     />
@@ -205,12 +228,12 @@ const Booking: React.FC = () => {
                   </label>
                 ))}
               </div>
-              <textarea 
+              <textarea
                 rows={1}
                 placeholder="Beskriv här..."
                 className="w-full mt-4 p-4 bg-black/30 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-orange-500 outline-none resize-none transition-all"
                 value={formData.annan_utmaning_text}
-                onChange={(e) => setFormData({...formData, annan_utmaning_text: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, annan_utmaning_text: e.target.value })}
               />
             </div>
 
@@ -224,23 +247,23 @@ const Booking: React.FC = () => {
                   { id: 'annat', label: 'Annat:' }
                 ].map((item) => (
                   <label key={item.id} className="flex items-center gap-3 cursor-pointer group">
-                    <input 
-                      type="radio" 
-                      name="mal" 
-                      value={item.id} 
-                      onChange={(e) => setFormData({...formData, mal: e.target.value})}
+                    <input
+                      type="radio"
+                      name="mal"
+                      value={item.id}
+                      onChange={(e) => setFormData({ ...formData, mal: e.target.value })}
                       className="w-4 h-4 text-orange-500 bg-white/10 border-white/20 focus:ring-orange-500"
                     />
                     <span className="text-white/80 group-hover:text-white transition-colors">{item.label}</span>
                   </label>
                 ))}
               </div>
-              <textarea 
+              <textarea
                 rows={1}
                 placeholder="Beskriv här..."
                 className="w-full mt-4 p-4 bg-black/30 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-orange-500 outline-none resize-none transition-all"
                 value={formData.annat_mal_text}
-                onChange={(e) => setFormData({...formData, annat_mal_text: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, annat_mal_text: e.target.value })}
               />
             </div>
           </fieldset>
@@ -254,12 +277,12 @@ const Booking: React.FC = () => {
                 <div className="space-y-2">
                   {['Man', 'Kvinna', 'Inget särskilt önskemål.'].map((opt) => (
                     <label key={opt} className="flex items-center gap-3 cursor-pointer">
-                      <input 
-                        type="radio" 
-                        name="terapeut_kon" 
-                        value={opt} 
+                      <input
+                        type="radio"
+                        name="terapeut_kon"
+                        value={opt}
                         defaultChecked={opt === 'Inget särskilt önskemål.'}
-                        onChange={(e) => setFormData({...formData, terapeut_kon: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, terapeut_kon: e.target.value })}
                         className="w-4 h-4 text-orange-500 bg-white/10 border-white/20 focus:ring-orange-500"
                       />
                       <span className="text-white/80">{opt}</span>
@@ -272,11 +295,11 @@ const Booking: React.FC = () => {
                 <div className="space-y-2">
                   {['Fysiska möten på plats.', 'Digitalt via Zoom.'].map((opt) => (
                     <label key={opt} className="flex items-center gap-3 cursor-pointer group">
-                      <input 
-                        type="radio" 
-                        name="motesform" 
-                        value={opt} 
-                        onChange={(e) => setFormData({...formData, motesform: e.target.value})}
+                      <input
+                        type="radio"
+                        name="motesform"
+                        value={opt}
+                        onChange={(e) => setFormData({ ...formData, motesform: e.target.value })}
                         className="w-4 h-4 text-orange-500 bg-white/10 border-white/20 focus:ring-orange-500"
                       />
                       <span className="text-white/80 group-hover:text-white transition-colors">{opt}</span>
@@ -293,41 +316,41 @@ const Booking: React.FC = () => {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm text-white/60 mb-1">Namn</label>
-                <input 
-                  type="text" 
-                  required 
+                <input
+                  type="text"
+                  required
                   className="w-full p-3 bg-black/30 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-orange-500 outline-none"
                   placeholder="Ditt fullständiga namn"
                   value={formData.namn}
-                  onChange={(e) => setFormData({...formData, namn: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, namn: e.target.value })}
                 />
               </div>
               <div>
                 <label className="block text-sm text-white/60 mb-1">E-post</label>
-                <input 
-                  type="email" 
-                  required 
+                <input
+                  type="email"
+                  required
                   className="w-full p-3 bg-black/30 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-orange-500 outline-none"
                   placeholder="din.epost@exempel.se"
                   value={formData.epost}
-                  onChange={(e) => setFormData({...formData, epost: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, epost: e.target.value })}
                 />
               </div>
               <div>
                 <label className="block text-sm text-white/60 mb-1">Telefonnummer (Valfritt)</label>
-                <input 
-                  type="tel" 
+                <input
+                  type="tel"
                   className="w-full p-3 bg-black/30 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-orange-500 outline-none"
                   placeholder="070-123 45 67"
                   value={formData.telefon}
-                  onChange={(e) => setFormData({...formData, telefon: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, telefon: e.target.value })}
                 />
               </div>
             </div>
           </fieldset>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="w-full py-5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold rounded-xl transition-all hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-3"
           >
             Skicka in formuläret <Send size={20} />

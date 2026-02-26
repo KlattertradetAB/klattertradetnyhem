@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Page } from '../types';
+import { PAGE_URLS } from '../App';
 import { ArrowRight, BookOpen, Users, Shield, Heart, Anchor, Sparkles, Calendar, FileText, Star, ChevronRight, ChevronLeft } from 'lucide-react';
 import Newsletter from '../components/Newsletter';
 import PDFViewer from '../components/PDFViewer';
@@ -114,18 +115,20 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
               Specialistutbildning, terapi och handledning med fokus på traumamedvetenhet och personlig mognad. Välkommen till vår gemenskap.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pt-2">
-              <button
-                onClick={() => setPage(Page.CHAT)}
-                className="px-6 md:px-8 py-2.5 bg-white text-slate-900 hover:bg-white/90 rounded-xl font-bold transition-all hover:scale-105 flex items-center gap-2 shadow-xl shadow-white/10"
+              <a
+                href={PAGE_URLS[Page.CHAT]}
+                onClick={(e) => { e.preventDefault(); setPage(Page.CHAT); }}
+                className="px-6 md:px-8 py-2.5 bg-white text-slate-900 hover:bg-white/90 rounded-xl font-bold transition-all hover:scale-105 flex items-center justify-center gap-2 shadow-xl shadow-white/10"
               >
                 Våra Utbildningar <ArrowRight size={18} />
-              </button>
-              <button
-                onClick={() => setPage(Page.CONTACT)}
-                className="px-6 md:px-8 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-bold transition-all hover:scale-105 flex items-center gap-2"
+              </a>
+              <a
+                href={PAGE_URLS[Page.CONTACT]}
+                onClick={(e) => { e.preventDefault(); setPage(Page.CONTACT); }}
+                className="px-6 md:px-8 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-bold transition-all hover:scale-105 flex items-center justify-center gap-2"
               >
                 Boka tid <Calendar size={18} />
-              </button>
+              </a>
             </div>
           </div>
           <div className="hidden md:flex justify-center items-center">
@@ -190,12 +193,13 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
               <p className="text-slate-400 text-xs md:text-sm mb-3 max-w-2xl font-light leading-relaxed line-clamp-1 md:line-clamp-none">
                 {slides[currentSlide].description}
               </p>
-              <button
-                onClick={(e) => { e.stopPropagation(); setPage(Page.BLOG); }}
+              <a
+                href={PAGE_URLS[Page.BLOG]}
+                onClick={(e) => { e.stopPropagation(); e.preventDefault(); setPage(Page.BLOG); }}
                 className="flex items-center gap-2 text-orange-400 text-[10px] md:text-xs font-black group-hover:gap-3 transition-all hover:text-white"
               >
                 Läs de nya blogginläggen <ChevronRight size={16} />
-              </button>
+              </a>
             </div>
           </div>
         </div>
@@ -230,12 +234,13 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
             En unik djupdykning i systemets påverkan på individen och vägen mot läkning.
             Innehåller praktiska verktyg och fallstudier för både drabbade och professionella.
           </p>
-          <button
-            onClick={() => setPage(Page.BOOK)}
+          <a
+            href={PAGE_URLS[Page.BOOK]}
+            onClick={(e) => { e.preventDefault(); setPage(Page.BOOK); }}
             className="flex items-center gap-2 text-amber-500 font-bold hover:underline transition-all group-hover:translate-x-2 text-sm md:text-base"
           >
             Läs mer om boken <ArrowRight size={20} />
-          </button>
+          </a>
         </div>
       </div>
 
@@ -248,12 +253,13 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
           <p className="text-sm md:text-base text-amber-100/80 leading-relaxed">
             Vår nya specialistutbildning ger dig verktygen att förstå, bemöta och stötta klienter som farit illa av systemet och myndighetsutövning.
           </p>
-          <button
-            onClick={() => setPage(Page.CHAT)}
-            className="flex items-center gap-2 px-6 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl font-black transition-all hover:scale-105 shadow-2xl shadow-amber-500/20 text-sm md:text-base"
+          <a
+            href={PAGE_URLS[Page.CHAT]}
+            onClick={(e) => { e.preventDefault(); setPage(Page.CHAT); }}
+            className="flex items-center justify-center gap-2 px-6 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl font-black transition-all hover:scale-105 shadow-2xl shadow-amber-500/20 text-sm md:text-base"
           >
             Läs mer om MiT <ArrowRight size={20} />
-          </button>
+          </a>
         </div>
       </div>
 
@@ -300,12 +306,13 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
                 Vi jobbar med stress, ångest, sorg och PTSD.
               </p>
             </div>
-            <button
-              onClick={() => setPage(Page.THERAPY)}
+            <a
+              href={PAGE_URLS[Page.THERAPY]}
+              onClick={(e) => { e.preventDefault(); setPage(Page.THERAPY); }}
               className="mt-4 md:mt-6 flex items-center gap-2 text-white font-bold hover:text-red-400 transition-colors text-xs md:text-sm"
             >
               Läs mer om terapi <ArrowRight size={18} />
-            </button>
+            </a>
           </div>
 
           <div className="glass bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-[1.5rem] p-5 md:p-8 flex flex-col justify-between group">
@@ -322,12 +329,13 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
                 Läkning genom relation och gemenskap. Vi erbjuder specialiserad terapi för grupper och par.
               </p>
             </div>
-            <button
-              onClick={() => setPage(Page.GROUP_THERAPY)}
+            <a
+              href={PAGE_URLS[Page.GROUP_THERAPY]}
+              onClick={(e) => { e.preventDefault(); setPage(Page.GROUP_THERAPY); }}
               className="mt-4 md:mt-6 flex items-center gap-2 text-white font-bold hover:text-indigo-400 transition-colors text-xs md:text-sm"
             >
               Läs mer om parterapi <ArrowRight size={18} />
-            </button>
+            </a>
           </div>
 
           <div className="glass bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-[1.5rem] p-5 md:p-8 flex flex-col justify-between group">
@@ -343,12 +351,13 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
                 Vår yrkesutbildning för dig som vill arbeta professionellt med människor i förändring. 8 block av praktisk och teoretisk kunskap.
               </p>
             </div>
-            <button
-              onClick={() => setPage(Page.BEHANDLINGS_PEDAGOG)}
+            <a
+              href={PAGE_URLS[Page.BEHANDLINGS_PEDAGOG]}
+              onClick={(e) => { e.preventDefault(); setPage(Page.BEHANDLINGS_PEDAGOG); }}
               className="mt-4 md:mt-6 flex items-center gap-2 text-white font-bold hover:text-amber-400 transition-colors text-xs md:text-sm"
             >
               Läs mer om behandlingspedagog <ArrowRight size={18} />
-            </button>
+            </a>
           </div>
         </div>
       </div>
@@ -503,18 +512,20 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
               </div>
 
               <div className="flex flex-wrap justify-center gap-6">
-                <button
-                  onClick={() => setPage(Page.CONTACT)}
-                  className="px-10 py-5 bg-white text-slate-900 hover:bg-white/90 rounded-2xl font-black transition-all hover:scale-105 flex items-center gap-3 shadow-2xl shadow-white/10 uppercase tracking-widest text-xs"
+                <a
+                  href={PAGE_URLS[Page.CONTACT]}
+                  onClick={(e) => { e.preventDefault(); setPage(Page.CONTACT); }}
+                  className="px-10 py-5 bg-white text-slate-900 hover:bg-white/90 rounded-2xl font-black transition-all hover:scale-105 flex items-center justify-center gap-3 shadow-2xl shadow-white/10 uppercase tracking-widest text-xs"
                 >
                   Ta kontakt med oss <ArrowRight size={20} />
-                </button>
-                <button
-                  onClick={() => setPage(Page.THERAPY, { showForm: true })}
-                  className="px-10 py-5 bg-white/5 hover:bg-white/10 border border-white/20 rounded-2xl text-white font-black transition-all hover:scale-105 flex items-center gap-3 uppercase tracking-widest text-xs"
+                </a>
+                <a
+                  href={PAGE_URLS[Page.THERAPY]}
+                  onClick={(e) => { e.preventDefault(); setPage(Page.THERAPY, { showForm: true }); }}
+                  className="px-10 py-5 bg-white/5 hover:bg-white/10 border border-white/20 rounded-2xl text-white font-black transition-all hover:scale-105 flex items-center justify-center gap-3 uppercase tracking-widest text-xs"
                 >
                   Hjälp med att hitta en terapeut
-                </button>
+                </a>
               </div>
             </div>
           </div>

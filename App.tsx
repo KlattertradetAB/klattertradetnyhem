@@ -32,7 +32,7 @@ import { ThemeProvider as SelfCareThemeProvider } from './self-care/contexts/The
 import AdminDashboard from './self-care/components/AdminDashboard';
 import { supabase } from './gemenskap/services/supabase';
 import { AuthStatus } from './gemenskap/types';
-const PAGE_URLS: Record<Page, string> = {
+export const PAGE_URLS: Record<Page, string> = {
   [Page.HOME]: '/',
   [Page.ABOUT]: '/om-oss',
   [Page.CHAT]: '/utbildning/mit',
@@ -93,7 +93,8 @@ const App: React.FC = () => {
       const historyState = window.history.state;
 
       // Priority 1: Path based routing
-      const foundPage = (Object.keys(PAGE_URLS) as Page[]).find(p => PAGE_URLS[p] === path);
+      const normalizedPath = path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path;
+      const foundPage = (Object.keys(PAGE_URLS) as Page[]).find(p => PAGE_URLS[p] === normalizedPath);
       if (foundPage) {
         setCurrentPage(foundPage);
         return;

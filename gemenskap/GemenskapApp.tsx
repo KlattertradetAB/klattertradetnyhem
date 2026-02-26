@@ -229,10 +229,9 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
             }
           });
 
-        // If logging in via premium flow, go straight to the new deluxe chat template
-        if (isPremiumView || window.location.hash === '#premium-login') {
-          setActiveTab('chat');
-        }
+        // Always go to welcome hem after login, even if via premium flow
+        setActiveTab('welcome');
+        window.history.pushState({ tab: 'welcome', view: 'welcome' }, '', '#welcome');
       } else {
         setAuthStatus(AuthStatus.IDLE);
         setUser(null);

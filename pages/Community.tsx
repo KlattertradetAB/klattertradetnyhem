@@ -4,6 +4,7 @@ import { Smartphone, Users, Calendar, BookOpen, Heart, Sparkles, X, Send, CheckC
 import TiltedImage from '../components/TiltedImage';
 
 import { Page } from '../types';
+import { PAGE_URLS } from '../App';
 
 interface CommunityProps {
   setPage?: (page: Page) => void;
@@ -45,12 +46,13 @@ const Community: React.FC<CommunityProps> = ({ setPage }) => {
             En trygg hamn för läkning, insikt och tillsammanskap.
           </p>
           <div className="flex justify-center lg:justify-start gap-4 flex-wrap items-center">
-            <button
-              onClick={handleLoginClick}
-              className="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full transition-colors shadow-lg hover:shadow-orange-500/20"
+            <a
+              href={PAGE_URLS[Page.GEMENSKAP_APP] + '#premium-login'}
+              onClick={(e) => { e.preventDefault(); handleLoginClick(); }}
+              className="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full transition-colors shadow-lg hover:shadow-orange-500/20 flex items-center justify-center"
             >
               Logga in
-            </button>
+            </a>
             <div className="px-6 py-2 bg-white/10 rounded-full border border-white/20 text-sm">Appen</div>
             <div className="px-6 py-2 bg-white/10 rounded-full border border-white/20 text-sm">Gemenskap</div>
             <div className="px-6 py-2 bg-white/10 rounded-full border border-white/20 text-sm">Självhjälp</div>

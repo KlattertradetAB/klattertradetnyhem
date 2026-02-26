@@ -18,6 +18,7 @@ import {
   Users
 } from 'lucide-react';
 import Newsletter from '../components/Newsletter';
+import { supabase } from '../gemenskap/services/supabase';
 
 const therapists = [
   {
@@ -113,12 +114,27 @@ const ContactUs: React.FC = () => {
 
   const timeSlots = ["07:00", "08:00", "09:00", "10:30", "13:00", "14:45", "16:00", "17:30"];
 
-  const handleBookingSubmit = (e: React.FormEvent) => {
+  const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const selectedTherapistObj = therapists[activeTherapist];
-    const billyEmail = 'billy@klattertradet.se';
 
+    // 1. Save to Supabase
+    try {
+      const { error } = await supabase.from('bookings').insert({
+        client_name: bookingData.name,
+        email: bookingData.email,
+        service_type: `${selectedTherapistObj.role} (${selectedTherapistObj.name})`,
+        booking_date: selectedDate ? `2026-02-${selectedDate.padStart(2, '0')}` : new Date().toISOString().split('T')[0], // Approximation for demo
+        booking_time: selectedTime || 'Ej vald',
+        status: 'Väntar'
+      });
+      if (error) console.error('Supabase booking error:', error);
+    } catch (err) {
+      console.error('Failed to save booking to Supabase:', err);
+    }
+
+    const billyEmail = 'billy@klattertradet.se';
     let recipients = selectedTherapistObj.email;
     if (selectedTherapistObj.email !== billyEmail) {
       recipients += `,${billyEmail}`;
@@ -157,8 +173,27 @@ Detta är ett automatiskt genererat utkast från hemsidan.
     }, 500);
   };
 
-  const handleGeneralSubmit = (e: React.FormEvent) => {
+  const handleGeneralSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const name = (form.elements[0] as HTMLInputElement).value;
+    const email = (form.elements[1] as HTMLInputElement).value;
+    const message = (form.elements[2] as HTMLTextAreaElement).value;
+
+    // 1. Save to Supabase
+    try {
+      const { error } = await supabase.from('contact_messages').insert({
+        sender_name: name,
+        email: email,
+        subject: 'Övrig fråga via kontaktformulär',
+        message: message,
+        is_read: false
+      });
+      if (error) console.error('Supabase message error:', error);
+    } catch (err) {
+      console.error('Failed to save message to Supabase:', err);
+    }
+
     setGeneralSubmitted(true);
   };
 

@@ -2,11 +2,12 @@
 import React from 'react';
 import { Download, FileText, Book, Sparkles, FileSpreadsheet, Heart } from 'lucide-react';
 import { Page } from '../types';
+import { PAGE_URLS } from '../App';
 
 interface MaterialItem {
   title: string;
   desc: string;
-  icon?: React.ElementType;
+  icon?: any;
   image?: string;
   color: string;
   size: string;
@@ -117,7 +118,7 @@ const Downloads: React.FC<DownloadsProps> = ({ setPage }) => {
             </h2>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {section.items.map((item: any, iIdx) => (
+              {section.items.map((item: MaterialItem, iIdx) => (
                 <div
                   key={iIdx}
                   className="glass bg-white/5 border border-white/10 rounded-3xl p-6 hover:bg-white/10 transition-all duration-300 group flex flex-col h-full"
@@ -146,21 +147,26 @@ const Downloads: React.FC<DownloadsProps> = ({ setPage }) => {
                     </p>
                   </div>
 
-                  <button
-                    onClick={() => {
+                  <a
+                    href={item.page ? PAGE_URLS[item.page] : (item.action ? '#' : '#')}
+                    onClick={(e) => {
                       if (item.page) {
+                        e.preventDefault();
                         setPage(item.page);
                       } else if (item.action) {
+                        e.preventDefault();
                         item.action();
                       } else {
-                        alert(`Startar nedladdning av: ${item.title}`);
+                        // For direct downloads, let the default behavior happen or handle it
+                        // but here we have an alert which is fine for now
+                        // setPage is not used here
                       }
                     }}
                     className="w-full py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
                   >
                     {item.page || item.action ? <Sparkles size={18} /> : <Download size={18} />}
                     {item.page ? (section.category === "E-böcker" ? "Öppna e-bok" : "Öppna arbetsblad") : item.action ? "Läs online" : "Ladda ner material"}
-                  </button>
+                  </a>
                 </div>
               ))}
             </div>

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Sparkles, Target, Users, BookOpen, Star, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Sparkles, Target, Users, BookOpen, Star, ShieldCheck, ArrowRight, CheckCircle2, Loader2 } from 'lucide-react';
 import { Page } from '../types';
 
 interface GestaltTrainingProps {
@@ -8,10 +8,32 @@ interface GestaltTrainingProps {
 }
 
 const GestaltTraining: React.FC<GestaltTrainingProps> = ({ setPage }) => {
+  const [formState, setFormState] = React.useState({ name: '', email: '', message: '' });
+  const [submitted, setSubmitted] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+
+  const handleInterestSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const { error } = await import('../gemenskap/services/supabase').then(m => m.supabase.from('contact_messages').insert({
+        sender_name: formState.name,
+        email: formState.email,
+        subject: 'Utbildning Intresseanmälan',
+        message: formState.message || 'Intresserad av utbildning i Gestaltterapi.',
+        is_read: false
+      }));
+      if (!error) setSubmitted(true);
+    } catch (err) {
+      console.error('Training interest submission error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-6 md:py-10 animate-fade-in space-y-16">
-
-      {/* Hero Section */}
+      {/* ... Hero Section ... */}
       <div className="glass bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 md:p-16 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-blue-500/10 to-transparent pointer-events-none"></div>
         <div className="relative z-10 max-w-4xl">
@@ -87,14 +109,42 @@ const GestaltTraining: React.FC<GestaltTrainingProps> = ({ setPage }) => {
           </div>
 
           <div className="glass bg-white/5 border border-white/10 rounded-2xl p-6">
-            <h3 className="text-xl font-bold mb-4">Intresseanmälan</h3>
-            <p className="text-sm text-white/60 mb-6">Vi startar nya grupper kontinuerligt. Kontakta oss för kursstart och kursplan.</p>
-            <button
-              onClick={() => setPage(Page.CONTACT)}
-              className="w-full py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl font-bold transition-all hover:scale-105 flex items-center justify-center gap-2"
-            >
-              Kontakta oss <ArrowRight size={18} />
-            </button>
+            {submitted ? (
+              <div className="text-center py-4 animate-in fade-in duration-500">
+                <CheckCircle2 className="mx-auto text-emerald-500 mb-2" size={32} />
+                <h4 className="font-bold text-white mb-1">Tack för din anmälan!</h4>
+                <p className="text-xs text-zinc-400">Vi hör av oss så snart vi kan.</p>
+              </div>
+            ) : (
+              <>
+                <h3 className="text-xl font-bold mb-4">Intresseanmälan</h3>
+                <form onSubmit={handleInterestSubmit} className="space-y-4">
+                  <input
+                    required
+                    type="text"
+                    placeholder="Ditt namn"
+                    className="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    value={formState.name}
+                    onChange={e => setFormState({ ...formState, name: e.target.value })}
+                  />
+                  <input
+                    required
+                    type="email"
+                    placeholder="Din e-post"
+                    className="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    value={formState.email}
+                    onChange={e => setFormState({ ...formState, email: e.target.value })}
+                  />
+                  <button
+                    disabled={loading}
+                    type="submit"
+                    className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
+                  >
+                    {loading ? <Loader2 className="animate-spin" size={18} /> : "Skicka anmälan"}
+                  </button>
+                </form>
+              </>
+            )}
           </div>
         </div>
       </div>

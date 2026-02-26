@@ -209,7 +209,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
 
             {/* Quick Stats */}
             {activeSection === 'overview' && (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
                     <div className="bg-slate-900/40 backdrop-blur-xl border border-white/5 p-6 rounded-3xl hover:border-white/10 transition-all group">
                         <div className="flex items-center justify-between mb-4">
                             <div className="p-2 rounded-lg bg-orange-500/10 text-orange-400 group-hover:scale-110 transition-transform">
@@ -218,6 +218,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                             <span className="text-2xl font-black text-white">{stats.todayViews}</span>
                         </div>
                         <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Sidvisningar (Idag)</p>
+                    </div>
+                    <div className="bg-slate-900/40 backdrop-blur-xl border border-white/5 p-6 rounded-3xl hover:border-white/10 transition-all group">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400 group-hover:scale-110 transition-transform">
+                                <Users size={20} />
+                            </div>
+                            <span className="text-2xl font-black text-white">{stats.members}</span>
+                        </div>
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Totalt Medlemmar</p>
                     </div>
                     <div className="bg-slate-900/40 backdrop-blur-xl border border-white/5 p-6 rounded-3xl hover:border-white/10 transition-all group">
                         <div className="flex items-center justify-between mb-4">
