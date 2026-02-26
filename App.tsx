@@ -202,6 +202,7 @@ const App: React.FC = () => {
             case Page.PREMIUM_APPLICATION: return <PremiumApplication setPage={handleSetPage} />;
             case Page.FREE_REGISTRATION: return <FreeRegistration setPage={handleSetPage} />;
             case Page.ADMIN_SURVEY_STATS: return <AdminDashboard />;
+            case Page.ADMIN_PANEL: return <GemenskapApp onBackToSite={(targetPage?: Page) => handleSetPage(targetPage || Page.HOME)} initialTab="admin" />;
             case Page.GEMENSKAP_APP: return <GemenskapApp onBackToSite={(targetPage?: Page) => handleSetPage(targetPage || Page.HOME)} />;
             default: return <Home setPage={handleSetPage} />;
           }

@@ -46,7 +46,11 @@ const LoginForm: React.FC<LoginFormProps> = ({
         });
 
         if (loginError) {
-          setError(loginError.message);
+          if (loginError.message.includes('Email not confirmed')) {
+            setError('Din e-postadress är inte bekräftad ännu. Vänligen kontrollera din inkorg och klicka på aktiveringslänken.');
+          } else {
+            setError(loginError.message);
+          }
           setLoading(false);
         } else if (data.user) {
           console.log('Login successful:', data.user);

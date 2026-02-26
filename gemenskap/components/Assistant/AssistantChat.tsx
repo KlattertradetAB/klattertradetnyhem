@@ -10,21 +10,43 @@ interface AssistantChatProps {
 }
 
 const AssistantChat: React.FC<AssistantChatProps> = ({ user, onClose }) => {
-    const { messages, addMessage, clearMessages } = useAssistant();
+    const { messages, addMessage, clearMessages, assistantType, setAssistantType } = useAssistant();
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
 
+    const getAssistantName = (type: string) => {
+        if (type === 'lina') return 'Lina';
+        if (type === 'erik') return 'Erik';
+        if (type === 'amanda') return 'Amanda';
+        if (type === 'axel') return 'Axel';
+        return 'Huvudassistenten';
+    };
+
+    const getAssistantAvatar = (type: string) => {
+        if (type === 'lina') return '🧘‍♀️';
+        if (type === 'erik') return '🏃‍♂️';
+        if (type === 'amanda') return '👩‍⚕️';
+        if (type === 'axel') return '🌲';
+        return '🤖';
+    };
+
     // Initial message if empty
     useEffect(() => {
         if (messages.length === 0) {
+            let welcomeText = `Hej ${user?.full_name?.split(' ')[0] || ''}! Jag är din personliga assistent här på Horizonten. Hur kan jag stötta dig idag?`;
+            if (assistantType === 'lina') welcomeText = `Välkommen, jag är Lina. Jag finns här för att lyssna och skapa trygghet. Vad bär du på idag?`;
+            if (assistantType === 'erik') welcomeText = `Hej! Erik här. Jag hjälper dig gärna med konkreta verktyg för att reglera nervsystemet. Hur känns det i kroppen just nu?`;
+            if (assistantType === 'amanda') welcomeText = `Hej vännen, Amanda här. ❤️ Kul att se dig! Har du hunnit sätta dig ner med en kopp kaffe än? Hur mår du egentligen?`;
+            if (assistantType === 'axel') welcomeText = `Tjena, Axel här. 🌲 Det är skönt att du hittat hit. Ibland behöver man bara checka in lite. Hur ser din dag ut?`;
+
             addMessage({
                 role: 'model',
-                text: `Hej ${user?.full_name?.split(' ')[0] || ''}! Jag är din personliga assistent här på Horizonten. Hur kan jag stötta dig idag?`,
+                text: welcomeText,
                 timestamp: new Date()
             });
         }
-    }, [messages.length, user, addMessage]);
+    }, [messages.length, user, addMessage, assistantType]);
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -42,7 +64,7 @@ const AssistantChat: React.FC<AssistantChatProps> = ({ user, onClose }) => {
 
         try {
             const history: MessageContext[] = messages.map(m => ({ role: m.role, text: m.text }));
-            const responseText = await getAssistantResponse(history, userMsg.text);
+            const responseText = await getAssistantResponse(history, userMsg.text, assistantType);
 
             if (responseText) {
                 addMessage({ role: 'model', text: responseText, timestamp: new Date() });
@@ -61,11 +83,11 @@ const AssistantChat: React.FC<AssistantChatProps> = ({ user, onClose }) => {
             {/* Header */}
             <div className="flex items-center justify-between p-4 bg-slate-800/50 backdrop-blur-md border-b border-white/5">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shadow-lg">
-                        <img src="/logo2.png" alt="Logo" className="w-6 h-6 object-contain" />
+                    <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shadow-lg text-xl">
+                        {getAssistantAvatar(assistantType)}
                     </div>
                     <div>
-                        <h3 className="font-bold text-white text-sm">Assistenten</h3>
+                        <h3 className="font-bold text-white text-sm">{getAssistantName(assistantType)}</h3>
                         <div className="flex items-center gap-1.5">
                             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                             <p className="text-[10px] text-zinc-400 font-medium uppercase tracking-wider">Aktiv nu</p>
@@ -82,6 +104,29 @@ const AssistantChat: React.FC<AssistantChatProps> = ({ user, onClose }) => {
                 </div>
             </div>
 
+            {/* Assistant Switcher */}
+            <div className="flex p-1.5 bg-slate-950/50 gap-1.5 border-b border-white/5 overflow-x-auto no-scrollbar">
+                {[
+                    { id: 'main', avatar: '🤖', name: 'Standard' },
+                    { id: 'lina', avatar: '🧘‍♀️', name: 'Lina' },
+                    { id: 'erik', avatar: '🏃‍♂️', name: 'Erik' },
+                    { id: 'amanda', avatar: '👩‍⚕️', name: 'Amanda' },
+                    { id: 'axel', avatar: '🌲', name: 'Axel' }
+                ].map((asst) => (
+                    <button
+                        key={asst.id}
+                        onClick={() => {
+                            setAssistantType(asst.id as any);
+                            clearMessages();
+                        }}
+                        className={`flex-shrink-0 flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${assistantType === asst.id ? 'bg-orange-500 text-slate-950 shadow-lg' : 'bg-white/5 text-slate-400 hover:bg-white/10'}`}
+                    >
+                        <span>{asst.avatar}</span>
+                        <span className="hidden sm:inline">{asst.name}</span>
+                    </button>
+                )) as any}
+            </div>
+
             {/* Messages */}
             <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-6 bg-slate-900/50 custom-scrollbar">
                 {messages.map((msg, idx) => {
@@ -89,10 +134,10 @@ const AssistantChat: React.FC<AssistantChatProps> = ({ user, onClose }) => {
                     return (
                         <div key={idx} className={`flex ${isUser ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2`}>
                             <div className={`
-                                max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed
+                                max-w-[85%] p-4 rounded-2xl text-[15px] leading-relaxed
                                 ${isUser
                                     ? 'bg-zinc-100 text-zinc-900 rounded-tr-none shadow-lg'
-                                    : 'bg-slate-800 text-slate-200 rounded-tl-none border border-white/5'}
+                                    : 'bg-slate-800 text-slate-200 rounded-tl-none border border-white/5 shadow-md shadow-black/20'}
                             `}>
                                 {msg.text}
                             </div>
@@ -119,18 +164,18 @@ const AssistantChat: React.FC<AssistantChatProps> = ({ user, onClose }) => {
                         onChange={e => setInput(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && handleSend()}
                         placeholder="Hur kan jag hjälpa dig?"
-                        className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 pl-4 pr-12 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all shadow-inner"
+                        className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-4 pl-4 pr-12 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-orange-500/30 transition-all shadow-inner"
                     />
                     <button
                         onClick={handleSend}
                         disabled={!input.trim() || isTyping}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white text-black rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-zinc-200"
+                        className="absolute right-2 top-2 bottom-2 aspect-square bg-orange-500 text-slate-950 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:bg-orange-400 flex items-center justify-center font-bold"
                     >
-                        <Send size={16} />
+                        <Send size={18} />
                     </button>
                 </div>
-                <p className="mt-3 text-[10px] text-center text-zinc-500 uppercase tracking-widest font-bold">
-                    AI-stödd assistent för Horizonten
+                <p className="mt-3 text-[9px] text-center text-zinc-600 uppercase tracking-[0.2em] font-black">
+                    AI-stöd för Horizonten & Klätterträdet
                 </p>
             </div>
         </div>

@@ -9,12 +9,14 @@ import { Strong, Text, TextLink } from '@/components/text'
 import { Logo } from '@/components/logo'
 import { supabase } from '@/gemenskap/services/supabase'
 import { Page } from '@/types'
+import { Mail, Lock, ShieldCheck, AlertCircle } from 'lucide-react'
 
 interface LoginPageProps {
     setPage: (page: Page) => void
 }
 
 export default function LoginPage({ setPage }: LoginPageProps) {
+    const [loginType, setLoginType] = useState<'member' | 'admin'>('member')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
@@ -31,7 +33,11 @@ export default function LoginPage({ setPage }: LoginPageProps) {
         })
 
         if (loginError) {
-            setError(loginError.message)
+            if (loginError.message.includes('Email not confirmed')) {
+                setError('Din e-postadress är inte bekräftad ännu. Vänligen kontrollera din inkorg och klicka på aktiveringslänken.')
+            } else {
+                setError(loginError.message)
+            }
             setLoading(false)
         } else {
             const { data } = await supabase.auth.getUser();
@@ -42,8 +48,12 @@ export default function LoginPage({ setPage }: LoginPageProps) {
                     logged_in_at: new Date().toISOString(),
                 });
             }
-            // Redirect handled by App.tsx listener
-            setPage(Page.GEMENSKAP_APP)
+            // Redirect handled by App.tsx listener, but we can nudge it
+            if (loginType === 'admin') {
+                setPage(Page.ADMIN_PANEL)
+            } else {
+                setPage(Page.GEMENSKAP_APP)
+            }
         }
     }
 
@@ -58,9 +68,33 @@ export default function LoginPage({ setPage }: LoginPageProps) {
 
     return (
         <AuthLayout>
-            <form onSubmit={handleLogin} className="grid w-full max-w-sm grid-cols-1 gap-8">
-                <Logo className="h-6 text-zinc-950 dark:text-white" />
-                <Heading>Sign in to your account</Heading>
+            <form onSubmit={handleLogin} className="grid w-full grid-cols-1 gap-8">
+                <div className="flex justify-center mb-2">
+                    <img
+                        src="/assets/logo2.png"
+                        alt="Horizonten"
+                        className="h-20 w-auto object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+                    />
+                </div>
+
+                <div className="flex p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl">
+                    <button
+                        type="button"
+                        onClick={() => setLoginType('member')}
+                        className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${loginType === 'member' ? 'bg-white dark:bg-zinc-700 shadow-sm text-zinc-950 dark:text-white' : 'text-zinc-500'}`}
+                    >
+                        Medlem
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setLoginType('admin')}
+                        className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${loginType === 'admin' ? 'bg-orange-500 text-white shadow-sm' : 'text-zinc-500'}`}
+                    >
+                        Styrelse / Admin
+                    </button>
+                </div>
+
+                <Heading>{loginType === 'admin' ? 'Admin Inloggning' : 'Logga in på Gemenskapen'}</Heading>
 
                 {error && (
                     <Text className="text-red-600 dark:text-red-400 font-medium">
@@ -100,17 +134,8 @@ export default function LoginPage({ setPage }: LoginPageProps) {
                     </Text>
                 </div>
                 <div className="space-y-4">
-                    <Button type="submit" className="w-full" disabled={loading}>
-                        {loading ? 'Logging in...' : 'Login'}
-                    </Button>
-
-                    <Button
-                        type="button"
-                        onClick={handleGoogleLogin}
-                        className="w-full bg-white border border-zinc-300 text-zinc-900 hover:bg-zinc-50 dark:bg-zinc-800 dark:border-zinc-700 dark:text-white dark:hover:bg-zinc-700"
-                    >
-                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5 mr-2" />
-                        Sign in with Google
+                    <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-slate-950 font-black py-4 rounded-2xl shadow-lg shadow-orange-500/20" disabled={loading}>
+                        {loading ? 'Loggar in...' : 'Logga in'}
                     </Button>
                 </div>
                 <Text>

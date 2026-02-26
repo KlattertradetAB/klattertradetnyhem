@@ -22,14 +22,15 @@ import { AssistantProvider } from './contexts/AssistantContext';
 
 interface GemenskapAppProps {
   onBackToSite: (page?: Page) => void;
+  initialTab?: 'welcome' | 'dashboard' | 'chat' | 'experts' | 'admin';
 }
 
-export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
+export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initialTab }) => {
   // 1. State Declarations (MUST be at the top)
   const [authStatus, setAuthStatus] = useState<AuthStatus>(AuthStatus.IDLE);
   const [user, setUser] = useState<Profile | null>(null);
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
-  const [activeTab, setActiveTab] = useState<'welcome' | 'dashboard' | 'chat' | 'experts' | 'admin'>('welcome');
+  const [activeTab, setActiveTab] = useState<'welcome' | 'dashboard' | 'chat' | 'experts' | 'admin'>(initialTab || 'welcome');
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
@@ -86,6 +87,10 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite }) => {
         setShowLogin(false);
         setShowPremiumIntro(false);
         setActiveTab('dashboard');
+      } else if (hash.includes('#admin')) {
+        setShowLogin(false);
+        setShowPremiumIntro(false);
+        setActiveTab('admin');
       } else {
         setShowLogin(false);
         setShowPremiumIntro(false);

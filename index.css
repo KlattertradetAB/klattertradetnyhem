@@ -5,6 +5,16 @@ body {
   position: relative;
 }
 
+.bg-glossy-gradient {
+  background: radial-gradient(circle at top left, #1e293b, #0f172a, #020617);
+  background-attachment: fixed;
+}
+
+.bg-glossy-gradient-dark {
+  background: radial-gradient(circle at top left, #0f172a, #020617, #000000);
+  background-attachment: fixed;
+}
+
 /* Animationer för Klätterträdets hemsida */
 
 @keyframes slideInUp {

@@ -1,0 +1,5 @@
+{
+  "name": "Klätterträdet Admin Panel",
+  "description": "Admin dashboard for managing bookings, orders, and messages for Klätterträdet.",
+  "requestFramePermissions": []
+}

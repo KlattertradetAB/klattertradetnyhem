@@ -139,3 +139,49 @@ create policy "Admins can view all login events."
     select 1 from public.profiles
     where id = auth.uid() and role = 'admin'
   ));
+
+-- Orders Table
+create table if not exists public.orders (
+  id uuid default gen_random_uuid() primary key,
+  customer_name text not null,
+  email text not null,
+  book_title text not null,
+  status text default 'Mottagen',
+  address text,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+alter table public.orders enable row level security;
+create policy "Admins can manage all orders." on public.orders for all using (
+  exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+);
+
+-- Bookings Table
+create table if not exists public.bookings (
+  id uuid default gen_random_uuid() primary key,
+  client_name text not null,
+  email text not null,
+  service_type text not null,
+  booking_date date not null,
+  booking_time text not null,
+  status text default 'Väntar',
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+alter table public.bookings enable row level security;
+create policy "Admins can manage all bookings." on public.bookings for all using (
+  exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+);
+
+-- Contact Messages Table
+create table if not exists public.contact_messages (
+  id uuid default gen_random_uuid() primary key,
+  sender_name text not null,
+  email text not null,
+  subject text,
+  message text not null,
+  is_read boolean default false,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+alter table public.contact_messages enable row level security;
+create policy "Admins can manage all contact messages." on public.contact_messages for all using (
+  exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+);

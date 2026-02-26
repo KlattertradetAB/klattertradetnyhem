@@ -6,12 +6,16 @@ interface Message {
     timestamp: Date;
 }
 
+export type AssistantType = 'main' | 'lina' | 'erik' | 'amanda' | 'axel';
+
 interface AssistantContextType {
     isOpen: boolean;
     setIsOpen: (isOpen: boolean) => void;
     messages: Message[];
     addMessage: (message: Message) => void;
     clearMessages: () => void;
+    assistantType: AssistantType;
+    setAssistantType: (type: AssistantType) => void;
 }
 
 const AssistantContext = createContext<AssistantContextType | undefined>(undefined);
@@ -19,6 +23,7 @@ const AssistantContext = createContext<AssistantContextType | undefined>(undefin
 export const AssistantProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([]);
+    const [assistantType, setAssistantType] = useState<AssistantType>('main');
 
     const addMessage = (message: Message) => {
         setMessages((prev) => [...prev, message]);
@@ -29,7 +34,7 @@ export const AssistantProvider: React.FC<{ children: ReactNode }> = ({ children 
     };
 
     return (
-        <AssistantContext.Provider value={{ isOpen, setIsOpen, messages, addMessage, clearMessages }}>
+        <AssistantContext.Provider value={{ isOpen, setIsOpen, messages, addMessage, clearMessages, assistantType, setAssistantType }}>
             {children}
         </AssistantContext.Provider>
     );

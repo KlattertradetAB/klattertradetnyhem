@@ -82,15 +82,23 @@ export default function RegisterPage({ setPage }: RegisterPageProps) {
     if (success) {
         return (
             <AuthLayout>
-                <div className="space-y-6 text-center">
-                    <Logo className="h-6 mx-auto" />
-                    <Heading>Check your email</Heading>
-                    <Text>
-                        Vill har skickat en bekräftelselänk till <Strong>{email}</Strong>.
-                        Vänligen klicka på länken för att aktivera ditt konto.
-                    </Text>
-                    <Button onClick={() => setPage(Page.LOGIN)} className="w-full">
-                        Tillbaka till logga in
+                <div className="space-y-8 text-center py-4">
+                    <div className="flex justify-center">
+                        <img
+                            src="/assets/logo2.png"
+                            alt="Horizonten"
+                            className="h-24 w-auto object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+                        />
+                    </div>
+                    <div className="space-y-3">
+                        <h2 className="text-2xl font-black text-white">Kontrollera din e-post</h2>
+                        <Text className="text-slate-300 leading-relaxed">
+                            Vi har skickat en bekräftelselänk till <Strong className="text-orange-400">{email}</Strong>.
+                            Vänligen klicka på länken i mailet för att aktivera ditt konto.
+                        </Text>
+                    </div>
+                    <Button onClick={() => setPage(Page.LOGIN)} className="w-full bg-orange-500 hover:bg-orange-600 text-slate-950 font-black py-4 rounded-2xl shadow-lg shadow-orange-500/20">
+                        Tillbaka till inloggning
                     </Button>
                 </div>
             </AuthLayout>
@@ -99,9 +107,15 @@ export default function RegisterPage({ setPage }: RegisterPageProps) {
 
     return (
         <AuthLayout>
-            <form onSubmit={handleRegister} className="grid w-full max-w-sm grid-cols-1 gap-8">
-                <Logo className="h-6 text-zinc-950 dark:text-white" />
-                <Heading>Create your account</Heading>
+            <form onSubmit={handleRegister} className="grid w-full grid-cols-1 gap-8">
+                <div className="flex justify-center mb-2">
+                    <img
+                        src="/assets/logo2.png"
+                        alt="Horizonten"
+                        className="h-20 w-auto object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+                    />
+                </div>
+                <h2 className="text-2xl font-black text-white text-center">Skapa konto</h2>
 
                 {error && (
                     <Text className="text-red-600 dark:text-red-400 font-medium">
@@ -157,11 +171,11 @@ export default function RegisterPage({ setPage }: RegisterPageProps) {
                     </Select>
                 </Field>
                 <CheckboxField>
-                    <Checkbox name="remember" required />
-                    <Label>I agree to the terms and conditions.</Label>
+                    <Checkbox name="remember" required className="border-white/20 data-[checked]:bg-orange-500 data-[checked]:border-orange-500" />
+                    <Label className="text-slate-400 text-sm">Jag godkänner användarvillkoren och att mina uppgifter hanteras enligt integritetspolicyn.</Label>
                 </CheckboxField>
-                <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Creating account...' : 'Create account'}
+                <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-slate-950 font-black py-4 rounded-2xl shadow-lg shadow-orange-500/20" disabled={loading}>
+                    {loading ? 'Skapar konto...' : 'Skapa konto'}
                 </Button>
                 <Text>
                     Already have an account?{' '}
