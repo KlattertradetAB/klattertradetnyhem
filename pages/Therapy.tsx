@@ -56,8 +56,31 @@ const Therapy: React.FC<TherapyProps> = ({ setPage }) => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 1. Save to Supabase
+    try {
+      const { supabase } = await import('../gemenskap/services/supabase');
+      const { error } = await supabase.from('therapy_matchmaking').insert({
+        previously_sought_therapy: formData.tidigare_erfarenhet,
+        appreciated_aspects: formData.uppskattade,
+        thoughts_on_experience: formData.tanke_delar,
+        challenges: formData.utmaningar,
+        other_challenge_text: formData.annan_utmaning_text,
+        goal: formData.mal,
+        other_goal_text: formData.annat_mal_text,
+        therapist_gender_pref: formData.terapeut_kon,
+        meeting_form: formData.motesform,
+        applicant_name: formData.namn,
+        email: formData.epost,
+        phone: formData.telefon
+      });
+      if (error) console.error('Supabase therapy request error:', error);
+    } catch (err) {
+      console.error('Failed to save therapy request to Supabase:', err);
+    }
+
     const recipient = 'billy@klattertradet.se';
     const subject = 'Enkät, hjälp med att hitta terapeut';
 

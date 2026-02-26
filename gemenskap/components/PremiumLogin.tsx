@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Loader2, ArrowLeft, ShieldCheck, AlertCircle, ArrowRight } from 'lucide-react';
 import { Profile } from '../types';
-import { supabase } from '../services/supabase';
+import { authService } from '../services/authService';
 
 interface PremiumLoginProps {
     onLoginSuccess: (profile: Profile) => void;
@@ -10,7 +10,7 @@ interface PremiumLoginProps {
     isStandalone?: boolean;
 }
 
-const PremiumLogin: React.FC<PremiumLoginProps> = ({ onLoginSuccess, onBack, isStandalone }) => {
+const PremiumLogin: React.FC<PremiumLoginProps> = ({ onLoginSuccess, onBack, onRegister, isStandalone }) => {
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -27,61 +27,12 @@ const PremiumLogin: React.FC<PremiumLoginProps> = ({ onLoginSuccess, onBack, isS
         setMessage(null);
 
         try {
-            if (isLogin) {
-                // LOGIN
-                const { data, error: loginError } = await supabase.auth.signInWithPassword({
-                    email,
-                    password,
-                });
-
-                if (loginError) {
-                    setError(loginError.message);
-                    setIsLoading(false);
-                } else if (data.user) {
-                    console.log('Premium Login successful:', data.user);
-                    // Record login event
-                    await supabase.from('login_events').insert({
-                        user_id: data.user.id,
-                        logged_in_at: new Date().toISOString(),
-                    });
-                    // Success is handled by the auth state listener in GemenskapApp
-                }
-            } else {
-                // SIGN UP
-                const { data, error: signUpError } = await supabase.auth.signUp({
-                    email,
-                    password,
-                    options: {
-                        emailRedirectTo: window.location.origin,
-                        data: {
-                            full_name: fullName,
-                            role: 'medlem',
-                            membership_level: 2,
-                            membership_active: true,
-                            avatar_url: '', // optional or random default
-                        },
-                    },
-                });
-
-                if (signUpError) {
-                    setError(signUpError.message);
-                    setIsLoading(false);
-                } else if (data.user) {
-                    console.log('Signup successful, user created:', data.user);
-
-                    // Check if email confirmation is required
-                    if (data.session) {
-                        console.log('Signup successful, session created');
-                        // Success is handled by the auth state listener
-                    } else {
-                        setMessage('Tack för din registrering! Ett bekräftelsemail har skickats till din e-post.');
-                        setIsLogin(true); // Switch back to login view
-                    }
-                    setIsLoading(false);
-                }
-            }
-        } catch (err) {
-            setError('Ett oväntat fel uppstod.');
+            await authService.login(email, password);
+            // Success is handled by the auth state listener in GemenskapApp
+        } catch (err: any) {
+            console.error('Premium Login error:', err);
+            setError(err.message || 'Fel vid inloggning. Kontrollera dina uppgifter.');
+        } finally {
             setIsLoading(false);
         }
     };
@@ -99,10 +50,10 @@ const PremiumLogin: React.FC<PremiumLoginProps> = ({ onLoginSuccess, onBack, isS
                     <span className="text-white text-xl font-medium">Horizonten gemenskap</span>
                 </div>
                 <h1 className="text-2xl sm:text-3xl text-white font-light tracking-wide">
-                    {isLogin ? 'Logga in på ditt konto' : 'Skapa ett konto'}
+                    Logga in
                 </h1>
                 <p className="text-slate-400 mt-3 text-sm">
-                    {isLogin ? 'Välkommen tillbaka till vår gemenskap' : 'Bli en del av Horizonten idag'}
+                    Välkommen tillbaka till vår gemenskap
                 </p>
             </div>
 
@@ -221,13 +172,13 @@ const PremiumLogin: React.FC<PremiumLoginProps> = ({ onLoginSuccess, onBack, isS
             {!isStandalone && (
                 <div className="mt-8 text-center text-slate-500 text-sm">
                     <p>
-                        {isLogin ? 'Inte medlem än?' : 'Har du redan ett konto?'}
+                        Inte medlem än?
                         {' '}
                         <button
-                            onClick={() => setIsLogin(!isLogin)}
+                            onClick={onRegister}
                             className="text-[#b35c2a] hover:text-[#9a4f24] transition-colors font-medium ml-1"
                         >
-                            {isLogin ? 'Skapa ett konto' : 'Logga in'}
+                            Ansök om medlemskap
                         </button>
                     </p>
                 </div>

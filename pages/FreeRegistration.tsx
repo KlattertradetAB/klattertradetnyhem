@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, User, Send, CheckCircle2, ArrowLeft, ArrowRight, Lock, Loader2 } from 'lucide-react';
 import { Page } from '../types';
-import { supabase } from '../gemenskap/services/supabase';
+import { authService } from '../gemenskap/services/authService';
 
 interface FreeRegistrationProps {
     setPage: (page: Page) => void;
@@ -24,46 +24,19 @@ const FreeRegistration: React.FC<FreeRegistrationProps> = ({ setPage }) => {
         setError(null);
 
         try {
-            const { data, error: signUpError } = await supabase.auth.signUp({
+            await authService.register({
                 email: formData.email,
                 password: formData.password,
-                options: {
-                    emailRedirectTo: window.location.origin,
-                    data: {
-                        full_name: formData.name,
-                        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                        language: navigator.language,
-                        avatar_url: '',
-                    },
-                },
+                fullName: formData.name,
+                membershipLevel: 1, // Free tier
+                membershipActive: true,
             });
 
-            if (signUpError) {
-                console.error('Signup Error:', signUpError);
-                setError(signUpError.message);
-                setIsLoading(false);
-            } else if (data.user) {
-                // Ensure profile exists with all metadata
-                const { error: profileError } = await supabase.from('profiles').upsert({
-                    id: data.user.id,
-                    email: formData.email,
-                    full_name: formData.name,
-                    membership_level: 1, // Free tier
-                    membership_active: true,
-                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                    last_localization: navigator.language,
-                    updated_at: new Date().toISOString(),
-                });
-
-                if (profileError) {
-                    console.error('Profile Creation Error:', profileError);
-                }
-
-                setSubmitted(true);
-                setIsLoading(false);
-            }
-        } catch (err) {
-            setError('Ett oväntat fel uppstod.');
+            setSubmitted(true);
+            setIsLoading(false);
+        } catch (err: any) {
+            console.error('Signup Error:', err);
+            setError(err.message || 'Ett oväntat fel uppstod.');
             setIsLoading(false);
         }
     };

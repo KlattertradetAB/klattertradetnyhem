@@ -16,8 +16,25 @@ const Chat: React.FC = () => {
     message: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 1. Save to Supabase
+    try {
+      const { supabase } = await import('../gemenskap/services/supabase');
+      const { error } = await supabase.from('course_applications').insert({
+        course_type: formData.type,
+        applicant_name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        workplace: formData.workplace,
+        invoice_address: formData.invoiceAddress,
+        message: formData.message
+      });
+      if (error) console.error('Supabase application error:', error);
+    } catch (err) {
+      console.error('Failed to save application to Supabase:', err);
+    }
 
     const recipient = 'billy@klattertradet.se';
     const subject = `Anmälan: ${formData.type} - ${formData.name}`;

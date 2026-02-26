@@ -8,7 +8,7 @@ import { Input } from '@/components/input'
 import { Select } from '@/components/select'
 import { Strong, Text, TextLink } from '@/components/text'
 import { Logo } from '@/components/logo'
-import { supabase } from '@/gemenskap/services/supabase'
+import { authService } from '@/gemenskap/services/authService'
 import { Page } from '@/types'
 
 interface RegisterPageProps {
@@ -29,52 +29,19 @@ export default function RegisterPage({ setPage }: RegisterPageProps) {
         setLoading(true)
         setError(null)
 
-        const { data, error: signUpError } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-                data: {
-                    full_name: fullName,
-                    country: country,
-                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                    language: navigator.language,
-                },
-                emailRedirectTo: window.location.origin
-            },
-        })
-
-        if (signUpError) {
-            console.error('Signup Error:', signUpError);
-            setError(signUpError.message)
-            setLoading(false)
-        } else if (data.user) {
-            try {
-                // Explicitly create profile to ensure it exists
-                const { error: profileError } = await supabase.from('profiles').upsert({
-                    id: data.user.id,
-                    email: email,
-                    full_name: fullName,
-                    membership_level: 2,
-                    membership_active: true,
-                    country: country,
-                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                    last_localization: navigator.language,
-                    updated_at: new Date().toISOString(),
-                });
-
-                if (profileError) {
-                    console.error('Profile Creation Error:', profileError);
-                    // We don't necessarily block the user here if they need to confirm email first,
-                    // but it's good to know if it failed.
-                }
-
-                setSuccess(true)
-            } catch (err) {
-                console.error('Unexpected error during profile creation:', err);
-            } finally {
-                setLoading(false)
-            }
-        } else {
+        try {
+            await authService.register({
+                email,
+                password,
+                fullName,
+                membershipLevel: 2,
+                membershipActive: true
+            })
+            setSuccess(true)
+        } catch (err: any) {
+            console.error('Signup Error:', err);
+            setError(err.message || 'Ett oväntat fel uppstod.')
+        } finally {
             setLoading(false)
         }
     }
@@ -134,7 +101,7 @@ export default function RegisterPage({ setPage }: RegisterPageProps) {
                     />
                 </Field>
                 <Field>
-                    <Label>Full name</Label>
+                    <Label>Namn</Label>
                     <Input
                         name="name"
                         value={fullName}
@@ -143,7 +110,7 @@ export default function RegisterPage({ setPage }: RegisterPageProps) {
                     />
                 </Field>
                 <Field>
-                    <Label>Password</Label>
+                    <Label>Lösenord</Label>
                     <Input
                         type="password"
                         name="password"
@@ -155,7 +122,7 @@ export default function RegisterPage({ setPage }: RegisterPageProps) {
                     />
                 </Field>
                 <Field>
-                    <Label>Country</Label>
+                    <Label>Land</Label>
                     <Select
                         name="country"
                         value={country}
@@ -178,9 +145,9 @@ export default function RegisterPage({ setPage }: RegisterPageProps) {
                     {loading ? 'Skapar konto...' : 'Skapa konto'}
                 </Button>
                 <Text>
-                    Already have an account?{' '}
+                    Har du redan ett konto?{' '}
                     <button type="button" onClick={() => setPage(Page.LOGIN)}>
-                        <Strong>Sign in</Strong>
+                        <Strong>Logga in</Strong>
                     </button>
                 </Text>
             </form>

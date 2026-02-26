@@ -62,6 +62,30 @@ interface ContactMessage {
     created_at: string;
 }
 
+interface CourseApplication {
+    id: string;
+    course_type: string;
+    applicant_name: string;
+    email: string;
+    phone?: string;
+    workplace?: string;
+    invoice_address?: string;
+    message?: string;
+    status: string;
+    created_at: string;
+}
+
+interface TherapyRequest {
+    id: string;
+    applicant_name: string;
+    email: string;
+    phone?: string;
+    challenges: string[];
+    meeting_form: string;
+    status: string;
+    created_at: string;
+}
+
 interface AdminDashboardProps {
     user: Profile;
     onBack: () => void;
@@ -73,11 +97,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [profiles, setProfiles] = useState<Profile[]>([]);
     const [messages, setMessages] = useState<ContactMessage[]>([]);
+    const [courseApps, setCourseApps] = useState<CourseApplication[]>([]);
+    const [therapyRequests, setTherapyRequests] = useState<TherapyRequest[]>([]);
     const [stats, setStats] = useState({
         members: 0,
         newThreads: 0,
         unreadReports: 0,
         blogPosts: 0,
+        unprocessedApps: 0,
         todayUniques: 45,
         todayViews: 128
     });
@@ -96,12 +123,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
         const { count: memberCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
         const { count: threadCount } = await supabase.from('threads').select('*', { count: 'exact', head: true });
         const { count: blogCount } = await supabase.from('blogs').select('*', { count: 'exact', head: true });
+        const { count: appCount } = await supabase.from('course_applications').select('*', { count: 'exact', head: true }).eq('status', 'Ny');
+        const { count: therapyCount } = await supabase.from('therapy_matchmaking').select('*', { count: 'exact', head: true }).eq('status', 'Väntar på matchning');
 
         setStats(prev => ({
             ...prev,
             members: memberCount || 0,
             newThreads: threadCount || 0,
-            blogPosts: blogCount || 0
+            blogPosts: blogCount || 0,
+            unprocessedApps: (appCount || 0) + (therapyCount || 0)
         }));
 
         if (activeSection === 'overview' || activeSection === 'orders') {
@@ -118,6 +148,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
         if (activeSection === 'overview' || activeSection === 'messages') {
             const { data: messagesData } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false });
             if (messagesData) setMessages(messagesData);
+
+            const { data: appsData } = await supabase.from('course_applications').select('*').order('created_at', { ascending: false });
+            if (appsData) setCourseApps(appsData as any);
+
+            const { data: therapyData } = await supabase.from('therapy_matchmaking').select('*').order('created_at', { ascending: false });
+            if (therapyData) setTherapyRequests(therapyData as any);
         }
         if (activeSection === 'moderation') {
             const { data: profilesData } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
@@ -193,7 +229,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                         <Calendar size={18} /> Bokningar
                     </button>
                     <button onClick={() => setActiveSection('messages')} className={`px-5 py-2.5 rounded-xl font-bold transition-all border whitespace-nowrap flex items-center gap-2 ${activeSection === 'messages' ? 'bg-orange-500 text-slate-950 border-orange-500' : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10'}`}>
-                        <MessageSquare size={18} /> Meddelanden
+                        <MessageSquare size={18} /> Inkorg {stats.unprocessedApps > 0 && <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{stats.unprocessedApps}</span>}
                     </button>
                     <button onClick={() => setActiveSection('blog')} className={`px-5 py-2.5 rounded-xl font-bold transition-all border whitespace-nowrap flex items-center gap-2 ${activeSection === 'blog' ? 'bg-orange-500 text-slate-950 border-orange-500' : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10'}`}>
                         <Edit2 size={18} /> Blogg
@@ -462,22 +498,74 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
 
                 {activeSection === 'messages' && (
                     <div className="space-y-6">
-                        <h3 className="text-2xl font-black text-white mb-6">Kontaktmeddelanden</h3>
+                        <h3 className="text-2xl font-black text-white mb-6">Inkorg & Webbformulär</h3>
+
+                        {/* Tab Switcher for Inboxes */}
+                        <div className="flex gap-4 mb-8">
+                            <h4 className="text-sm font-bold text-slate-500 uppercase tracking-widest self-center mr-4">Visa:</h4>
+                            <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                                <button className="px-4 py-2 bg-orange-500 text-slate-950 rounded-lg text-xs font-bold">Kontakt</button>
+                                <button className="px-4 py-2 text-slate-400 hover:text-white transition-colors text-xs font-bold">Utbildning ({courseApps.length})</button>
+                                <button className="px-4 py-2 text-slate-400 hover:text-white transition-colors text-xs font-bold">Terapiutredning ({therapyRequests.length})</button>
+                            </div>
+                        </div>
+
                         <div className="grid grid-cols-1 gap-4">
+                            {/* Course Apps List */}
+                            {courseApps.map(app => (
+                                <div key={app.id} className="p-8 bg-white/5 border border-amber-500/20 rounded-[2rem] flex flex-col md:flex-row gap-8">
+                                    <div className="md:w-64 shrink-0">
+                                        <span className="bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded mb-4 inline-block">UTBILDNINGSANSÖKAN</span>
+                                        <h4 className="font-bold text-white mb-1">{app.applicant_name}</h4>
+                                        <p className="text-xs text-slate-500 mb-4">{app.email}</p>
+                                        <div className="flex items-center gap-2 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                                            <Clock size={12} /> {new Date(app.created_at).toLocaleDateString()}
+                                        </div>
+                                    </div>
+                                    <div className="flex-1">
+                                        <h5 className="text-white font-bold mb-2">{app.course_type}</h5>
+                                        <p className="text-slate-300 text-sm leading-relaxed">{app.message || '(Inget meddelande)'}</p>
+                                        {app.workplace && <p className="text-slate-500 text-xs mt-4 italic">Arbetsplats: {app.workplace}</p>}
+                                    </div>
+                                    <div className="md:w-32 shrink-0 flex flex-col justify-center gap-2">
+                                        <button className="py-3 bg-white text-slate-950 rounded-xl text-xs font-black">Hantera</button>
+                                        <button className="py-3 bg-white/5 text-slate-400 rounded-xl text-xs font-bold border border-white/10">Arkivera</button>
+                                    </div>
+                                </div>
+                            ))}
+
+                            {/* Therapy Requests List */}
+                            {therapyRequests.map(req => (
+                                <div key={req.id} className="p-8 bg-white/5 border border-blue-500/20 rounded-[2rem] flex flex-col md:flex-row gap-8">
+                                    <div className="md:w-64 shrink-0">
+                                        <span className="bg-blue-500/10 text-blue-500 text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded mb-4 inline-block">TERAPIMATCHNING</span>
+                                        <h4 className="font-bold text-white mb-1">{req.applicant_name}</h4>
+                                        <p className="text-xs text-slate-500 mb-4">{req.email}</p>
+                                        <div className="flex items-center gap-2 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                                            <Clock size={12} /> {new Date(req.created_at).toLocaleDateString()}
+                                        </div>
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex flex-wrap gap-2 mb-4">
+                                            {req.challenges.map(c => <span key={c} className="bg-white/5 border border-white/10 px-2 py-1 rounded text-[10px] text-slate-400 font-bold uppercase">{c}</span>)}
+                                        </div>
+                                        <p className="text-slate-300 text-sm">Söker: {req.meeting_form}</p>
+                                    </div>
+                                    <div className="md:w-32 shrink-0 flex flex-col justify-center gap-2">
+                                        <button className="py-3 bg-white text-slate-950 rounded-xl text-xs font-black">Matcha</button>
+                                        <button className="py-3 bg-white/5 text-slate-400 rounded-xl text-xs font-bold border border-white/10">Arkivera</button>
+                                    </div>
+                                </div>
+                            ))}
+
+                            {/* Contact Messages List */}
                             {messages.map((msg: ContactMessage) => (
                                 <div key={msg.id} className={`p-8 bg-white/5 border rounded-[2rem] transition-all flex flex-col md:flex-row gap-8 ${msg.is_read ? 'border-white/5' : 'border-blue-500/30 bg-blue-500/5'}`}>
                                     <div className="md:w-64 shrink-0">
-                                        <div className="flex items-center gap-4 mb-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center font-black text-orange-500 text-xl">
-                                                {msg.sender_name[0]}
-                                            </div>
-                                            <div>
-                                                <h4 className="font-bold text-white">{msg.sender_name}</h4>
-                                                <p className="text-xs text-slate-500">{msg.email}</p>
-                                            </div>
-                                        </div>
+                                        <h4 className="font-bold text-white mb-1">{msg.sender_name}</h4>
+                                        <p className="text-xs text-slate-500 mb-4">{msg.email}</p>
                                         <div className="flex items-center gap-2 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
-                                            <Clock size={12} /> {new Date(msg.created_at).toLocaleString('sv-SE', { dateStyle: 'short', timeStyle: 'short' })}
+                                            <Clock size={12} /> {new Date(msg.created_at).toLocaleDateString()}
                                         </div>
                                     </div>
                                     <div className="flex-1 space-y-4">
@@ -497,7 +585,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                                     </div>
                                 </div>
                             ))}
-                            {messages.length === 0 && (
+                            {messages.length === 0 && courseApps.length === 0 && therapyRequests.length === 0 && (
                                 <div className="py-20 text-center space-y-4">
                                     <Mail className="w-16 h-16 text-slate-800 mx-auto" />
                                     <p className="text-slate-500 italic">E-postlådan är tom</p>

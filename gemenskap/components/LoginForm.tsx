@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { supabase } from '../services/supabase';
+import { authService } from '../services/authService';
 import { Profile } from '../types';
 import { ShieldCheck, AlertCircle, Loader2, ArrowRight } from 'lucide-react';
 
@@ -40,68 +40,13 @@ const LoginForm: React.FC<LoginFormProps> = ({
     try {
       if (isLogin) {
         // LOGIN
-        const { data, error: loginError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (loginError) {
-          if (loginError.message.includes('Email not confirmed')) {
-            setError('Din e-postadress är inte bekräftad ännu. Vänligen kontrollera din inkorg och klicka på aktiveringslänken.');
-          } else {
-            setError(loginError.message);
-          }
-          setLoading(false);
-        } else if (data.user) {
-          console.log('Login successful:', data.user);
-          // Record login event
-          await supabase.from('login_events').insert({
-            user_id: data.user.id,
-            logged_in_at: new Date().toISOString(),
-          });
-          // App.tsx listener handles the rest
-        }
-      } else {
-        // SIGN UP
-        const { data, error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: window.location.origin,
-            data: {
-              full_name: fullName,
-              avatar_url: '', // optional or random default
-            },
-          },
-        });
-
-        if (signUpError) {
-          setError(signUpError.message);
-          setLoading(false);
-        } else if (data.user) {
-          // Explicitly create profile if needed (though Supabase triggers are better, let's be safe)
-          await supabase.from('profiles').upsert({
-            id: data.user.id,
-            email: email,
-            full_name: fullName,
-            membership_level: 2, // Default for new signups in this view
-            membership_active: true,
-            updated_at: new Date().toISOString(),
-          });
-
-          // Check if email confirmation is required
-          if (data.session) {
-            console.log('Signup successful, session created');
-          } else {
-            setMessage('Tack för din registrering! Ett bekräftelsemail har skickats till din e-post. Klicka på länken i mailet för att aktivera ditt konto och kunna logga in.');
-            setIsLogin(true); // Switch back to login view
-          }
-          setLoading(false);
-        }
+        await authService.login(email, password);
+        // App.tsx listener handles the rest
       }
-
-    } catch (err) {
-      setError('Ett oväntat fel uppstod.');
+    } catch (err: any) {
+      console.error('Login Error:', err);
+      setError(err.message || 'Ett oväntat fel uppstod.');
+    } finally {
       setLoading(false);
     }
   };
@@ -227,12 +172,12 @@ const LoginForm: React.FC<LoginFormProps> = ({
 
         <div className="mt-8 pt-6 border-t border-slate-800 text-center">
           <p className="text-slate-500 text-sm">
-            {isLogin ? 'Ingen tillgång?' : 'Har du redan ett konto?'}{' '}
+            Ingen tillgång?{' '}
             <button
-              onClick={() => setIsLogin(!isLogin)}
+              onClick={onNavigateToPremium}
               className="text-orange-400 hover:text-orange-300 font-semibold underline underline-offset-4 focus:outline-none"
             >
-              {isLogin ? 'Skapa ett konto' : 'Logga in här'}
+              Ansök om medlemskap
             </button>
           </p>
         </div>

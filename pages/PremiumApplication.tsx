@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, User, Send, CheckCircle2, ArrowLeft, Lock, Loader2 } from 'lucide-react';
 import { Page } from '../types';
-import { supabase } from '../gemenskap/services/supabase';
+import { authService } from '../gemenskap/services/authService';
 
 interface PremiumApplicationProps {
     setPage: (page: Page) => void;
@@ -25,29 +25,18 @@ const PremiumApplication: React.FC<PremiumApplicationProps> = ({ setPage }) => {
         setError(null);
 
         try {
-            const { data, error: signUpError } = await supabase.auth.signUp({
+            await authService.register({
                 email: formData.email,
                 password: formData.password,
-                options: {
-                    emailRedirectTo: window.location.origin,
-                    data: {
-                        full_name: formData.name,
-                        phone: formData.phone,
-                        application_reason: formData.reason,
-                        membership_level: 2, // Default to premium level since it's free now
-                        role: 'medlem',
-                        membership_active: true
-                    }
-                }
+                fullName: formData.name,
+                phone: formData.phone,
+                reason: formData.reason,
+                membershipLevel: 2, // Premium level
+                role: 'medlem',
+                membershipActive: true
             });
 
-            if (signUpError) throw signUpError;
-
-            // If signup successful, show success screen
-            if (data.user) {
-                setSubmitted(true);
-            }
-
+            setSubmitted(true);
         } catch (err: any) {
             console.error('Signup error:', err);
             setError(err.message || 'Ett fel uppstod vid registreringen. Försök igen.');

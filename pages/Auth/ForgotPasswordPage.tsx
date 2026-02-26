@@ -25,7 +25,7 @@ export default function ForgotPasswordPage({ setPage }: ForgotPasswordPageProps)
         setError(null)
 
         const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: `${window.location.origin}#reset-password`,
+            redirectTo: `${window.location.origin}/aterstall-losenord`,
         })
 
         if (resetError) {
@@ -42,9 +42,9 @@ export default function ForgotPasswordPage({ setPage }: ForgotPasswordPageProps)
             <AuthLayout>
                 <div className="space-y-6 text-center">
                     <Logo className="h-6 mx-auto" />
-                    <Heading>Check your email</Heading>
+                    <Heading>Kontrollera din e-post</Heading>
                     <Text>
-                        Vill har skickat en återställningslänk till <Strong>{email}</Strong>.
+                        Vi har skickat en återställningslänk till <Strong>{email}</Strong>.
                         Vänligen klicka på länken för att återställa ditt lösenord.
                     </Text>
                     <Button onClick={() => setPage(Page.LOGIN)} className="w-full">
@@ -59,7 +59,7 @@ export default function ForgotPasswordPage({ setPage }: ForgotPasswordPageProps)
         <AuthLayout>
             <form onSubmit={handleReset} className="grid w-full max-w-sm grid-cols-1 gap-8">
                 <Logo className="h-6 text-zinc-950 dark:text-white" />
-                <Heading>Reset your password</Heading>
+                <Heading>Återställ lösenord</Heading>
                 <Text>
                     Ange din e-postadress så skickar vi en länk för att återställa ditt lösenord.
                 </Text>
@@ -88,7 +88,7 @@ export default function ForgotPasswordPage({ setPage }: ForgotPasswordPageProps)
                 <Text>
                     Kommer du ihåg ditt lösenord?{' '}
                     <button type="button" onClick={() => setPage(Page.LOGIN)}>
-                        <Strong>Sign in</Strong>
+                        <Strong>Logga in</Strong>
                     </button>
                 </Text>
             </form>

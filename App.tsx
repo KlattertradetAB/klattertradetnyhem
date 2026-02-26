@@ -18,6 +18,7 @@ import Downloads from './pages/Downloads';
 import LoginPage from './pages/Auth/LoginPage';
 import RegisterPage from './pages/Auth/RegisterPage';
 import ForgotPasswordPage from './pages/Auth/ForgotPasswordPage';
+import ResetPasswordPage from './pages/Auth/ResetPasswordPage';
 import BookPromotion from './pages/BookPromotion';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import CookiePolicy from './pages/CookiePolicy';
@@ -48,6 +49,7 @@ export const PAGE_URLS: Record<Page, string> = {
   [Page.LOGIN]: '/logga-in',
   [Page.REGISTER]: '/registrera',
   [Page.FORGOT_PASSWORD]: '/glomt-losenord',
+  [Page.RESET_PASSWORD]: '/aterstall-losenord',
   [Page.GEMENSKAP_APP]: '/app',
   [Page.BOOK]: '/bok',
   [Page.CHECKOUT]: '/kassa',
@@ -74,7 +76,11 @@ const App: React.FC = () => {
     setIsStandalone(!!isStandaloneMode);
 
     // Supabase Auth Listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: string, session: any) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: string, session: any) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        handleSetPage(Page.RESET_PASSWORD);
+        return;
+      }
       if (session) {
         setAuthStatus(AuthStatus.AUTHENTICATED);
         // If on a public auth page, move to app
@@ -220,6 +226,7 @@ const App: React.FC = () => {
             case Page.LOGIN: return <LoginPage setPage={handleSetPage} />;
             case Page.REGISTER: return <RegisterPage setPage={handleSetPage} />;
             case Page.FORGOT_PASSWORD: return <ForgotPasswordPage setPage={handleSetPage} />;
+            case Page.RESET_PASSWORD: return <ResetPasswordPage setPage={handleSetPage} />;
             case Page.BOOK: return <BookPromotion setPage={handleSetPage} />;
             case Page.CHECKOUT: return (
               <div className="container mx-auto px-6 py-24 text-center">

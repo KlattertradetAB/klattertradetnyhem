@@ -139,7 +139,7 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
             icon = persona ? persona.avatar : '🤖';
             color = persona ? persona.color : 'bg-slate-800';
           } else {
-            const { data } = await supabase.from('profiles').select('full_name').eq('id', newMsg.user_id).single();
+            const { data } = await (supabase as any).from('profiles').select('full_name').eq('id', newMsg.user_id).single();
             if (data) senderName = data.full_name;
           }
 
@@ -187,51 +187,58 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
         setAuthStatus(AuthStatus.AUTHENTICATED);
         setShowLogin(false);
 
-        // Fetch rich profile from DB to get membership_level
-        const { data: profileData } = await supabase
+        // Fetch rich profile from DB
+        const { data: profileData } = await (supabase as any)
           .from('profiles')
           .select('*')
           .eq('id', session.user.id)
           .single();
 
+        const role = profileData?.role || 'medlem';
+        const isAdmin = role === 'admin';
+
         setUser({
           id: session.user.id,
           email: session.user.email || '',
           full_name: profileData?.full_name || session.user.user_metadata.full_name || 'Medlem',
-          role: profileData?.role || 'medlem',
+          role: role,
           avatar_url: profileData?.avatar_url || session.user.user_metadata.avatar_url,
-          membership_level: profileData?.membership_level ?? 2, // Default to 2 if not found
+          membership_level: profileData?.membership_level ?? 2,
           membership_active: profileData?.membership_active ?? true,
           notifications_enabled: profileData?.notifications_enabled ?? true,
         });
 
         // Update login metadata
-        await supabase
+        await (supabase as any)
           .from('profiles')
           .update({
             last_login: new Date().toISOString(),
             login_count: (profileData?.login_count || 0) + 1,
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            last_ip: 'stored-via-supabase-auth', // Supabase handles IP in auth.audit_log, but we can store it here too if needed
             last_localization: navigator.language
           })
           .eq('id', session.user.id);
 
-        // Record Login Event (Analytics)
-        await supabase
+        // Record Login Event
+        await (supabase as any)
           .from('login_events')
           .insert({
             user_id: session.user.id,
             metadata: {
               url: window.location.href,
               user_agent: navigator.userAgent,
-              localization: navigator.language
+              localization: navigator.language,
+              role: role
             }
           });
 
-        // Always go to welcome hem after login, even if via premium flow
-        setActiveTab('welcome');
-        window.history.pushState({ tab: 'welcome', view: 'welcome' }, '', '#welcome');
+        // Redirect based on role
+        if (isAdmin && window.location.hash.includes('#admin')) {
+          setActiveTab('admin');
+        } else {
+          setActiveTab('welcome');
+          window.history.pushState({ tab: 'welcome', view: 'welcome' }, '', '#welcome');
+        }
       } else {
         setAuthStatus(AuthStatus.IDLE);
         setUser(null);

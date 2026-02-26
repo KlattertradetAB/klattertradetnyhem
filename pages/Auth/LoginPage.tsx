@@ -113,7 +113,7 @@ export default function LoginPage({ setPage }: LoginPageProps) {
                     />
                 </Field>
                 <Field>
-                    <Label>Password</Label>
+                    <Label>Lösenord</Label>
                     <Input
                         type="password"
                         name="password"
@@ -125,11 +125,11 @@ export default function LoginPage({ setPage }: LoginPageProps) {
                 <div className="flex items-center justify-between">
                     <CheckboxField>
                         <Checkbox name="remember" />
-                        <Label>Remember me</Label>
+                        <Label>Kom ihåg mig</Label>
                     </CheckboxField>
                     <Text>
                         <button type="button" onClick={() => setPage(Page.FORGOT_PASSWORD)}>
-                            <Strong>Forgot password?</Strong>
+                            <Strong>Glömt lösenord?</Strong>
                         </button>
                     </Text>
                 </div>
@@ -139,9 +139,9 @@ export default function LoginPage({ setPage }: LoginPageProps) {
                     </Button>
                 </div>
                 <Text>
-                    Don’t have an account?{' '}
+                    Har du inget konto?{' '}
                     <button type="button" onClick={() => setPage(Page.REGISTER)}>
-                        <Strong>Sign up</Strong>
+                        <Strong>Skapa konto</Strong>
                     </button>
                 </Text>
             </form>
