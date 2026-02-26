@@ -32,6 +32,34 @@ import { ThemeProvider as SelfCareThemeProvider } from './self-care/contexts/The
 import AdminDashboard from './self-care/components/AdminDashboard';
 import { supabase } from './gemenskap/services/supabase';
 import { AuthStatus } from './gemenskap/types';
+const PAGE_URLS: Record<Page, string> = {
+  [Page.HOME]: '/',
+  [Page.ABOUT]: '/om-oss',
+  [Page.CHAT]: '/utbildning/mit',
+  [Page.THERAPY]: '/terapi',
+  [Page.GROUP_THERAPY]: '/grupp-terapi',
+  [Page.GESTALT_TRAINING]: '/gestaltutbildning',
+  [Page.BEHANDLINGS_PEDAGOG]: '/behandlingspedagog',
+  [Page.BLOG]: '/blogg',
+  [Page.COMMUNITY]: '/gemenskap',
+  [Page.CONTACT]: '/kontakt',
+  [Page.SURVEY]: '/enkät',
+  [Page.DOWNLOADS]: '/bibliotek',
+  [Page.LOGIN]: '/logga-in',
+  [Page.REGISTER]: '/registrera',
+  [Page.FORGOT_PASSWORD]: '/glomt-losenord',
+  [Page.GEMENSKAP_APP]: '/app',
+  [Page.BOOK]: '/bok',
+  [Page.CHECKOUT]: '/kassa',
+  [Page.PRIVACY]: '/integritet',
+  [Page.TERMS]: '/villkor',
+  [Page.COOKIE_POLICY]: '/cookies',
+  [Page.PREMIUM_APPLICATION]: '/premium-ansokan',
+  [Page.FREE_REGISTRATION]: '/gratis-registrering',
+  [Page.GESTALT_WORKSHEET]: '/gestalt-arbetsblad',
+  [Page.ADMIN_SURVEY_STATS]: '/admin/survey-stats',
+  [Page.ADMIN_PANEL]: '/admin'
+};
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>(Page.HOME);
@@ -60,12 +88,19 @@ const App: React.FC = () => {
 
     // Initial routing logic
     const handleInitialRoute = () => {
+      const path = window.location.pathname;
       const hash = window.location.hash;
       const historyState = window.history.state;
 
-      // Priority 1: Standalone Mode
+      // Priority 1: Path based routing
+      const foundPage = (Object.keys(PAGE_URLS) as Page[]).find(p => PAGE_URLS[p] === path);
+      if (foundPage) {
+        setCurrentPage(foundPage);
+        return;
+      }
+
+      // Priority 2: Standalone Mode
       if (isStandaloneMode) {
-        // If has hash related to app, ensure Page is correct
         if (hash.includes('#premium-login') || hash.includes('#login') || hash.includes('#signup') ||
           hash.includes('#chat') || hash.includes('#dashboard') || hash.includes('#welcome') || hash.includes('#experts')) {
           setCurrentPage(Page.GEMENSKAP_APP);
@@ -73,10 +108,10 @@ const App: React.FC = () => {
         }
       }
 
-      // Priority 2: Explicit Hashes (Deep Linking for Web)
+      // Priority 3: Legacy Hashes
       if (hash.includes('#login') || hash.includes('#premium-login') || hash.includes('#signup')) {
         setCurrentPage(Page.GEMENSKAP_APP);
-        window.history.replaceState({ page: Page.GEMENSKAP_APP }, '');
+        window.history.replaceState({ page: Page.GEMENSKAP_APP }, '', PAGE_URLS[Page.GEMENSKAP_APP]);
         return;
       }
 
@@ -85,7 +120,7 @@ const App: React.FC = () => {
         return;
       }
 
-      // Priority 3: History State
+      // Priority 4: History State
       if (historyState && historyState.page) {
         setCurrentPage(historyState.page);
         return;
@@ -117,7 +152,8 @@ const App: React.FC = () => {
 
   const handleSetPage = (page: Page, state?: any) => {
     if (page !== currentPage) {
-      window.history.pushState({ page, ...state }, '');
+      const url = PAGE_URLS[page] || '/';
+      window.history.pushState({ page, ...state }, '', url);
       setCurrentPage(page);
     }
   };

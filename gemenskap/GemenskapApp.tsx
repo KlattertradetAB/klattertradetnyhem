@@ -306,7 +306,7 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
     setAuthStatus(AuthStatus.AUTHENTICATED);
 
     // Default tab logic for newly logged in users
-    const initialTab = (isPremiumView || window.location.hash === '#premium-login') ? 'chat' : 'welcome';
+    const initialTab = 'welcome';
     setActiveTab(initialTab);
 
     window.history.pushState({ tab: initialTab, view: initialTab }, '', `#${initialTab}`);
