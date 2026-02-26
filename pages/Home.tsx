@@ -103,41 +103,41 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
       {/* Hero Section */}
       <div className="glass bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-6 md:py-6 md:px-14 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-amber-500/10 to-transparent pointer-events-none"></div>
-        <div className="relative z-10 grid md:grid-cols-2 gap-10 items-center">
-          <div className="space-y-2">
-            <h1 className="text-2xl md:text-4xl lg:text-6xl font-black leading-[0.95] drop-shadow-lg tracking-tight max-w-[12ch]">
+        <div className="relative z-10 flex flex-col md:grid md:grid-cols-2 gap-8 md:gap-10 items-center">
+          <div className="space-y-4 md:space-y-6 text-center md:text-left">
+            <h1 className="text-3xl md:text-4xl lg:text-6xl font-black leading-[0.95] drop-shadow-lg tracking-tight mx-auto md:mx-0 max-w-[12ch]">
               Klätterträdet <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-amber-200 to-zinc-500">
                 & Horizonten
               </span>
             </h1>
-            <p className="text-base md:text-lg text-white/90 leading-relaxed max-w-md font-light">
+            <p className="text-base md:text-lg text-white/90 leading-relaxed max-w-md mx-auto md:mx-0 font-light">
               Specialistutbildning, terapi och handledning med fokus på traumamedvetenhet och personlig mognad. Välkommen till vår gemenskap.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 pt-2">
+            <div className="flex flex-col sm:flex-row gap-4 pt-2 w-full sm:w-auto">
               <a
                 href={PAGE_URLS[Page.CHAT]}
                 onClick={(e) => { e.preventDefault(); setPage(Page.CHAT); }}
-                className="px-6 md:px-8 py-2.5 bg-white text-slate-900 hover:bg-white/90 rounded-xl font-bold transition-all hover:scale-105 flex items-center justify-center gap-2 shadow-xl shadow-white/10"
+                className="w-full sm:w-auto px-6 md:px-8 py-3 md:py-3.5 bg-white text-slate-900 hover:bg-white/90 rounded-xl font-bold transition-all hover:scale-105 flex items-center justify-center gap-2 shadow-xl shadow-white/10"
               >
                 Våra Utbildningar <ArrowRight size={18} />
               </a>
               <a
                 href={PAGE_URLS[Page.CONTACT]}
                 onClick={(e) => { e.preventDefault(); setPage(Page.CONTACT); }}
-                className="px-6 md:px-8 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-bold transition-all hover:scale-105 flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-6 md:px-8 py-3 md:py-3.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-bold transition-all hover:scale-105 flex items-center justify-center gap-2"
               >
                 Boka tid <Calendar size={18} />
               </a>
             </div>
           </div>
-          <div className="hidden md:flex justify-center items-center">
-            <div className="relative w-56 h-64 p-4">
+          <div className="flex justify-center items-center w-full">
+            <div className="relative w-48 h-48 md:w-56 md:h-64 p-4">
               <TiltedImage
                 src="/logo2.png"
                 alt="Klätterträdet Logo"
                 className="w-full h-full"
-                imgClassName="object-contain p-4"
+                imgClassName="object-contain p-2 md:p-4"
                 defaultRotation="-8deg"
                 grayscale={false}
               />
@@ -162,7 +162,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
           <button
             onClick={(e) => { e.stopPropagation(); prevSlide(); }}
             aria-label="Föregående slide"
-            className="absolute -left-2 top-[92%] -translate-y-1/2 z-20 px-6 py-2 bg-white/5 hover:bg-white/10 border border-white/20 rounded-2xl text-white transition-all backdrop-blur-2xl md:opacity-0 md:group-hover/carousel:opacity-100 opacity-100 hover:scale-105 shadow-[0_0_30px_rgba(255,255,255,0.1)] md:group-hover/carousel:-translate-x-2"
+            className="absolute -left-1 md:-left-2 top-[92%] -translate-y-1/2 z-20 px-4 md:px-6 py-2 bg-white/5 hover:bg-white/10 border border-white/20 rounded-2xl text-white transition-all backdrop-blur-2xl md:opacity-0 md:group-hover/carousel:opacity-100 opacity-100 hover:scale-105 shadow-[0_0_30px_rgba(255,255,255,0.1)] md:group-hover/carousel:-translate-x-2"
           >
             <ChevronLeft size={20} />
           </button>
@@ -170,7 +170,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
           <button
             onClick={(e) => { e.stopPropagation(); nextSlide(); }}
             aria-label="Nästa slide"
-            className="absolute -right-2 top-[92%] -translate-y-1/2 z-20 px-6 py-2 bg-white/5 hover:bg-white/10 border border-white/20 rounded-2xl text-white transition-all backdrop-blur-2xl md:opacity-0 md:group-hover/carousel:opacity-100 opacity-100 hover:scale-105 shadow-[0_0_30px_rgba(255,255,255,0.1)] md:group-hover/carousel:translate-x-2"
+            className="absolute -right-1 md:-right-2 top-[92%] -translate-y-1/2 z-20 px-4 md:px-6 py-2 bg-white/5 hover:bg-white/10 border border-white/20 rounded-2xl text-white transition-all backdrop-blur-2xl md:opacity-0 md:group-hover/carousel:opacity-100 opacity-100 hover:scale-105 shadow-[0_0_30px_rgba(255,255,255,0.1)] md:group-hover/carousel:translate-x-2"
           >
             <ChevronRight size={20} />
           </button>
