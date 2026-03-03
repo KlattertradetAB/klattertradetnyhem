@@ -1,13 +1,13 @@
 
 export interface Profile {
   id: string;
-  email: string;
-  membership_level?: number;
-  membership_active?: boolean;
-  full_name: string;
-  role?: string;
-  avatar_url?: string;
-  notifications_enabled?: boolean;
+  email: string | null;
+  membership_level?: number | null;
+  membership_active?: boolean | null;
+  full_name: string | null;
+  role?: string | null;
+  avatar_url?: string | null;
+  notifications_enabled?: boolean | null;
 }
 
 export enum AuthStatus {

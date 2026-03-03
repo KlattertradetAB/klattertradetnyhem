@@ -207,9 +207,9 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
             role: 'user',
             text: textToSend,
             timestamp: new Date(),
-            senderName: user.full_name,
-            senderEmail: user.email,
-            senderAvatar: getEffectiveAvatar(user.email, (user as any).avatar_url) || undefined
+            senderName: user.full_name || 'Okänd',
+            senderEmail: user.email || '',
+            senderAvatar: getEffectiveAvatar(user.email || undefined, user.avatar_url || undefined) || undefined
         };
         setMessages(prev => [...prev, optimisticMsg]);
 
@@ -304,7 +304,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                                             return avatar ? (
                                                 <img src={avatar} alt={msg.senderName} className={`w-full h-full ${avatar.includes('icon-512') ? 'object-contain p-1.5 bg-slate-900' : 'object-cover'}`} />
                                             ) : (
-                                                getUserInitials(msg.senderName || user.full_name)
+                                                getUserInitials(msg.senderName || user.full_name || '?')
                                             );
                                         })()
                                     ) : (
@@ -321,7 +321,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                                 {/* Meta info only on first message of a group */}
                                 {(!messages[idx - 1] || messages[idx - 1].role !== msg.role || messages[idx - 1].persona?.id !== msg.persona?.id) && (
                                     <div className="flex items-center gap-3 mb-2 px-2">
-                                        <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em]">{isCurrentUser ? (msg.senderName || user.full_name) : (msg.persona?.name || msg.senderName)}</span>
+                                        <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em]">{isCurrentUser ? (msg.senderName || user.full_name || 'Okänd') : (msg.persona?.name || msg.senderName || 'Okänd')}</span>
                                         <span className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">{msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                     </div>
                                 )}

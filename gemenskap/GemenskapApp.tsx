@@ -347,15 +347,20 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
     // Add to internal history if not explicitly requested otherwise
     if (!noHistory) {
       setNavHistory(prev => {
-        // Avoid duplicates if last entry is identical
         const last = prev[prev.length - 1];
         if (last && last.tab === tab && last.topic === topic) return prev;
         return [...prev, { tab, topic }];
       });
     }
 
-    const url = topic ? `#${tab}?topic=${encodeURIComponent(topic)}` : `#${tab}`;
-    window.history.pushState({ tab, topic }, '', url);
+    // Use paths for internal navigation too if we want "Pretty URLs" everywhere
+    // e.g. /app/chat instead of /app#chat
+    const baseUrl = '/app';
+    const pathPart = tab === 'welcome' && !topic ? '' : `/${tab}`;
+    const queryPart = topic ? `?topic=${encodeURIComponent(topic)}` : '';
+    const fullUrl = `${baseUrl}${pathPart}${queryPart}`;
+
+    window.history.pushState({ tab, topic, page: Page.GEMENSKAP_APP }, '', fullUrl);
   };
 
   const handleBack = () => {
@@ -450,11 +455,11 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
                   <div className="flex items-center gap-3 px-2 mb-6">
                     <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-orange-400 to-red-600 flex items-center justify-center text-xs font-bold text-white border border-white/10">
                       {(() => {
-                        const avatar = getEffectiveAvatar(user.email, user.avatar_url);
+                        const avatar = getEffectiveAvatar(user.email || undefined, user.avatar_url || undefined);
                         return avatar ? (
-                          <img src={avatar} alt={user.full_name} className={`w-full h-full ${getEffectiveAvatar(user.email) ? 'object-contain p-1.5 bg-slate-900' : 'object-cover'}`} />
+                          <img src={avatar} alt={user.full_name || 'Användare'} className={`w-full h-full ${getEffectiveAvatar(user.email || undefined) ? 'object-contain p-1.5 bg-slate-900' : 'object-cover'}`} />
                         ) : (
-                          user.full_name.charAt(0)
+                          (user.full_name || 'A').charAt(0)
                         );
                       })()}
                     </div>
@@ -568,18 +573,18 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
                   <div className="relative">
                     <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-800">
                       {(() => {
-                        const avatar = getEffectiveAvatar(user.email, user.avatar_url);
+                        const avatar = getEffectiveAvatar(user.email || undefined, user.avatar_url || undefined);
                         return avatar ? (
-                          <img src={avatar} alt="" className={`w-full h-full ${getEffectiveAvatar(user.email) ? 'object-contain p-1.5 bg-slate-900' : 'object-cover'}`} />
+                          <img src={avatar} alt="" className={`w-full h-full ${getEffectiveAvatar(user.email || undefined) ? 'object-contain p-1.5 bg-slate-900' : 'object-cover'}`} />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-xs font-bold">{user.full_name?.[0]}</div>
+                          <div className="w-full h-full flex items-center justify-center text-xs font-bold">{(user.full_name || 'A')[0]}</div>
                         );
                       })()}
                     </div>
                     <div className="absolute -bottom-1 -right-1 bg-green-500 w-3 h-3 rounded-full border-2 border-slate-950"></div>
                   </div>
                   <div className="text-left flex-1 min-w-0">
-                    <p className="text-sm font-bold text-white truncate">{user.full_name.split(' ')[0]}</p>
+                    <p className="text-sm font-bold text-white truncate">{(user.full_name || 'Användare').split(' ')[0]}</p>
                     <p className="text-[10px] text-slate-500 uppercase tracking-wider">Inställningar</p>
                   </div>
                   <Settings size={16} className="opacity-0 group-hover:opacity-100 transition-opacity" />

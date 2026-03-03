@@ -1,8 +1,9 @@
 
 import React from 'react';
-import { Download, FileText, Book, Sparkles, FileSpreadsheet, Heart } from 'lucide-react';
+import { Download, FileText, Book, Sparkles, FileSpreadsheet, Heart, ArrowRight } from 'lucide-react';
 import { Page } from '../types';
 import { PAGE_URLS } from '../App';
+import TiltedImage from '../components/TiltedImage';
 
 interface MaterialItem {
   title: string;
@@ -99,6 +100,32 @@ const Downloads: React.FC<DownloadsProps> = ({ setPage }) => {
 
   return (
     <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-10 animate-fade-in space-y-12">
+      {/* Book Promotion Section (Primary) */}
+      <div className="w-full glass bg-white/5 border border-white/10 rounded-[2.5rem] p-6 md:p-10 flex flex-col md:flex-row items-center gap-10 group hover:border-amber-500/20 transition-all min-h-[280px]">
+        <div className="md:w-1/4 flex justify-center">
+          <TiltedImage
+            src="/booklet.jpeg"
+            alt="Myndighetsinducerat trauma bok"
+            className="w-40 h-56"
+            defaultRotation="-3deg"
+            grayscale={false}
+          />
+        </div>
+        <div className="md:w-3/4 space-y-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-white leading-tight">Vår nya bok: Myndighetsinducerat trauma, från subjekt till objekt</h2>
+          <p className="text-zinc-400 text-sm md:text-base leading-relaxed text-left">
+            En unik djupdykning i systemets påverkan på individen och vägen mot läkning.
+            Innehåller praktiska verktyg och fallstudier för både drabbade och professionella.
+          </p>
+          <a
+            href={PAGE_URLS[Page.BOOK]}
+            onClick={(e) => { e.preventDefault(); setPage(Page.BOOK); }}
+            className="flex items-center gap-2 text-amber-500 font-bold hover:underline transition-all group-hover:translate-x-2 text-sm md:text-base mr-auto"
+          >
+            Läs mer om boken <ArrowRight size={20} />
+          </a>
+        </div>
+      </div>
 
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto space-y-4">

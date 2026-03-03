@@ -36,8 +36,8 @@ interface Order {
     customer_name: string;
     email: string;
     book_title: string;
-    status: string;
-    address?: string;
+    status: string | null;
+    address?: string | null;
     created_at: string;
 }
 
@@ -48,7 +48,7 @@ interface Booking {
     service_type: string;
     booking_date: string;
     booking_time: string;
-    status: string;
+    status: string | null;
     created_at: string;
 }
 
@@ -56,9 +56,9 @@ interface ContactMessage {
     id: string;
     sender_name: string;
     email: string;
-    subject?: string;
+    subject?: string | null;
     message: string;
-    is_read: boolean;
+    is_read: boolean | null;
     created_at: string;
 }
 
@@ -404,7 +404,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                                             </td>
                                             <td className="px-4 py-6 text-right">
                                                 <select
-                                                    value={order.status}
+                                                    value={order.status || ''}
                                                     onChange={(e) => updateOrderStatus(order.id, e.target.value)}
                                                     className="bg-slate-800 border border-white/10 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:ring-1 focus:ring-orange-500"
                                                 >

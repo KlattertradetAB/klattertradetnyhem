@@ -28,7 +28,6 @@ const Community: React.FC<CommunityProps> = ({ setPage }) => {
 
   const handleLoginClick = () => {
     if (setPage) {
-      window.location.hash = '#premium-login';
       setPage(Page.GEMENSKAP_APP);
     }
   };
@@ -47,7 +46,7 @@ const Community: React.FC<CommunityProps> = ({ setPage }) => {
           </p>
           <div className="flex justify-center lg:justify-start gap-4 flex-wrap items-center">
             <a
-              href={PAGE_URLS[Page.GEMENSKAP_APP] + '#premium-login'}
+              href={PAGE_URLS[Page.GEMENSKAP_APP]}
               onClick={(e) => { e.preventDefault(); handleLoginClick(); }}
               className="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full transition-colors shadow-lg hover:shadow-orange-500/20 flex items-center justify-center"
             >

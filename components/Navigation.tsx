@@ -40,7 +40,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const isServicesActive = [Page.CHAT, Page.THERAPY, Page.GROUP_THERAPY, Page.GESTALT_TRAINING, Page.BEHANDLINGS_PEDAGOG].includes(currentPage);
+  const isServicesActive = [Page.SERVICES, Page.CHAT, Page.THERAPY, Page.GROUP_THERAPY, Page.GESTALT_TRAINING, Page.BEHANDLINGS_PEDAGOG].includes(currentPage);
   const isResourcesActive = [Page.COMMUNITY, Page.SURVEY, Page.DOWNLOADS].includes(currentPage);
 
   return (
@@ -85,7 +85,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
             <div className="relative" ref={servicesRef}>
               <button
                 onMouseEnter={() => { setIsServicesOpen(true); setIsResourcesOpen(false); }}
-                onClick={() => setIsServicesOpen(!isServicesOpen)}
+                onClick={() => handleNavClick(Page.SERVICES)}
                 className={`flex items-center gap-1 px-4 py-2 rounded-xl transition-all font-medium ${isServicesActive ? 'bg-white/20 text-white shadow-sm' : 'text-white/80 hover:bg-white/10 hover:text-white'}`}
               >
                 Tjänster <ChevronDown size={16} className={`transition-transform duration-300 ${isServicesOpen ? 'rotate-180' : ''}`} />
@@ -279,6 +279,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
                 <div className="bg-white/5 rounded-2xl p-4 space-y-3">
                   <div className="px-1 text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Tjänster & Utbildning</div>
                   <div className="grid grid-cols-1 gap-1">
+                    <a href={PAGE_URLS[Page.SERVICES]} onClick={(e) => handleNavClick(Page.SERVICES, e)} className={`w-full py-3 rounded-xl font-bold text-left px-4 text-sm transition-colors ${currentPage === Page.SERVICES ? 'text-orange-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>Visa alla tjänster</a>
                     <a href={PAGE_URLS[Page.BEHANDLINGS_PEDAGOG]} onClick={(e) => handleNavClick(Page.BEHANDLINGS_PEDAGOG, e)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.BEHANDLINGS_PEDAGOG ? 'text-orange-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>Behandlingspedagog</a>
                     <a href={PAGE_URLS[Page.CHAT]} onClick={(e) => handleNavClick(Page.CHAT, e)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.CHAT ? 'text-orange-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>Myndighetsinducerat trauma (MiT)</a>
                     <a href={PAGE_URLS[Page.GESTALT_TRAINING]} onClick={(e) => handleNavClick(Page.GESTALT_TRAINING, e)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.GESTALT_TRAINING ? 'text-orange-400 bg-white/10' : 'text-white/70 hover:bg-white/5'}`}>Gestaltterapi</a>

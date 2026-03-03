@@ -13,6 +13,7 @@ import BehandlingsPedagog from './pages/BehandlingsPedagog';
 import Blog from './pages/Blog';
 import Community from './pages/Community';
 import ContactUs from './pages/ContactUs';
+import Services from './pages/Services';
 import SelfCareApp from './self-care/App';
 import Downloads from './pages/Downloads';
 import LoginPage from './pages/Auth/LoginPage';
@@ -43,7 +44,8 @@ export const PAGE_URLS: Record<Page, string> = {
   [Page.BEHANDLINGS_PEDAGOG]: '/behandlingspedagog',
   [Page.BLOG]: '/blogg',
   [Page.COMMUNITY]: '/gemenskap',
-  [Page.CONTACT]: '/kontakt',
+  [Page.CONTACT]: '/kontakt.bokning',
+  [Page.SERVICES]: '/tjanster',
   [Page.SURVEY]: '/enkät',
   [Page.DOWNLOADS]: '/bibliotek',
   [Page.LOGIN]: '/logga-in',
@@ -53,7 +55,7 @@ export const PAGE_URLS: Record<Page, string> = {
   [Page.GEMENSKAP_APP]: '/app',
   [Page.BOOK]: '/bok',
   [Page.CHECKOUT]: '/kassa',
-  [Page.PRIVACY]: '/integritet',
+  [Page.PRIVACY]: '/sekretesspolicy',
   [Page.TERMS]: '/villkor',
   [Page.COOKIE_POLICY]: '/cookies',
   [Page.PREMIUM_APPLICATION]: '/premium-ansokan',
@@ -122,43 +124,39 @@ const App: React.FC = () => {
       const hash = window.location.hash;
       const historyState = window.history.state;
 
-      // Priority 1: Path based routing
+      // 1. Path based routing (Highest Priority)
       const normalizedPath = path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path;
       const foundPage = (Object.keys(PAGE_URLS) as Page[]).find(p => PAGE_URLS[p] === normalizedPath);
+
       if (foundPage) {
+        // If we found a proper page like /om-oss or /terapi, use it
         setCurrentPage(foundPage);
         return;
       }
 
-      // Priority 2: Standalone Mode
-      if (isStandaloneMode) {
-        if (hash.includes('#premium-login') || hash.includes('#login') || hash.includes('#signup') ||
-          hash.includes('#chat') || hash.includes('#dashboard') || hash.includes('#welcome') || hash.includes('#experts')) {
-          setCurrentPage(Page.GEMENSKAP_APP);
-          return;
-        }
-      }
-
-      // Priority 3: Legacy Hashes
+      // 2. Legacy Hashes & Auth Redirects
       if (hash.includes('#login') || hash.includes('#premium-login') || hash.includes('#signup')) {
         setCurrentPage(Page.GEMENSKAP_APP);
         window.history.replaceState({ page: Page.GEMENSKAP_APP }, '', PAGE_URLS[Page.GEMENSKAP_APP]);
         return;
       }
 
-      if (hash.includes('#admin/survey-stats')) {
-        setCurrentPage(Page.ADMIN_SURVEY_STATS);
-        return;
+      // 3. Standalone Mode specifics
+      if (isStandaloneMode) {
+        if (hash.includes('#chat') || hash.includes('#dashboard') || hash.includes('#welcome') || hash.includes('#experts')) {
+          setCurrentPage(Page.GEMENSKAP_APP);
+          return;
+        }
       }
 
-      // Priority 4: History State
+      // 4. History State (if navigating back/forward)
       if (historyState && historyState.page) {
         setCurrentPage(historyState.page);
         return;
       }
 
-      // Default: Home
-      if (currentPage !== Page.HOME) {
+      // Default: Home (if no path matches and no hash)
+      if (path === '/' && currentPage !== Page.HOME) {
         setCurrentPage(Page.HOME);
       }
     };
@@ -170,6 +168,7 @@ const App: React.FC = () => {
       if (event.state && event.state.page) {
         setCurrentPage(event.state.page);
       } else {
+        // If no state (e.g. initial page or external link), re-run initial route
         handleInitialRoute();
       }
     };
@@ -179,7 +178,7 @@ const App: React.FC = () => {
       subscription.unsubscribe();
       window.removeEventListener('popstate', handlePopState);
     };
-  }, [currentPage]);
+  }, []); // Changed dependency from [currentPage] to [] to avoid redundant runs and listeners
 
   const handleSetPage = (page: Page, state?: any) => {
     if (page !== currentPage) {
@@ -238,6 +237,7 @@ const App: React.FC = () => {
             case Page.BLOG: return <Blog setPage={handleSetPage} />;
             case Page.COMMUNITY: return <Community setPage={handleSetPage} />;
             case Page.CONTACT: return <ContactUs />;
+            case Page.SERVICES: return <Services setPage={handleSetPage} />;
             case Page.SURVEY: return (
               <SelfCareLanguageProvider>
                 <SelfCareThemeProvider>
