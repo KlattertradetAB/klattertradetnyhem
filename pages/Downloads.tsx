@@ -66,33 +66,6 @@ const Downloads: React.FC<DownloadsProps> = ({ setPage }) => {
           icon: FileText,
           color: "text-orange-400",
           size: "0.3 MB"
-        },
-        {
-          title: "Gestaltterapi: arbetsblad i filosofisk grund",
-          desc: "Interaktivt arbetsblad för att utforska existentialism och fenomenologi.",
-          icon: Sparkles,
-          color: "text-indigo-400",
-          size: "Online",
-          page: Page.GESTALT_WORKSHEET
-        }
-      ]
-    },
-    {
-      category: "Övningar & Verktyg",
-      items: [
-        {
-          title: "Grounding-övningar för hemmabruk",
-          desc: "Fem enkla övningar för att komma tillbaka till nuet när stressen tar över.",
-          icon: Heart,
-          color: "text-red-400",
-          size: "1.2 MB"
-        },
-        {
-          title: "Self-care modellen: Arbetsblad",
-          desc: "Fördjupat arbetsblad för att arbeta med dina grundsår på egen hand.",
-          icon: Sparkles,
-          color: "text-purple-400",
-          size: "0.9 MB"
         }
       ]
     }
