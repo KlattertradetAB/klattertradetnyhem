@@ -20,6 +20,8 @@ const AssistantChat: React.FC<AssistantChatProps> = ({ user, onClose }) => {
         if (type === 'erik') return 'Erik';
         if (type === 'amanda') return 'Amanda';
         if (type === 'axel') return 'Axel';
+        if (type === 'sofia') return 'Sofia';
+        if (type === 'lova') return 'Lova';
         return 'Huvudassistenten';
     };
 
@@ -28,6 +30,8 @@ const AssistantChat: React.FC<AssistantChatProps> = ({ user, onClose }) => {
         if (type === 'erik') return '🏃‍♂️';
         if (type === 'amanda') return '👩‍⚕️';
         if (type === 'axel') return '🌲';
+        if (type === 'sofia') return '🏛️';
+        if (type === 'lova') return '🚀';
         return '🤖';
     };
 
@@ -39,6 +43,8 @@ const AssistantChat: React.FC<AssistantChatProps> = ({ user, onClose }) => {
             if (assistantType === 'erik') welcomeText = `Hej! Erik här. Jag hjälper dig gärna med konkreta verktyg för att reglera nervsystemet. Hur känns det i kroppen just nu?`;
             if (assistantType === 'amanda') welcomeText = `Hej vännen, Amanda här. ❤️ Kul att se dig! Har du hunnit sätta dig ner med en kopp kaffe än? Hur mår du egentligen?`;
             if (assistantType === 'axel') welcomeText = `Tjena, Axel här. 🌲 Det är skönt att du hittat hit. Ibland behöver man bara checka in lite. Hur ser din dag ut?`;
+            if (assistantType === 'sofia') welcomeText = `Hej! Jag heter Sofia. 🏛️ Jag är här för att hjälpa dig att bygga och organisera dina idéer inom Horizonten. Vad vill du skapa idag?`;
+            if (assistantType === 'lova') welcomeText = `Tja! Lova här. 🚀 Jag brinner för tillväxt och visioner. Hur kan vi ta din idé till nästa nivå och få den att flyga?`;
 
             addMessage({
                 role: 'model',
@@ -111,7 +117,9 @@ const AssistantChat: React.FC<AssistantChatProps> = ({ user, onClose }) => {
                     { id: 'lina', avatar: '🧘‍♀️', name: 'Lina' },
                     { id: 'erik', avatar: '🏃‍♂️', name: 'Erik' },
                     { id: 'amanda', avatar: '👩‍⚕️', name: 'Amanda' },
-                    { id: 'axel', avatar: '🌲', name: 'Axel' }
+                    { id: 'axel', avatar: '🌲', name: 'Axel' },
+                    { id: 'sofia', avatar: '🏛️', name: 'Sofia' },
+                    { id: 'lova', avatar: '🚀', name: 'Lova' }
                 ].map((asst) => (
                     <button
                         key={asst.id}

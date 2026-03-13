@@ -78,8 +78,13 @@ export const fetchNotifications = async () => {
         return [];
     }
 
-    notifyListeners(data || []);
-    return data || [];
+    const formattedData = (data || []).map(n => ({
+        ...n,
+        is_read: !!n.is_read
+    }));
+
+    notifyListeners(formattedData);
+    return formattedData;
 };
 
 export const subscribeToNotifications = (listener: NotificationListener) => {

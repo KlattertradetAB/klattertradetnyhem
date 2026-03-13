@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import Newsletter from '../components/Newsletter';
 import { supabase } from '../gemenskap/services/supabase';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const therapists = [
   {
@@ -64,6 +65,7 @@ const therapists = [
 ];
 
 const ContactUs: React.FC = () => {
+  const { t } = useLanguage();
   const [activeTherapist, setActiveTherapist] = useState(0);
   const [rotation, setRotation] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
@@ -203,8 +205,8 @@ Detta är ett automatiskt genererat utkast från hemsidan.
       {/* Booking Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between px-4 gap-6">
         <div>
-          <span className="text-amber-500 text-[10px] font-bold uppercase tracking-[0.3em] mb-2 block">Tidsbokning</span>
-          <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tight">Välj en tid i kalendern</h1>
+          <span className="text-amber-500 text-[10px] font-bold uppercase tracking-[0.3em] mb-2 block">{t.contact_booking_label}</span>
+          <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tight">{t.contact_booking_title}</h1>
         </div>
 
         <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/10 backdrop-blur-xl overflow-x-auto no-scrollbar w-full md:w-auto">
@@ -299,7 +301,7 @@ Detta är ett automatiskt genererat utkast från hemsidan.
 
                   <div>
                     <label className={`text-[10px] font-bold uppercase tracking-widest mb-4 block transition-colors ${selectedDate ? 'text-amber-500' : 'text-zinc-700'}`}>
-                      Tillgängliga tider
+                      {t.contact_available_times}
                     </label>
                     <div className="grid grid-cols-3 gap-3">
                       {timeSlots.map((time) => (
@@ -330,7 +332,7 @@ Detta är ett automatiskt genererat utkast från hemsidan.
                       : 'bg-white/5 text-white/30 border-white/5 cursor-not-allowed'
                       }`}
                   >
-                    Fortsätt med bokning
+                    {t.contact_continue_btn}
                     <ArrowRight size={24} className={selectedTime ? "group-hover:translate-x-1 transition-transform" : ""} />
                   </button>
                 </div>
@@ -338,19 +340,19 @@ Detta är ett automatiskt genererat utkast från hemsidan.
             ) : bookingStep === 2 ? (
               <div className="animate-in fade-in zoom-in-95 duration-300 flex-1">
                 <button onClick={() => setBookingStep(1)} className="text-zinc-500 hover:text-white mb-8 text-sm flex items-center gap-2 font-bold">
-                  <ChevronLeft size={18} /> Gå tillbaka till tider
+                  <ChevronLeft size={18} /> {t.contact_back_to_times}
                 </button>
-                <h3 className="text-3xl font-black mb-2 text-white italic">Några frågor...</h3>
-                <p className="text-zinc-500 text-sm mb-8 italic">Vi behöver veta lite mer om dig för att förbereda vårt möte.</p>
+                <h3 className="text-3xl font-black mb-2 text-white italic">{t.contact_some_questions}</h3>
+                <p className="text-zinc-500 text-sm mb-8 italic">{t.contact_questions_desc}</p>
 
                 <form className="space-y-6" onSubmit={handleBookingSubmit}>
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold uppercase text-amber-500 ml-1">Vad heter du?</label>
+                      <label className="text-[10px] font-bold uppercase text-amber-500 ml-1">{t.contact_your_name_q}</label>
                       <input
                         type="text"
                         required
-                        placeholder="För- och efternamn"
+                        placeholder={t.contact_name_placeholder}
                         className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-4 text-white outline-none focus:border-amber-500 transition-all"
                         value={bookingData.name}
                         onChange={(e) => setBookingData({ ...bookingData, name: e.target.value })}
@@ -359,7 +361,7 @@ Detta är ett automatiskt genererat utkast från hemsidan.
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase text-amber-500 ml-1">Din e-post</label>
+                        <label className="text-[10px] font-bold uppercase text-amber-500 ml-1">{t.contact_your_email}</label>
                         <input
                           type="email"
                           required
@@ -370,7 +372,7 @@ Detta är ett automatiskt genererat utkast från hemsidan.
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase text-amber-500 ml-1">Telefonnummer</label>
+                        <label className="text-[10px] font-bold uppercase text-amber-500 ml-1">{t.contact_phone_label}</label>
                         <input
                           type="tel"
                           required
@@ -383,9 +385,9 @@ Detta är ett automatiskt genererat utkast från hemsidan.
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold uppercase text-amber-500 ml-1">Hur vill du ses?</label>
+                      <label className="text-[10px] font-bold uppercase text-amber-500 ml-1">{t.contact_meeting_form_q}</label>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        {['Fysiskt på mottagning', 'Digitalt via Zoom'].map((form) => (
+                        {[t.contact_meeting_physical, t.contact_meeting_digital].map((form) => (
                           <button
                             key={form}
                             type="button"
@@ -402,9 +404,9 @@ Detta är ett automatiskt genererat utkast från hemsidan.
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold uppercase text-amber-500 ml-1">Vad önskar du hjälp med? (Valfritt)</label>
+                      <label className="text-[10px] font-bold uppercase text-amber-500 ml-1">{t.contact_help_with_q}</label>
                       <textarea
-                        placeholder="Kort beskrivning av ditt ärende..."
+                        placeholder={t.contact_help_placeholder}
                         rows={3}
                         className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-4 text-white outline-none focus:border-amber-500 transition-all resize-none"
                         value={bookingData.reason}
@@ -415,11 +417,11 @@ Detta är ett automatiskt genererat utkast från hemsidan.
 
                   <div className="bg-white/5 p-4 rounded-xl border border-white/5 flex items-center gap-4">
                     <Calendar size={20} className="text-amber-500" />
-                    <span className="text-sm font-bold text-white/90">Vald tid: {selectedDate} {new Date().toLocaleDateString('sv-SE', { month: 'short' })} kl {selectedTime}</span>
+                    <span className="text-sm font-bold text-white/90">{t.contact_selected_time} {selectedDate} {new Date().toLocaleDateString('sv-SE', { month: 'short' })} kl {selectedTime}</span>
                   </div>
 
                   <button className="w-full bg-white/10 hover:bg-white/20 border border-white/20 text-white py-5 rounded-xl font-bold text-xl transition-all hover:scale-[1.01] active:scale-95 mt-4">
-                    Slutför bokning
+                    {t.contact_finish_btn}
                   </button>
                 </form>
               </div>
@@ -428,14 +430,14 @@ Detta är ett automatiskt genererat utkast från hemsidan.
                 <div className="w-24 h-24 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mb-8 shadow-2xl">
                   <CheckCircle2 size={48} />
                 </div>
-                <h3 className="text-3xl md:text-4xl font-black mb-4 text-white italic">Välkommen till vår bokningspanel</h3>
+                <h3 className="text-3xl md:text-4xl font-black mb-4 text-white italic">{t.contact_booking_success_title}</h3>
                 <p className="text-zinc-300 text-lg mb-6 max-w-sm mx-auto leading-relaxed">
-                  Tack {bookingData.name.split(' ')[0]}! Vad bra att du hörde av dig till oss och vi återkommer till dig snarast efter att vi mottagit mailet!
+                  {t.contact_booking_success_desc.replace('{name}', bookingData.name.split(' ')[0])}
                 </p>
                 <div className="bg-white/5 border border-white/10 rounded-xl p-4 mb-8 text-xs text-zinc-500 max-w-xs italic">
-                  Notera: Ditt e-postprogram har öppnats. Vänligen klicka på "Skicka" för att slutföra bokningen.
+                  {t.contact_email_note}
                 </div>
-                <button onClick={() => { setBookingStep(1); setSelectedDate(null); setSelectedTime(null); setBookingData({ name: '', email: '', phone: '', meetingForm: 'Fysiskt på mottagning', reason: '' }); }} className="text-white hover:text-amber-400 font-bold hover:underline tracking-widest text-sm uppercase">Gör en ny bokning</button>
+                <button onClick={() => { setBookingStep(1); setSelectedDate(null); setSelectedTime(null); setBookingData({ name: '', email: '', phone: '', meetingForm: t.contact_meeting_physical, reason: '' }); }} className="text-white hover:text-amber-400 font-bold hover:underline tracking-widest text-sm uppercase">{t.contact_new_booking}</button>
               </div>
             )}
           </div>
@@ -453,7 +455,7 @@ Detta är ett automatiskt genererat utkast från hemsidan.
                   <MapPin size={24} />
                 </div>
                 <div>
-                  <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-1 font-bold">Mottagning</p>
+                  <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-1 font-bold">{t.contact_address_label}</p>
                   <p className="text-white font-medium text-lg">Gullregnsgatan 9A, Gävle</p>
                 </div>
               </div>
@@ -462,7 +464,7 @@ Detta är ett automatiskt genererat utkast från hemsidan.
                   <Mail size={24} />
                 </div>
                 <div>
-                  <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-1 font-bold">E-post</p>
+                  <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-1 font-bold">{t.contact_email_label}</p>
                   <p className="text-white font-medium text-lg">billy@klattertradet.se</p>
                 </div>
               </div>
@@ -477,7 +479,7 @@ Detta är ett automatiskt genererat utkast från hemsidan.
                 <div className="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center">
                   <ClipboardCheck className="text-amber-500" size={28} />
                 </div>
-                <h2 className="text-3xl font-black text-white italic">Övriga frågor</h2>
+                <h2 className="text-3xl font-black text-white italic">{t.contact_other_q_title}</h2>
               </div>
 
               <form onSubmit={handleGeneralSubmit} className="space-y-8">
@@ -494,8 +496,8 @@ Detta är ett automatiskt genererat utkast från hemsidan.
           ) : (
             <div className="glass bg-white/5 border border-white/10 p-12 rounded-[40px] text-center flex flex-col items-center justify-center min-h-[400px]">
               <CheckCircle2 size={64} className="text-emerald-500 mb-6" />
-              <h2 className="text-3xl font-black text-white mb-4 italic">Tack!</h2>
-              <p className="text-zinc-400">Vi återkommer till dig så snart vi kan.</p>
+              <h2 className="text-3xl font-black text-white mb-4 italic">{t.contact_thankyou}</h2>
+              <p className="text-zinc-400">{t.contact_will_reply}</p>
             </div>
           )}
         </div>

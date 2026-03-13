@@ -19,8 +19,12 @@ import {
     Mail,
     Clock,
     TrendingUp,
-    AlertCircle
+    AlertCircle,
+    ChevronRight,
+    Search as SearchIcon
 } from 'lucide-react';
+import { translations } from '../../translations';
+import { NAVIGATION_CATEGORIES } from '../../association/constants';
 import {
     XAxis,
     YAxis,
@@ -92,14 +96,15 @@ interface AdminDashboardProps {
 }
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
-    const [activeSection, setActiveSection] = useState<'overview' | 'orders' | 'bookings' | 'messages' | 'blog' | 'threads' | 'moderation'>('overview');
+    const [activeSection, setActiveSection] = useState<'overview' | 'orders' | 'bookings' | 'messages' | 'blog' | 'threads' | 'moderation' | 'handbook'>('overview');
+    const [selectedHandbookSection, setSelectedHandbookSection] = useState<string | null>(null);
     const [orders, setOrders] = useState<Order[]>([]);
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [profiles, setProfiles] = useState<Profile[]>([]);
     const [messages, setMessages] = useState<ContactMessage[]>([]);
     const [courseApps, setCourseApps] = useState<CourseApplication[]>([]);
     const [therapyRequests, setTherapyRequests] = useState<TherapyRequest[]>([]);
-    const [stats, setStats] = useState({
+    const [stats, setStats] = useState<any>({
         members: 0,
         newThreads: 0,
         unreadReports: 0,
@@ -108,31 +113,52 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
         todayUniques: 45,
         todayViews: 128
     });
+    const [fetchError, setFetchError] = useState<string | null>(null);
 
     const [bookingSearch, setBookingSearch] = useState('');
     const [bookingStatus, setBookingStatus] = useState('');
+    const [profileSearch, setProfileSearch] = useState('');
+    const [allBlogs, setAllBlogs] = useState<any[]>([]);
+    const [allThreads, setAllThreads] = useState<any[]>([]);
+    const [showBlogForm, setShowBlogForm] = useState(false);
+    const [showThreadForm, setShowThreadForm] = useState(false);
 
     useEffect(() => {
         if (user.role === 'admin') {
             fetchData();
         }
-    }, [user.role, activeSection]);
+    }, [user.role, activeSection, profileSearch]);
 
     const fetchData = async () => {
-        // Fetch stats
-        const { count: memberCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
-        const { count: threadCount } = await supabase.from('threads').select('*', { count: 'exact', head: true });
-        const { count: blogCount } = await supabase.from('blogs').select('*', { count: 'exact', head: true });
-        const { count: appCount } = await supabase.from('course_applications').select('*', { count: 'exact', head: true }).eq('status', 'Ny');
-        const { count: therapyCount } = await supabase.from('therapy_matchmaking').select('*', { count: 'exact', head: true }).eq('status', 'Väntar på matchning');
+        setFetchError(null);
+        try {
+            // Fetch stats with error checking
+            const { count: memberCount, error: memberError } = await supabase.from('profiles').select('id', { count: 'exact', head: true });
+            const { count: threadCount, error: threadError } = await supabase.from('threads').select('id', { count: 'exact', head: true });
+            const { count: blogCount, error: blogError } = await supabase.from('blogs').select('id', { count: 'exact', head: true });
+            const { count: appCount, error: appError } = await supabase.from('course_applications').select('id', { count: 'exact', head: true }).eq('status', 'Ny');
+            const { count: therapyCount, error: therapyError } = await supabase.from('therapy_matchmaking').select('id', { count: 'exact', head: true }).eq('status', 'Väntar på matchning');
 
-        setStats(prev => ({
-            ...prev,
-            members: memberCount || 0,
-            newThreads: threadCount || 0,
-            blogPosts: blogCount || 0,
-            unprocessedApps: (appCount || 0) + (therapyCount || 0)
-        }));
+            if (memberError) {
+                console.error('Error fetching member count:', memberError);
+                setFetchError(memberError.message);
+            }
+            if (threadError) console.error('Error fetching thread count:', threadError);
+            if (blogError) console.error('Error fetching blog count:', blogError);
+            if (appError) console.error('Error fetching app count:', appError);
+            if (therapyError) console.error('Error fetching therapy count:', therapyError);
+
+            setStats((prev: any) => ({
+                ...prev,
+                members: memberCount || 0,
+                newThreads: threadCount || 0,
+                blogPosts: blogCount || 0,
+                unreadReports: 0,
+                unprocessedApps: (appCount || 0) + (therapyCount || 0)
+            }));
+        } catch (err) {
+            console.error('General stats fetch error:', err);
+        }
 
         if (activeSection === 'overview' || activeSection === 'orders') {
             const { data: ordersData } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
@@ -155,8 +181,20 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
             const { data: therapyData } = await supabase.from('therapy_matchmaking').select('*').order('created_at', { ascending: false });
             if (therapyData) setTherapyRequests(therapyData as unknown as TherapyRequest[]);
         }
+        if (activeSection === 'blog') {
+            const { data: blogsData } = await supabase.from('blogs').select('*').order('created_at', { ascending: false });
+            if (blogsData) setAllBlogs(blogsData);
+        }
+        if (activeSection === 'threads') {
+            const { data: threadsData } = await supabase.from('threads').select('*').order('created_at', { ascending: false });
+            if (threadsData) setAllThreads(threadsData);
+        }
         if (activeSection === 'moderation') {
-            const { data: profilesData } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
+            let query = supabase.from('profiles').select('*').order('created_at', { ascending: false });
+            if (profileSearch) {
+                query = query.or(`full_name.ilike.%${profileSearch}%,email.ilike.%${profileSearch}%`);
+            }
+            const { data: profilesData } = await query;
             if (profilesData) setProfiles(profilesData);
         }
     };
@@ -166,13 +204,44 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
         fetchData();
     };
 
+    const deleteOrder = async (id: string) => {
+        if (!confirm('Är du säker på att du vill radera denna beställning?')) return;
+        await supabase.from('orders').delete().eq('id', id);
+        fetchData();
+    };
+
     const updateBookingStatus = async (id: string, status: string) => {
         await supabase.from('bookings').update({ status }).eq('id', id);
         fetchData();
     };
 
+    const deleteBooking = async (id: string) => {
+        if (!confirm('Är du säker på att du vill radera denna bokning?')) return;
+        await supabase.from('bookings').delete().eq('id', id);
+        fetchData();
+    };
+
     const markMessageRead = async (id: string) => {
         await supabase.from('contact_messages').update({ is_read: true }).eq('id', id);
+        fetchData();
+    };
+
+    const deleteMessage = async (id: string, type: 'contact' | 'course' | 'therapy') => {
+        if (!confirm('Är du säker på att du vill radera detta meddelande?')) return;
+        const table = type === 'contact' ? 'contact_messages' : type === 'course' ? 'course_applications' : 'therapy_matchmaking';
+        await supabase.from(table).delete().eq('id', id);
+        fetchData();
+    };
+
+    const deleteBlogPost = async (id: string) => {
+        if (!confirm('Är du säker på att du vill radera detta blogginlägg?')) return;
+        await supabase.from('blogs').delete().eq('id', id);
+        fetchData();
+    };
+
+    const deleteThread = async (id: string) => {
+        if (!confirm('Är du säker på att du vill radera denna forumtråd?')) return;
+        await supabase.from('threads').delete().eq('id', id);
         fetchData();
     };
 
@@ -240,8 +309,18 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                     <button onClick={() => setActiveSection('moderation')} className={`px-5 py-2.5 rounded-xl font-bold transition-all border whitespace-nowrap flex items-center gap-2 ${activeSection === 'moderation' ? 'bg-orange-500 text-slate-950 border-orange-500' : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10'}`}>
                         <Shield size={18} /> Moderering
                     </button>
+                    <button onClick={() => setActiveSection('handbook')} className={`px-5 py-2.5 rounded-xl font-bold transition-all border whitespace-nowrap flex items-center gap-2 ${activeSection === 'handbook' ? 'bg-orange-500 text-slate-950 border-orange-500' : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10'}`}>
+                        <BookOpen size={18} /> Styrelsehandbok
+                    </button>
                 </div>
             </div>
+
+            {fetchError && (
+                <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-2xl flex items-center gap-3 text-red-400 text-sm">
+                    <Shield className="shrink-0" size={18} />
+                    <p><strong>DB-anslutningsfel:</strong> {fetchError}. Kontrollera dina RLS-policies i Supabase.</p>
+                </div>
+            )}
 
             {/* Quick Stats */}
             {activeSection === 'overview' && (
@@ -335,14 +414,22 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                                 </h3>
                                 <div className="space-y-4">
                                     {orders.slice(0, 3).map((order) => (
-                                        <div key={order.id} className="p-4 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-between">
+                                        <div key={order.id} className="p-4 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-between group">
                                             <div>
                                                 <p className="font-bold text-white text-sm">{order.customer_name}</p>
                                                 <p className="text-xs text-slate-500">{order.book_title}</p>
                                             </div>
-                                            <span className="px-3 py-1 bg-orange-500/10 text-orange-400 rounded-lg text-[10px] font-black uppercase tracking-wider">
-                                                {order.status}
-                                            </span>
+                                            <div className="flex items-center gap-3">
+                                                <span className="px-3 py-1 bg-orange-500/10 text-orange-400 rounded-lg text-[10px] font-black uppercase tracking-wider">
+                                                    {order.status}
+                                                </span>
+                                                <button 
+                                                    onClick={() => deleteOrder(order.id)}
+                                                    className="p-1 text-slate-500 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            </div>
                                         </div>
                                     ))}
                                     {orders.length === 0 && <p className="text-slate-500 text-sm italic">Inga nya beställningar</p>}
@@ -402,7 +489,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                                                     {order.status}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-6 text-right">
+                                            <td className="px-4 py-6 text-right flex items-center justify-end gap-2">
                                                 <select
                                                     value={order.status || ''}
                                                     onChange={(e) => updateOrderStatus(order.id, e.target.value)}
@@ -412,6 +499,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                                                     <option value="Behandlas">Behandlas</option>
                                                     <option value="Skickad">Skickad</option>
                                                 </select>
+                                                <button 
+                                                    onClick={() => deleteOrder(order.id)}
+                                                    className="p-1.5 text-slate-500 hover:text-red-500 transition-colors"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
                                             </td>
                                         </tr>
                                     ))}
@@ -463,15 +556,23 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                                         <div className="p-3 bg-blue-500/10 text-blue-400 rounded-2xl">
                                             <Calendar size={24} />
                                         </div>
-                                        <select
-                                            value={bookingStatus}
-                                            onChange={(e) => updateBookingStatus(booking.id, e.target.value)}
-                                            className="bg-slate-900/50 border border-white/10 rounded-lg px-2 py-1 text-[10px] font-black text-white uppercase tracking-wider"
-                                        >
-                                            <option value="Bekräftad">Bekräftad</option>
-                                            <option value="Väntar">Väntar</option>
-                                            <option value="Avbokad">Avbokad</option>
-                                        </select>
+                                        <div className="flex gap-2">
+                                            <select
+                                                value={booking.status || ''}
+                                                onChange={(e) => updateBookingStatus(booking.id, e.target.value)}
+                                                className="bg-slate-900/50 border border-white/10 rounded-lg px-2 py-1 text-[10px] font-black text-white uppercase tracking-wider"
+                                            >
+                                                <option value="Bekräftad">Bekräftad</option>
+                                                <option value="Väntar">Väntar</option>
+                                                <option value="Avbokad">Avbokad</option>
+                                            </select>
+                                            <button 
+                                                onClick={() => deleteBooking(booking.id)}
+                                                className="p-1 text-slate-500 hover:text-red-500 transition-colors"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
                                     </div>
                                     <h4 className="text-xl font-bold text-white mb-1">{booking.client_name}</h4>
                                     <p className="text-sm text-blue-400 font-bold mb-6 italic">{booking.service_type}</p>
@@ -529,7 +630,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                                     </div>
                                     <div className="md:w-32 shrink-0 flex flex-col justify-center gap-2">
                                         <button className="py-3 bg-white text-slate-950 rounded-xl text-xs font-black">Hantera</button>
-                                        <button className="py-3 bg-white/5 text-slate-400 rounded-xl text-xs font-bold border border-white/10">Arkivera</button>
+                                        <button 
+                                            onClick={() => deleteMessage(app.id, 'course')}
+                                            className="py-3 bg-white/5 text-slate-400 rounded-xl text-xs font-bold border border-white/10 hover:border-red-500/50 hover:text-red-500 transition-all"
+                                        >
+                                            Radera
+                                        </button>
                                     </div>
                                 </div>
                             ))}
@@ -553,7 +659,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                                     </div>
                                     <div className="md:w-32 shrink-0 flex flex-col justify-center gap-2">
                                         <button className="py-3 bg-white text-slate-950 rounded-xl text-xs font-black">Matcha</button>
-                                        <button className="py-3 bg-white/5 text-slate-400 rounded-xl text-xs font-bold border border-white/10">Arkivera</button>
+                                        <button 
+                                            onClick={() => deleteMessage(req.id, 'therapy')}
+                                            className="py-3 bg-white/5 text-slate-400 rounded-xl text-xs font-bold border border-white/10 hover:border-red-500/50 hover:text-red-500 transition-all"
+                                        >
+                                            Radera
+                                        </button>
                                     </div>
                                 </div>
                             ))}
@@ -581,7 +692,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                                                 Läst
                                             </button>
                                         )}
-                                        <button className="flex-1 md:flex-none py-3 bg-white/5 hover:bg-white/10 text-slate-300 rounded-xl text-xs font-bold transition-all border border-white/10">Svara</button>
+                                        <button 
+                                            onClick={() => deleteMessage(msg.id, 'contact')}
+                                            className="flex-1 md:flex-none py-3 bg-white/5 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30 text-slate-300 rounded-xl text-xs font-bold transition-all border border-white/10"
+                                        >
+                                            Radera
+                                        </button>
                                     </div>
                                 </div>
                             ))}
@@ -597,153 +713,214 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
 
                 {activeSection === 'blog' && (
                     <div className="space-y-8 max-w-4xl mx-auto">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between mb-8">
                             <h3 className="text-2xl font-black text-white">Hantera Bloggen</h3>
-                            <button onClick={() => setActiveSection('overview')} className="text-orange-500 hover:text-orange-400 font-bold text-sm bg-orange-500/10 px-4 py-2 rounded-xl transition-all">
-                                Avbryt
-                            </button>
+                            <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                                <button onClick={() => setShowBlogForm(false)} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${!showBlogForm ? 'bg-orange-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}>Lista</button>
+                                <button onClick={() => setShowBlogForm(true)} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${showBlogForm ? 'bg-orange-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}>Skapa Ny</button>
+                            </div>
                         </div>
-                        <form onSubmit={async (e) => {
-                            e.preventDefault();
-                            const form = e.target as HTMLFormElement;
-                            const title = (form.elements.namedItem('title') as HTMLInputElement).value;
-                            const description = (form.elements.namedItem('description') as HTMLTextAreaElement).value;
-                            const content = (form.elements.namedItem('content') as HTMLTextAreaElement).value;
 
-                            try {
-                                const { error } = await supabase.from('blogs').insert({
-                                    title,
-                                    description,
-                                    content,
-                                    user_id: user.id,
-                                    author_name: user.full_name || 'Admin',
-                                    created_at: new Date().toISOString(),
-                                });
+                        {!showBlogForm ? (
+                            <div className="grid grid-cols-1 gap-4">
+                                {allBlogs.map(blog => (
+                                    <div key={blog.id} className="p-6 bg-white/5 border border-white/5 rounded-3xl flex items-center justify-between group">
+                                        <div>
+                                            <h4 className="font-bold text-white mb-1">{blog.title}</h4>
+                                            <p className="text-xs text-slate-500">Publicerad: {new Date(blog.created_at).toLocaleDateString()} av {blog.author_name}</p>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button 
+                                                onClick={() => deleteBlogPost(blog.id)}
+                                                className="p-2 bg-white/5 hover:bg-red-500/20 hover:text-red-500 rounded-xl transition-all border border-white/5"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                                {allBlogs.length === 0 && <p className="text-center py-10 text-slate-500 italic">Inga blogginlägg hittades</p>}
+                            </div>
+                        ) : (
+                            <form onSubmit={async (e) => {
+                                e.preventDefault();
+                                const form = e.target as HTMLFormElement;
+                                const title = (form.elements.namedItem('title') as HTMLInputElement).value;
+                                const description = (form.elements.namedItem('description') as HTMLTextAreaElement).value;
+                                const content = (form.elements.namedItem('content') as HTMLTextAreaElement).value;
+                                const imageUrl = (form.elements.namedItem('imageUrl') as HTMLInputElement).value;
 
-                                if (error) throw error;
+                                try {
+                                    const { error } = await supabase.from('blogs').insert({
+                                        title,
+                                        description,
+                                        content,
+                                        image_url: imageUrl || null,
+                                        user_id: user.id,
+                                        author_name: user.full_name || 'Admin',
+                                        created_at: new Date().toISOString(),
+                                    });
 
-                                alert('Blogginlägg skapat!');
-                                form.reset();
-                                setActiveSection('overview');
-                            } catch (error) {
-                                console.error('Error creating blog post:', error);
-                                alert('Kunde inte skapa blogginlägg. Försök igen.');
-                            }
-                        }} className="space-y-6 bg-white/5 border border-white/5 p-8 rounded-[2.5rem]">
-                            <div>
-                                <label className="block text-slate-400 text-xs font-black uppercase tracking-widest mb-3 px-1">Rubrik</label>
-                                <input
-                                    name="title"
-                                    type="text"
-                                    required
-                                    className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all"
-                                    placeholder="Vad ska blogginlägget heta?"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-slate-400 text-xs font-black uppercase tracking-widest mb-3 px-1">Kort beskrivning</label>
-                                <textarea
-                                    name="description"
-                                    required
-                                    rows={2}
-                                    className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all resize-none"
-                                    placeholder="En kort ingress som lockar till läsning..."
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-slate-400 text-xs font-black uppercase tracking-widest mb-3 px-1">Bloggtext (Markdown stöds)</label>
-                                <textarea
-                                    name="content"
-                                    required
-                                    rows={15}
-                                    className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all resize-none font-mono text-sm leading-relaxed"
-                                    placeholder="Skriv ditt inlägg här..."
-                                />
-                            </div>
-                            <button
-                                type="submit"
-                                className="w-full bg-orange-500 hover:bg-orange-600 text-slate-950 font-black py-5 rounded-2xl transition-all shadow-xl shadow-orange-500/20 active:scale-[0.98]"
-                            >
-                                Publicera Blogginlägg
-                            </button>
-                        </form>
+                                    if (error) throw error;
+
+                                    alert('Blogginlägg skapat!');
+                                    form.reset();
+                                    setShowBlogForm(false);
+                                    fetchData();
+                                } catch (error) {
+                                    console.error('Error creating blog post:', error);
+                                    alert('Kunde inte skapa blogginlägg. Försök igen.');
+                                }
+                            }} className="space-y-6 bg-white/5 border border-white/5 p-8 rounded-[2.5rem]">
+                                <div>
+                                    <label className="block text-slate-400 text-xs font-black uppercase tracking-widest mb-3 px-1">Rubrik</label>
+                                    <input
+                                        name="title"
+                                        type="text"
+                                        required
+                                        className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all"
+                                        placeholder="Vad ska blogginlägget heta?"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-slate-400 text-xs font-black uppercase tracking-widest mb-3 px-1">Kort beskrivning</label>
+                                    <textarea
+                                        name="description"
+                                        required
+                                        rows={2}
+                                        className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all resize-none"
+                                        placeholder="En kort ingress som lockar till läsning..."
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-slate-400 text-xs font-black uppercase tracking-widest mb-3 px-1">Bild-URL (Valfritt)</label>
+                                    <input
+                                        name="imageUrl"
+                                        type="url"
+                                        className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all"
+                                        placeholder="https://images.unsplash.com/..."
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-slate-400 text-xs font-black uppercase tracking-widest mb-3 px-1">Bloggtext (Markdown stöds)</label>
+                                    <textarea
+                                        name="content"
+                                        required
+                                        rows={15}
+                                        className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all resize-none font-mono text-sm leading-relaxed"
+                                        placeholder="Skriv ditt inlägg här..."
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    className="w-full bg-orange-500 hover:bg-orange-600 text-slate-950 font-black py-5 rounded-2xl transition-all shadow-xl shadow-orange-500/20 active:scale-[0.98]"
+                                >
+                                    Publicera Blogginlägg
+                                </button>
+                            </form>
+                        )}
                     </div>
                 )}
 
                 {activeSection === 'threads' && (
                     <div className="space-y-8 max-w-4xl mx-auto">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-2xl font-black text-white">Ny Forumtråd</h3>
-                            <button onClick={() => setActiveSection('overview')} className="text-orange-500 hover:text-orange-400 font-bold text-sm bg-orange-500/10 px-4 py-2 rounded-xl transition-all">
-                                Avbryt
-                            </button>
+                        <div className="flex items-center justify-between mb-8">
+                            <h3 className="text-2xl font-black text-white">Hantera Forumet</h3>
+                            <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                                <button onClick={() => setShowThreadForm(false)} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${!showThreadForm ? 'bg-orange-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}>Lista</button>
+                                <button onClick={() => setShowThreadForm(true)} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${showThreadForm ? 'bg-orange-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}>Skapa Ny</button>
+                            </div>
                         </div>
-                        <form onSubmit={async (e) => {
-                            e.preventDefault();
-                            const form = e.target as HTMLFormElement;
-                            const title = (form.elements.namedItem('title') as HTMLInputElement).value;
-                            const description = (form.elements.namedItem('description') as HTMLTextAreaElement).value;
-                            const category = (form.elements.namedItem('category') as HTMLSelectElement).value;
 
-                            try {
-                                const { error } = await supabase.from('threads').insert({
-                                    title,
-                                    description,
-                                    category,
-                                    user_id: user.id,
-                                    author_name: user.full_name || 'Admin',
-                                    created_at: new Date().toISOString(),
-                                });
-
-                                if (error) throw error;
-
-                                alert('Tråd skapad!');
-                                form.reset();
-                                setActiveSection('overview');
-                            } catch (error) {
-                                console.error('Error creating thread:', error);
-                                alert('Kunde inte skapa tråd. Försök igen.');
-                            }
-                        }} className="space-y-6 bg-white/5 border border-white/5 p-8 rounded-[2.5rem]">
-                            <div>
-                                <label className="block text-slate-400 text-xs font-black uppercase tracking-widest mb-3 px-1">Rubrik</label>
-                                <input
-                                    name="title"
-                                    type="text"
-                                    required
-                                    className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all"
-                                    placeholder="Vad handlar tråden om?"
-                                />
+                        {!showThreadForm ? (
+                            <div className="grid grid-cols-1 gap-4">
+                                {allThreads.map(thread => (
+                                    <div key={thread.id} className="p-6 bg-white/5 border border-white/5 rounded-3xl flex items-center justify-between group">
+                                        <div>
+                                            <h4 className="font-bold text-white mb-1">{thread.title}</h4>
+                                            <p className="text-xs text-slate-500">Kategori: {thread.category} • Skapad: {new Date(thread.created_at).toLocaleDateString()}</p>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button 
+                                                onClick={() => deleteThread(thread.id)}
+                                                className="p-2 bg-white/5 hover:bg-red-500/20 hover:text-red-500 rounded-xl transition-all border border-white/5"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                                {allThreads.length === 0 && <p className="text-center py-10 text-slate-500 italic">Inga trådar hittades</p>}
                             </div>
-                            <div>
-                                <label className="block text-slate-400 text-xs font-black uppercase tracking-widest mb-3 px-1">Kategori</label>
-                                <select
-                                    name="category"
-                                    className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all"
+                        ) : (
+                            <form onSubmit={async (e) => {
+                                e.preventDefault();
+                                const form = e.target as HTMLFormElement;
+                                const title = (form.elements.namedItem('title') as HTMLInputElement).value;
+                                const description = (form.elements.namedItem('description') as HTMLTextAreaElement).value;
+                                const category = (form.elements.namedItem('category') as HTMLSelectElement).value;
+
+                                try {
+                                    const { error } = await supabase.from('threads').insert({
+                                        title,
+                                        description,
+                                        category,
+                                        user_id: user.id,
+                                        author_name: user.full_name || 'Admin',
+                                        created_at: new Date().toISOString(),
+                                    });
+
+                                    if (error) throw error;
+
+                                    alert('Tråd skapad!');
+                                    form.reset();
+                                    setShowThreadForm(false);
+                                    fetchData();
+                                } catch (error) {
+                                    console.error('Error creating thread:', error);
+                                    alert('Kunde inte skapa tråd. Försök igen.');
+                                }
+                            }} className="space-y-6 bg-white/5 border border-white/5 p-8 rounded-[2.5rem]">
+                                <div>
+                                    <label className="block text-slate-400 text-xs font-black uppercase tracking-widest mb-3 px-1">Rubrik</label>
+                                    <input
+                                        name="title"
+                                        type="text"
+                                        required
+                                        className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all"
+                                        placeholder="Vad handlar tråden om?"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-slate-400 text-xs font-black uppercase tracking-widest mb-3 px-1">Kategori</label>
+                                    <select
+                                        name="category"
+                                        className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all"
+                                    >
+                                        <option value="general">Allmänt</option>
+                                        <option value="announcements">Meddelanden</option>
+                                        <option value="support">Stöd</option>
+                                        <option value="events">Event</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-slate-400 text-xs font-black uppercase tracking-widest mb-3 px-1">Beskrivning</label>
+                                    <textarea
+                                        name="description"
+                                        required
+                                        rows={6}
+                                        className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all resize-none"
+                                        placeholder="Beskriv ämnet..."
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    className="w-full bg-orange-500 hover:bg-orange-600 text-slate-950 font-black py-5 rounded-2xl transition-all shadow-xl shadow-orange-500/20 active:scale-[0.98]"
                                 >
-                                    <option value="general">Allmänt</option>
-                                    <option value="announcements">Meddelanden</option>
-                                    <option value="support">Stöd</option>
-                                    <option value="events">Event</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-slate-400 text-xs font-black uppercase tracking-widest mb-3 px-1">Beskrivning</label>
-                                <textarea
-                                    name="description"
-                                    required
-                                    rows={6}
-                                    className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all resize-none"
-                                    placeholder="Beskriv ämnet..."
-                                />
-                            </div>
-                            <button
-                                type="submit"
-                                className="w-full bg-orange-500 hover:bg-orange-600 text-slate-950 font-black py-5 rounded-2xl transition-all shadow-xl shadow-orange-500/20 active:scale-[0.98]"
-                            >
-                                Skapa Tråd
-                            </button>
-                        </form>
+                                    Skapa Tråd
+                                </button>
+                            </form>
+                        )}
                     </div>
                 )}
 
@@ -754,9 +931,21 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                                 <h3 className="text-2xl font-black text-white">Medlemshantering</h3>
                                 <p className="text-slate-400 text-sm mt-1">Hantera community-medlemmar och deras behörigheter.</p>
                             </div>
-                            <div className="bg-white/5 border border-white/10 rounded-2xl px-6 py-3 flex items-center gap-4">
-                                <Users className="text-blue-400" size={20} />
-                                <span className="text-white font-bold">{stats.members} Medlemmar totalt</span>
+                            <div className="flex flex-col md:flex-row gap-4">
+                                <div className="relative">
+                                    <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                    <input
+                                        type="text"
+                                        placeholder="Sök medlem..."
+                                        value={profileSearch}
+                                        onChange={(e) => setProfileSearch(e.target.value)}
+                                        className="bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+                                    />
+                                </div>
+                                <div className="bg-white/5 border border-white/10 rounded-2xl px-6 py-3 flex items-center gap-4">
+                                    <Users className="text-blue-400" size={20} />
+                                    <span className="text-white font-bold">{stats.members} Medlemmar</span>
+                                </div>
                             </div>
                         </div>
 

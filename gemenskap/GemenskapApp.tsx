@@ -13,24 +13,27 @@ import Welcome from './components/Welcome';
 import Experts from './components/Experts';
 import Footer from './components/Footer';
 import AdminDashboard from './components/Admin/AdminDashboard';
-import { LogOut, LayoutGrid, MessageSquare, ArrowLeft, Menu, X, Users, Bot, MessageCircle, Settings, Home, ChevronLeft, Shield } from 'lucide-react';
+import AssociationTab from './components/AssociationTab';
+import Resources from './components/Resources';
+import { LogOut, LayoutGrid, MessageSquare, ArrowLeft, Menu, X, Users, Bot, MessageCircle, Settings, Home, ChevronLeft, Shield, Package } from 'lucide-react';
 import { SettingsModal } from './components/SettingsModal';
 import { InstallButton } from './components/InstallButton';
 import AssistantFab from './components/Assistant/AssistantFab';
 import { getEffectiveAvatar } from './services/userUtils';
 import { AssistantProvider } from './contexts/AssistantContext';
+import { translations } from './translations';
 
 interface GemenskapAppProps {
   onBackToSite: (page?: Page) => void;
-  initialTab?: 'welcome' | 'dashboard' | 'chat' | 'experts' | 'admin';
+  initialTab?: 'welcome' | 'dashboard' | 'resources' | 'chat' | 'experts' | 'admin';
 }
 
 export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initialTab }) => {
   // 1. State Declarations (MUST be at the top)
   const [authStatus, setAuthStatus] = useState<AuthStatus>(AuthStatus.IDLE);
   const [user, setUser] = useState<Profile | null>(null);
-  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
-  const [activeTab, setActiveTab] = useState<'welcome' | 'dashboard' | 'chat' | 'experts' | 'admin'>(initialTab || 'welcome');
+  const [onlineUsers, setOnlineUsers] = useState<Record<string, any>>({});
+  const [activeTab, setActiveTab] = useState<'welcome' | 'dashboard' | 'resources' | 'chat' | 'experts' | 'admin'>(initialTab || 'welcome');
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
@@ -40,6 +43,8 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [navHistory, setNavHistory] = useState<{ tab: string; topic: string | null }[]>([]);
   const [isStandalone, setIsStandalone] = useState(false);
+
+  // No association state here anymore
 
   // 2. Effects
   useEffect(() => {
@@ -87,6 +92,11 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
         setShowLogin(false);
         setShowPremiumIntro(false);
         setActiveTab('dashboard');
+      } else if (hash.includes('#association')) {
+        // Association moved to public community page, redirect back to welcome
+        setShowLogin(false);
+        setShowPremiumIntro(false);
+        setActiveTab('welcome');
       } else if (hash.includes('#admin')) {
         setShowLogin(false);
         setShowPremiumIntro(false);
@@ -259,8 +269,16 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
       presenceChannel
         .on('presence', { event: 'sync' }, () => {
           const state = presenceChannel.presenceState();
-          const onlineIds = new Set(Object.keys(state));
-          setOnlineUsers(onlineIds);
+          const onlineInfo: Record<string, any> = {};
+          
+          Object.keys(state).forEach(key => {
+            const presences = state[key] as any[];
+            if (presences && presences.length > 0) {
+              onlineInfo[key] = presences[0];
+            }
+          });
+          
+          setOnlineUsers(onlineInfo as any);
         })
         .on('presence', { event: 'join' }, ({ key, newPresences }: any) => {
           console.log('join', key, newPresences);
@@ -272,6 +290,8 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
           if (status === 'SUBSCRIBED') {
             await presenceChannel.track({
               user_id: user.id,
+              full_name: user.full_name,
+              avatar_url: user.avatar_url,
               online_at: new Date().toISOString(),
             });
           }
@@ -339,7 +359,7 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
     }
   };
 
-  const navigateTo = (tab: 'welcome' | 'dashboard' | 'chat' | 'experts' | 'admin', topic: string | null = null, noHistory = false) => {
+  const navigateTo = (tab: 'welcome' | 'dashboard' | 'resources' | 'chat' | 'experts' | 'admin', topic: string | null = null, noHistory = false) => {
     setActiveTab(tab);
     setSelectedTopic(topic);
     setIsMobileMenuOpen(false);
@@ -471,6 +491,9 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
                   <button onClick={() => navigateTo('dashboard')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'dashboard' ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' : 'text-slate-400 hover:bg-white/5'}`}>
                     <LayoutGrid size={20} /> <span className="font-medium">Överblick</span>
                   </button>
+                  <button onClick={() => navigateTo('resources')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'resources' ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' : 'text-slate-400 hover:bg-white/5'}`}>
+                    <Package size={20} /> <span className="font-medium">Resurser</span>
+                  </button>
                   <button onClick={() => navigateTo('chat')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'chat' ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' : 'text-slate-400 hover:bg-white/5'}`}>
                     <MessageCircle size={20} /> <span className="font-medium">Gemenskapen</span>
                   </button>
@@ -538,6 +561,7 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
                 {[
                   { id: 'welcome', label: 'Välkommen hem', icon: Home },
                   { id: 'dashboard', label: 'Överblick', icon: LayoutGrid },
+                  { id: 'resources', label: 'Resurser', icon: Package },
                   { id: 'chat', label: 'Gemenskapen', icon: MessageCircle },
                   { id: 'experts', label: 'Kontakt & Bokning', icon: Users },
                   ...(user.role === 'admin' ? [{ id: 'admin', label: 'Admin Panel', icon: Shield }] : [])
@@ -622,6 +646,16 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
                     />
                   </div>
                 </div>
+              ) : activeTab === 'resources' ? (
+                <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-y-auto">
+                  <Resources />
+                  <div className="p-4 md:px-12 md:pb-12">
+                    <Footer
+                      onBackToSite={onBackToSite}
+                      onSettingsClick={() => setSettingsOpen(true)}
+                    />
+                  </div>
+                </div>
               ) : activeTab === 'chat' ? (
                 <div className="flex-1 h-full w-full animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-hidden">
                   <ChatPage
@@ -668,7 +702,7 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
           <AssistantFab user={user} isChatActive={activeTab === 'chat'} />
           <InstallButton />
         </BackgroundWrapper >
-      </AssistantProvider>
+      </AssistantProvider >
     );
   }
 

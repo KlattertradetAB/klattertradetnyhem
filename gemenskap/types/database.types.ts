@@ -402,6 +402,31 @@ export type Database = {
                 }
                 Relationships: []
             }
+            cookie_consents: {
+                Row: {
+                    user_id: string
+                    consent_level: string
+                    updated_at: string
+                }
+                Insert: {
+                    user_id: string
+                    consent_level: string
+                    updated_at?: string
+                }
+                Update: {
+                    user_id?: string
+                    consent_level?: string
+                    updated_at?: string
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "cookie_consents_user_id_fkey"
+                        columns: ["user_id"]
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    }
+                ]
+            }
         }
         Views: {
             [_ in never]: never

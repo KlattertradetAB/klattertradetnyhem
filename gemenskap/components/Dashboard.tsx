@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            import React, { useState, useEffect } from 'react';
 import { Profile, Thread } from '../types';
 import { supabase } from '../services/supabase';
 import { Calendar, Users, MessageSquareText, Star, ChevronRight, MapPin, MessageCircle, FileText, BookOpen, Bot, ArrowRight, Sparkles } from 'lucide-react';
@@ -51,7 +51,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onThreadClick, onBackToSite
       if (error) {
         console.error('Error fetching threads:', error);
       } else {
-        setThreads(data || []);
+        setThreads((data as any) || []);
       }
     };
 

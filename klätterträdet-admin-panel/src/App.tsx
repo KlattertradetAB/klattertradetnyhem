@@ -119,7 +119,7 @@ export default function App() {
     }
   };
 
-  const updateOrderStatus = async (id: number, status: string) => {
+  const updateOrderStatus = async (id: string, status: string) => {
     await fetch(`/api/orders/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },

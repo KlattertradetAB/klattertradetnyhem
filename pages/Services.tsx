@@ -13,50 +13,53 @@ import {
     Wind
 } from 'lucide-react';
 import TiltedImage from '../components/TiltedImage';
+import NewsletterSignup from '../components/NewsletterSignup';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ServicesProps {
     setPage: (page: Page) => void;
 }
 
 const Services: React.FC<ServicesProps> = ({ setPage }) => {
+    const { t } = useLanguage();
     const serviceCategories = [
         {
-            title: "Utbildningar",
+            title: t.services_cat_training,
             icon: <BookOpen className="text-orange-400" size={24} />,
             items: [
                 {
-                    name: "Behandlingspedagog",
-                    desc: "Yrkesutbildning för professionellt arbete med människor.",
+                    name: t.nav_behandlingspedagog,
+                    desc: t.services_desc_behandlingspedagog,
                     page: Page.BEHANDLINGS_PEDAGOG,
                     img: "/Pic-BIllyteavla.jpeg"
                 },
                 {
-                    name: "Myndighetsinducerat trauma (MiT)",
-                    desc: "Specialistutbildning för ett bättre bemötande.",
+                    name: t.home_mit_title,
+                    desc: t.services_desc_mit,
                     page: Page.CHAT,
                     img: "/assets/logo2.png"
                 },
                 {
-                    name: "Gestaltterapi",
-                    desc: "Grundutbildning i gestaltmetodik och förhållningssätt.",
+                    name: t.nav_gestalt,
+                    desc: t.services_desc_gestalt,
                     page: Page.GESTALT_TRAINING,
                     img: "/hemsida-bild2.jpeg"
                 }
             ]
         },
         {
-            title: "Terapi & Samtal",
+            title: t.services_cat_therapy,
             icon: <Heart className="text-red-400" size={24} />,
             items: [
                 {
-                    name: "Enskild Terapi",
-                    desc: "Personlig utveckling och traumabehandling.",
+                    name: t.nav_enskild_terapi,
+                    desc: t.services_desc_enskild,
                     page: Page.THERAPY,
                     img: "/bild-ljusbord.jpeg"
                 },
                 {
-                    name: "Grupp- & Parterapi",
-                    desc: "Gemensam läkning och relationsstöd.",
+                    name: t.nav_grupp_terapi,
+                    desc: t.services_desc_grupp,
                     page: Page.GROUP_THERAPY,
                     img: "/bild-terapistol.jpeg"
                 }
@@ -68,10 +71,10 @@ const Services: React.FC<ServicesProps> = ({ setPage }) => {
         <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-12 animate-fade-in space-y-16">
             <div className="text-center space-y-4">
                 <h1 className="text-4xl md:text-6xl font-black text-white italic tracking-tight">
-                    Våra <span className="text-orange-400">Tjänster</span>
+                    {t.services_title.split(' ')[0]} <span className="text-orange-400">{t.services_title.split(' ').slice(1).join(' ')}</span>
                 </h1>
                 <p className="text-zinc-400 text-lg md:text-xl max-w-3xl mx-auto font-light leading-relaxed">
-                    Vi erbjuder specialistkompetens inom trauma, pedagogik och terapi för att stödja din väg mot helhet och mognad.
+                    {t.services_subtitle}
                 </p>
             </div>
 
@@ -106,7 +109,7 @@ const Services: React.FC<ServicesProps> = ({ setPage }) => {
 
                                     <div className="mt-6 flex items-center justify-between">
                                         <span className="text-orange-400 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
-                                            Läs mer <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                                            {t.services_read_more} <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                                         </span>
                                         <div className="p-2 bg-white/5 rounded-lg text-white/20 group-hover:text-orange-400 transition-colors">
                                             <Sparkles size={16} />
@@ -125,17 +128,19 @@ const Services: React.FC<ServicesProps> = ({ setPage }) => {
                     <Brain className="text-amber-500" size={40} />
                     <Wind className="text-orange-400" size={40} />
                 </div>
-                <h2 className="text-3xl md:text-4xl font-black text-white italic">Hittar du inte det du söker?</h2>
+                <h2 className="text-3xl md:text-4xl font-black text-white italic">{t.services_not_found}</h2>
                 <p className="text-zinc-300 text-lg max-w-2xl mx-auto font-light">
-                    Vi skräddarsyr även handledning och utbildningsinsatser för kommuner, verksamheter och organisationer.
+                    {t.services_not_found_desc}
                 </p>
                 <button
                     onClick={() => setPage(Page.CONTACT)}
                     className="px-8 py-4 bg-white text-slate-950 rounded-2xl font-black transition-all hover:scale-105 shadow-2xl shadow-white/5 uppercase tracking-widest text-xs"
                 >
-                    Kontakta oss för förfrågan
+                    {t.services_contact_btn}
                 </button>
             </div>
+
+            <NewsletterSignup />
         </div>
     );
 };

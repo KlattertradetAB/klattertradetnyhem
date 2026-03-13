@@ -1,7 +1,9 @@
 
 import React, { useState } from 'react';
-import { Smartphone, Users, Calendar, BookOpen, Heart, Sparkles, X, Send, CheckCircle } from 'lucide-react';
+import { Smartphone, Users, Calendar, BookOpen, Heart, Sparkles, X, Send, CheckCircle, ArrowRight } from 'lucide-react';
 import TiltedImage from '../components/TiltedImage';
+import AssociationTab from '../gemenskap/components/AssociationTab';
+import { useLanguage } from '../contexts/LanguageContext';
 
 import { Page } from '../types';
 import { PAGE_URLS } from '../App';
@@ -11,6 +13,7 @@ interface CommunityProps {
 }
 
 const Community: React.FC<CommunityProps> = ({ setPage }) => {
+  const { t } = useLanguage();
   const [viewState, setViewState] = useState<'info' | 'form' | 'success'>('info');
   const [formData, setFormData] = useState({
     name: '',
@@ -39,10 +42,10 @@ const Community: React.FC<CommunityProps> = ({ setPage }) => {
       <div className="glass bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 md:p-16 relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-12">
         <div className="max-w-2xl text-center lg:text-left">
           <h1 className="text-3xl md:text-5xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-orange-400">
-            Horizonten Gemenskap
+            {t.community_title}
           </h1>
           <p className="text-xl md:text-2xl text-white/90 font-light italic mb-8">
-            En trygg hamn för läkning, insikt och tillsammanskap.
+            {t.community_subtitle}
           </p>
           <div className="flex justify-center lg:justify-start gap-4 flex-wrap items-center">
             <a
@@ -50,17 +53,17 @@ const Community: React.FC<CommunityProps> = ({ setPage }) => {
               onClick={(e) => { e.preventDefault(); handleLoginClick(); }}
               className="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full transition-colors shadow-lg hover:shadow-orange-500/20 flex items-center justify-center"
             >
-              Logga in
+              {t.community_login_btn}
             </a>
-            <div className="px-6 py-2 bg-white/10 rounded-full border border-white/20 text-sm">Appen</div>
-            <div className="px-6 py-2 bg-white/10 rounded-full border border-white/20 text-sm">Gemenskap</div>
-            <div className="px-6 py-2 bg-white/10 rounded-full border border-white/20 text-sm">Självhjälp</div>
+            <div className="px-6 py-2 bg-white/10 rounded-full border border-white/20 text-sm">{t.community_appen_tag}</div>
+            <div className="px-6 py-2 bg-white/10 rounded-full border border-white/20 text-sm">{t.community_gemenskap_tag}</div>
+            <div className="px-6 py-2 bg-white/10 rounded-full border border-white/20 text-sm">{t.community_självhjälp_tag}</div>
           </div>
         </div>
         <div className="hidden lg:block shrink-0">
           <TiltedImage
             src="/bild-terapistol.jpeg"
-            alt="Gemenskap"
+            alt={t.nav_gemenskap}
             className="w-64 h-80"
             grayscale={false}
             defaultRotation="3deg"
@@ -75,19 +78,19 @@ const Community: React.FC<CommunityProps> = ({ setPage }) => {
             <div className="p-3 bg-orange-500/20 rounded-2xl text-orange-400">
               <Smartphone size={32} />
             </div>
-            <h2 className="text-2xl font-bold">Appen från Horizonten</h2>
+            <h2 className="text-2xl font-bold">{t.community_appen_title}</h2>
           </div>
           <p className="text-white/80 leading-relaxed mb-6">
-            Vår egen app är hjärtat i vår gemenskap. Här hittar du ett säkert rum där du kan dela erfarenheter, få stöd och växa tillsammans med andra som förstår. Appen är designad för att vara din följeslagare i vardagen, fylld med verktyg för självreglering och reflektion.
+            {t.community_appen_desc}
           </p>
           <ul className="space-y-3">
             <li className="flex items-start gap-3 text-white/70">
               <Sparkles className="text-amber-400 shrink-0 mt-1" size={18} />
-              <span>Interaktiv gemenskap för erfarenhetsutbyte.</span>
+              <span>{t.community_appen_feature1}</span>
             </li>
             <li className="flex items-start gap-3 text-white/70">
               <Sparkles className="text-amber-400 shrink-0 mt-1" size={18} />
-              <span>Exklusivt material och guidade övningar.</span>
+              <span>{t.community_appen_feature2}</span>
             </li>
           </ul>
         </div>
@@ -98,14 +101,14 @@ const Community: React.FC<CommunityProps> = ({ setPage }) => {
             <div className="p-3 bg-red-500/20 rounded-2xl text-red-400">
               <Calendar size={32} />
             </div>
-            <h2 className="text-2xl font-bold">Terapeutledda möten</h2>
+            <h2 className="text-2xl font-bold">{t.community_session_title}</h2>
           </div>
           <p className="text-white/80 leading-relaxed mb-6">
-            Vi tror på kraften i det gemensamma samtalet. Varje vecka håller vi i terapeutledda självhjälpsmöten i appen. Här får du professionell guidning i en trygg gruppmiljö där vi fokuserar på praktisk tillämpning av traumaförståelse och läkning.
+            {t.community_session_desc}
           </p>
           <div className="bg-black/20 p-4 rounded-2xl border border-white/5">
-            <p className="text-sm font-bold text-orange-300 mb-1">När?</p>
-            <p className="text-white/70 italic">En gång per vecka, direkt i Horizonten-appen.</p>
+            <p className="text-sm font-bold text-orange-300 mb-1">{t.community_session_when}</p>
+            <p className="text-white/70 italic">{t.community_session_time}</p>
           </div>
         </div>
       </div>
@@ -113,41 +116,40 @@ const Community: React.FC<CommunityProps> = ({ setPage }) => {
       {/* Boken sektion */}
       <div className="glass bg-gradient-to-br from-orange-900/20 to-amber-900/20 border border-orange-500/30 rounded-3xl p-8 md:p-12 transition-all duration-500">
 
-        {viewState === 'info' && (
-          <div className="grid md:grid-cols-3 gap-8 items-center animate-fade-in">
-            <div className="md:col-span-1 flex justify-center">
-              <TiltedImage
-                src="/booklet.jpeg"
-                alt="Boken: Myndighetsinducerat trauma"
-                className="w-48 h-64"
-                defaultRotation="3deg"
-              />
-            </div>
-            <div className="md:col-span-2 space-y-6">
-              <h2 className="text-3xl font-bold">Boken: Myndighetsinducerat trauma, från subjekt till objekt</h2>
-              <p className="text-lg text-white/80 leading-relaxed">
-                Vår nyutgivna bok är en djupdykning i hur systemet kan skada och hur vi kan läka. Men boken är mer än bara text – den är en guide.
-              </p>
-              <div className="flex items-start gap-4 bg-white/5 p-6 rounded-2xl border border-white/10">
-                <Heart className="text-red-400 shrink-0" />
-                <p className="text-white/90 italic">
-                  "Tillhörande boken finns en stor mängd självhjälpsmaterial och praktiska övningar i appen, skapade för att ge dig verktygen att navigera i din egen läkningsprocess."
-                </p>
-              </div>
-              <button
-                onClick={() => setViewState('form')}
-                className="px-8 py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl font-bold transition-all hover:scale-105"
-              >
-                Beställ boken här
-              </button>
-            </div>
+        {/* Book info always shown – clicks navigate to full BookPromotion page */}
+        <div className="grid md:grid-cols-3 gap-8 items-center animate-fade-in">
+          <div className="md:col-span-1 flex justify-center">
+            <TiltedImage
+              src="/booklet.jpeg"
+              alt={t.book_title}
+              className="w-48 h-64"
+              defaultRotation="3deg"
+            />
           </div>
-        )}
+          <div className="md:col-span-2 space-y-6">
+            <h2 className="text-3xl font-bold">{t.book_title_long}</h2>
+            <p className="text-lg text-white/80 leading-relaxed">
+              {t.book_intro_p1} {t.book_intro_p2}
+            </p>
+            <div className="flex items-start gap-4 bg-white/5 p-6 rounded-2xl border border-white/10">
+              <Heart className="text-red-400 shrink-0" />
+              <p className="text-white/90 italic">
+                {t.book_app_highlight}
+              </p>
+            </div>
+            <button
+              onClick={() => setPage?.(Page.BOOK)}
+              className="px-8 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl font-black transition-all hover:scale-105 flex items-center gap-2"
+            >
+              {t.community_book_order_btn} <ArrowRight size={18} />
+            </button>
+          </div>
+        </div>
 
         {viewState === 'form' && (
           <div className="max-w-2xl mx-auto animate-fade-in">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl font-bold">Beställ boken</h2>
+              <h2 className="text-3xl font-bold">{t.community_order_form_title}</h2>
               <button
                 onClick={() => setViewState('info')}
                 className="p-2 hover:bg-white/10 rounded-full transition-colors"
@@ -159,18 +161,18 @@ const Community: React.FC<CommunityProps> = ({ setPage }) => {
             <form onSubmit={handleOrderSubmit} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-white/80 ml-1">Namn</label>
+                  <label className="text-sm font-bold text-white/80 ml-1">{t.community_form_name}</label>
                   <input
                     required
                     type="text"
-                    placeholder="Ditt namn"
+                    placeholder={t.contact_form_name}
                     className="w-full p-4 bg-black/40 border border-white/10 rounded-xl text-white outline-none focus:border-amber-500 transition-all"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-white/80 ml-1">Personnummer</label>
+                  <label className="text-sm font-bold text-white/80 ml-1">{t.community_form_ssn}</label>
                   <input
                     required
                     type="text"
@@ -184,7 +186,7 @@ const Community: React.FC<CommunityProps> = ({ setPage }) => {
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-white/80 ml-1">E-post</label>
+                  <label className="text-sm font-bold text-white/80 ml-1">{t.community_form_email}</label>
                   <input
                     required
                     type="email"
@@ -195,7 +197,7 @@ const Community: React.FC<CommunityProps> = ({ setPage }) => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-white/80 ml-1">Telefon</label>
+                  <label className="text-sm font-bold text-white/80 ml-1">{t.community_form_phone}</label>
                   <input
                     required
                     type="tel"
@@ -218,7 +220,7 @@ const Community: React.FC<CommunityProps> = ({ setPage }) => {
                     />
                     <CheckCircle size={16} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-black opacity-0 peer-checked:opacity-100 pointer-events-none" strokeWidth={3} />
                   </div>
-                  <span className="text-white/90 font-medium group-hover:text-white transition-colors">Jag vill prenumerera på nyhetsbrevet</span>
+                  <span className="text-white/90 font-medium group-hover:text-white transition-colors">{t.community_form_newsletter}</span>
                 </label>
               </div>
 
@@ -226,7 +228,7 @@ const Community: React.FC<CommunityProps> = ({ setPage }) => {
                 type="submit"
                 className="w-full py-4 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold rounded-xl transition-all hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-3 mt-4"
               >
-                Skicka beställning <Send size={20} />
+                {t.community_form_submit} <Send size={20} />
               </button>
             </form>
           </div>
@@ -237,25 +239,34 @@ const Community: React.FC<CommunityProps> = ({ setPage }) => {
             <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mb-6 shadow-xl">
               <CheckCircle size={40} className="text-emerald-400" />
             </div>
-            <h2 className="text-3xl font-bold text-white mb-4">Tack för din beställning!</h2>
+            <h2 className="text-3xl font-bold text-white mb-4">{t.community_order_success_title}</h2>
             <p className="text-white/70 max-w-md mx-auto mb-8">
-              Vi har mottagit din order av boken "Myndighetsinducerat trauma, från subjekt till objekt". En bekräftelse och faktura kommer att skickas till {formData.email}.
+              {t.community_order_success_desc.replace('{email}', formData.email)}
             </p>
             <button
               onClick={() => setViewState('info')}
               className="text-white hover:text-amber-400 font-bold underline transition-colors"
             >
-              Gå tillbaka
+              {t.community_back_btn}
             </button>
           </div>
         )}
 
       </div>
 
+      {/* Membership / Föreningen Section */}
+      <div className="border-t border-white/10 pt-12">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl md:text-4xl font-black text-white mb-4">{t.community_assoc_title.split(' ')[0]} <span className="text-orange-400">{t.community_assoc_title.split(' ').slice(1).join(' ')}</span></h2>
+          <p className="text-white/60 max-w-2xl mx-auto text-lg">{t.community_assoc_subtitle}</p>
+        </div>
+        <AssociationTab />
+      </div>
+
       {/* Footer CTA */}
       <div className="text-center py-6">
-        <h3 className="text-2xl font-bold mb-4">Vill du bli en del av gemenskapen?</h3>
-        <p className="text-white/60 mb-6">Ladda ner appen och börja din resa tillsammans med oss.</p>
+        <h3 className="text-2xl font-bold mb-4">{t.community_cta_title}</h3>
+        <p className="text-white/60 mb-6">{t.community_cta_desc}</p>
         <div className="flex justify-center gap-4">
           <button className="px-6 py-2 bg-white/10 hover:bg-white/20 rounded-xl border border-white/20 font-bold transition-all hover:scale-105">App Store</button>
           <button className="px-6 py-2 bg-white/10 hover:bg-white/20 rounded-xl border border-white/20 font-bold transition-all hover:scale-105">Google Play</button>

@@ -198,10 +198,10 @@ export const saveSurveyResponse = async (email: string | null, answers: number[]
         {
           email,
           answers,
-          scores: result, // Saving the full result object including emotionalState and secondaryWound
+          scores: result as any, // Cast to any to bypass strict Postgrest insert types
           created_at: new Date().toISOString(),
         }
-      ]);
+      ] as any);
 
     if (error) {
       console.error('Error saving survey response:', error);

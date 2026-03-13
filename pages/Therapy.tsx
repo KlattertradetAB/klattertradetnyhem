@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Heart, Sparkles, Activity, ShieldCheck, CheckCircle, Target, Users, Send, MessageSquare } from 'lucide-react';
 import { Page } from '../types';
 import TiltedImage from '../components/TiltedImage';
+import { useLanguage } from '../contexts/LanguageContext';
 
 type FormViewState = 'splash' | 'form' | 'confirmation';
 
@@ -11,6 +12,7 @@ interface TherapyProps {
 }
 
 const Therapy: React.FC<TherapyProps> = ({ setPage }) => {
+  const { t } = useLanguage();
   const [formView, setFormView] = useState<FormViewState>(() => {
     const historyState = window.history.state;
     return historyState?.showForm ? 'form' : 'splash';
@@ -42,9 +44,9 @@ const Therapy: React.FC<TherapyProps> = ({ setPage }) => {
   }, []);
 
   const problems = [
-    "Ångest", "Fobier", "Skam och rädsla", "Uppväxtproblematik",
-    "Sorg", "Medberoende", "Vuxna-barnproblematiken", "Stress",
-    "Utbrändhet", "PTSD", "C-PTSD (komplex PTSD)"
+    t.therapy_cat_anxiety, t.therapy_cat_phobia, t.therapy_cat_shame, t.therapy_cat_childhood,
+    t.therapy_cat_grief, t.therapy_cat_codependency, t.therapy_cat_adultchild, t.therapy_cat_stress,
+    t.therapy_cat_burnout, t.therapy_cat_ptsd, t.therapy_cat_cptsd
   ];
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,27 +84,33 @@ const Therapy: React.FC<TherapyProps> = ({ setPage }) => {
     }
 
     const recipient = 'billy@klattertradet.se';
-    const subject = 'Enkät, hjälp med att hitta terapeut';
+    const subject = t.therapy_seeking_title;
 
-    let body = "Här är svaren från din enkät:\n\n";
-    body += "1. Dina tidigare erfarenheter av terapi:\n";
-    body += `   - Har sökt terapi tidigare? ${formData.tidigare_erfarenhet || 'Inget svar'}\n`;
-    if (formData.uppskattade) body += `   - Mest/minst uppskattat: ${formData.uppskattade}\n`;
-    if (formData.tanke_delar) body += `   - Tankar kring upplevelser: ${formData.tanke_delar}\n`;
+    let body = `${t.therapy_confirm_desc}\n\n`;
+    body += `${t.therapy_section1}\n`;
+    body += `   - ${t.therapy_prev_exp_q} ${formData.tidigare_erfarenhet || '?'}\n`;
+    if (formData.uppskattade) body += `   - ${t.therapy_appreciated_q}: ${formData.uppskattade}\n`;
     body += "\n";
-    body += "2. Vad söker du hjälp för?\n";
-    const displayUtmaningar = formData.utmaningar.map(u => u === 'annan' ? `Annan: ${formData.annan_utmaning_text}` : u);
-    body += `   - Aktuell utmaning: ${displayUtmaningar.length > 0 ? displayUtmaningar.join(', ') : 'Inget svar'}\n`;
-    body += `   - Huvudsakligt mål: ${formData.mal === 'annat' ? `Annat: ${formData.annat_mal_text}` : formData.mal}\n`;
+    body += `${t.therapy_section2}\n`;
+    const displayUtmaningar = formData.utmaningar.map(u => {
+      const match = [
+        { label: t.therapy_cat_stress, value: 'Stress' },
+        { label: t.therapy_cat_anxiety, value: 'Ångest' },
+        { label: t.therapy_cat_depression, value: 'Nedstämdhet' },
+        { label: t.therapy_cat_relationships, value: 'Relationer' },
+        { label: t.therapy_cat_grief, value: 'Sorg' },
+        { label: t.therapy_cat_other, value: 'Annan' }
+      ].find(opt => opt.value === u);
+      return match ? match.label : u;
+    });
+    body += `   - ${t.therapy_section2}: ${displayUtmaningar.join(', ')}\n`;
     body += "\n";
-    body += "3. Önskemål på terapeut:\n";
-    body += `   - Terapeutens kön: ${formData.terapeut_kon}\n`;
-    body += `   - Föredragen mötesform: ${formData.motesform}\n`;
+    body += `${t.therapy_section3}\n`;
+    body += `   - ${t.therapy_pref_meeting}: ${formData.motesform}\n`;
     body += "\n";
-    body += "4. Dina kontaktuppgifter:\n";
-    body += `   - Namn: ${formData.namn}\n`;
-    body += `   - E-post: ${formData.epost}\n`;
-    if (formData.telefon) body += `   - Telefon: ${formData.telefon}\n`;
+    body += `   - ${t.therapy_name_label}: ${formData.namn}\n`;
+    body += `   - ${t.therapy_email_label}: ${formData.epost}\n`;
+    if (formData.telefon) body += `   - ${t.contact_phone_label}: ${formData.telefon}\n`;
 
     const mailtoLink = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     setFormView('confirmation');
@@ -118,19 +126,19 @@ const Therapy: React.FC<TherapyProps> = ({ setPage }) => {
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
           <div className="max-w-2xl">
             <h1 className="text-4xl md:text-6xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-red-200 to-orange-400 leading-tight">
-              TERAPI
+              {t.therapy_title}
             </h1>
             <h2 className="text-xl md:text-3xl text-white/90 font-light italic mb-8">
-              Vi vägleder dig genom din utveckling
+              {t.therapy_subtitle}
             </h2>
             <p className="text-lg md:text-xl text-white/80 leading-relaxed font-light">
-              Enskild terapi kan gå i flera olika led och täcka upp för flera olika typer av problembilder. Det viktigaste för oss är att vi möter dig i de problem du kommer med!
+              {t.therapy_intro}
             </p>
           </div>
           <div className="hidden lg:block shrink-0">
             <TiltedImage
               src="/pic-enskildterapi.jpeg"
-              alt="Enskild terapi"
+              alt={t.nav_enskild_terapi}
               className="w-72 h-96"
               grayscale={false}
               blur="8px"
@@ -149,13 +157,13 @@ const Therapy: React.FC<TherapyProps> = ({ setPage }) => {
               <div className="p-3 bg-red-500/20 rounded-2xl text-red-400">
                 <Target size={32} />
               </div>
-              <h3 className="text-2xl font-bold">Gestaltterapeutisk grund</h3>
+              <h3 className="text-2xl font-bold">{t.therapy_gestalt_title}</h3>
             </div>
             <p className="text-white/80 leading-relaxed mb-6">
-              I enskild terapi jobbar vi på en gestaltterapeutisk grund och det innebär att vi jobbar utifrån <strong>Här, Nu och Hur</strong>. Gestaltterapi är en upplevelsebaserad terapiform där vägen är mognad och fullbordan genom den egna upplevelsen.
+              {t.therapy_gestalt_desc1}
             </p>
             <p className="text-white/80 leading-relaxed">
-              I gestaltterapi tittar vi inte bakåt och brottas i intellektuella diskussioner om hur du haft det och varför det varit som det varit utan vi jobbar utifrån hur ditt liv tar sig uttryck här och nu och löser upp de knutar som står i vägen för att du ska skapa och leva det liv som du vill!
+              {t.therapy_gestalt_desc2}
             </p>
           </div>
 
@@ -164,15 +172,15 @@ const Therapy: React.FC<TherapyProps> = ({ setPage }) => {
               <div className="p-3 bg-amber-500/20 rounded-2xl text-amber-400">
                 <Sparkles size={32} />
               </div>
-              <h3 className="text-2xl font-bold">Avsluta oavslutade mönster</h3>
+              <h3 className="text-2xl font-bold">{t.therapy_patterns_title}</h3>
             </div>
             <p className="text-white/80 leading-relaxed mb-6">
-              I gestaltterapi så jobbar vi för att avsluta oavslutade mönster (gestalter) i livet som liksom ”gått ut ur tid” och inte längre är önskvärda.
+              {t.therapy_patterns_desc}
             </p>
             <div className="flex items-start gap-4 bg-black/20 p-6 rounded-2xl border border-white/5">
               <ShieldCheck className="text-orange-400 shrink-0 mt-1" />
               <p className="text-white/90 italic">
-                Vi jobbar alltid med kontrakt i denna typ av terapi där du själv bestämmer vägen och vi stämmer av med jämna mellanrum under perioden vi ses hur det går med målen i kontraktet.
+                {t.therapy_contract_note}
               </p>
             </div>
           </div>
@@ -184,7 +192,7 @@ const Therapy: React.FC<TherapyProps> = ({ setPage }) => {
             <div className="p-3 bg-red-500/20 rounded-2xl text-red-400">
               <Heart size={32} />
             </div>
-            <h3 className="text-2xl font-bold">I enskild terapi jobbar vi med t.ex:</h3>
+            <h3 className="text-2xl font-bold">{t.therapy_problems_title}</h3>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-4">
@@ -202,11 +210,11 @@ const Therapy: React.FC<TherapyProps> = ({ setPage }) => {
           <div className="mt-10 pt-8 border-t border-white/10 space-y-4">
             <div className="flex items-center gap-3 text-white/70">
               <Users size={20} className="text-orange-300" />
-              <p className="text-sm">Vi jobbar med olika terapiformer och går kontinuerligt i handledning.</p>
+              <p className="text-sm">{t.therapy_supervision}</p>
             </div>
             <div className="flex items-center gap-3 text-white/70">
               <Activity size={20} className="text-orange-300" />
-              <p className="text-sm">Vårt fokus är att möta dig där du är, med de specifika utmaningar du bär på.</p>
+              <p className="text-sm">{t.therapy_meet_you}</p>
             </div>
           </div>
         </div>
@@ -215,7 +223,7 @@ const Therapy: React.FC<TherapyProps> = ({ setPage }) => {
       {/* Philosophy Snippet */}
       <div className="glass bg-white/5 border border-white/10 rounded-3xl p-10 text-center max-w-4xl mx-auto">
         <p className="text-2xl font-light text-white/90 leading-relaxed italic">
-          "Det viktigaste för oss är att vi möter dig i de problem du kommer med!"
+          {t.therapy_quote}
         </p>
       </div>
 
@@ -231,10 +239,10 @@ const Therapy: React.FC<TherapyProps> = ({ setPage }) => {
                 <Heart size={40} />
               </div>
             </div>
-            <h2 className="text-3xl font-bold text-white mb-4">Vi finns här för dig.</h2>
-            <p className="text-lg text-white/70 mb-8 leading-relaxed">Klicka här för att berätta mer, helt konfidentiellt.</p>
+            <h2 className="text-3xl font-bold text-white mb-4">{t.therapy_find_cta}</h2>
+            <p className="text-lg text-white/70 mb-8 leading-relaxed">{t.therapy_find_sub}</p>
             <span className="inline-block px-8 py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl font-bold transition-all hover:scale-105">
-              Hitta din terapeut
+              {t.therapy_find_btn}
             </span>
           </button>
         )}
@@ -243,16 +251,16 @@ const Therapy: React.FC<TherapyProps> = ({ setPage }) => {
           <div ref={formRef} className="glass bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 md:p-12 shadow-2xl animate-fade-in">
             <div className="text-center mb-10">
               <MessageSquare className="mx-auto text-orange-400 mb-4" size={40} />
-              <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">Söker du terapi?</h1>
-              <p className="text-white/70">Låt oss hjälpa dig på vägen genom att svara på några korta frågor.</p>
+              <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">{t.therapy_seeking_title}</h1>
+              <p className="text-white/70">{t.therapy_seeking_sub}</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-8">
               <fieldset className="p-6 border border-white/10 rounded-2xl bg-white/5">
-                <legend className="text-lg font-bold text-orange-300 px-3 mb-4">1. Tidigare erfarenheter</legend>
+                <legend className="text-lg font-bold text-orange-300 px-3 mb-4">{t.therapy_section1}</legend>
                 <div className="space-y-4 mb-6">
-                  <p className="font-medium text-white/90">Har du sökt terapi tidigare?</p>
-                  {['Ja, jag har gått i terapi.', 'Nej, det här är första gången.', 'Jag har sökt, men inte fullföljt.'].map(opt => (
+                  <p className="font-medium text-white/90">{t.therapy_prev_exp_q}</p>
+                  {[t.therapy_prev_exp_yes, t.therapy_prev_exp_no, t.therapy_prev_exp_started].map(opt => (
                     <label key={opt} className="flex items-center gap-3 cursor-pointer group">
                       <input type="radio" name="exp" value={opt} onChange={(e) => setFormData({ ...formData, tidigare_erfarenhet: e.target.value })} className="w-4 h-4 text-orange-500 bg-white/10 border-white/20" />
                       <span className="text-white/80 group-hover:text-white transition-colors">{opt}</span>
@@ -260,30 +268,37 @@ const Therapy: React.FC<TherapyProps> = ({ setPage }) => {
                   ))}
                 </div>
                 <div className="space-y-4">
-                  <label className="block font-medium text-white/90">Vad uppskattade du mest/minst tidigare?</label>
+                  <label className="block font-medium text-white/90">{t.therapy_appreciated_q}</label>
                   <textarea rows={2} maxLength={200} className="w-full p-4 bg-black/30 border border-white/10 rounded-xl text-white outline-none focus:ring-2 focus:ring-orange-500" value={formData.uppskattade} onChange={(e) => setFormData({ ...formData, uppskattade: e.target.value })} />
                 </div>
               </fieldset>
 
               <fieldset className="p-6 border border-white/10 rounded-2xl bg-white/5">
-                <legend className="text-lg font-bold text-orange-300 px-3 mb-4">2. Vad söker du hjälp för?</legend>
+                <legend className="text-lg font-bold text-orange-300 px-3 mb-4">{t.therapy_section2}</legend>
                 <div className="grid sm:grid-cols-2 gap-3 mb-6">
-                  {['Stress', 'Ångest', 'Nedstämdhet', 'Relationer', 'Sorg', 'Annan'].map(u => (
-                    <label key={u} className="flex items-center gap-3 cursor-pointer">
-                      <input type="checkbox" value={u} onChange={handleCheckboxChange} className="w-4 h-4 rounded text-orange-500 bg-white/10 border-white/20" />
-                      <span className="text-white/80">{u}</span>
+                  {[
+                    { label: t.therapy_cat_stress, value: 'Stress' },
+                    { label: t.therapy_cat_anxiety, value: 'Ångest' },
+                    { label: t.therapy_cat_depression, value: 'Nedstämdhet' },
+                    { label: t.therapy_cat_relationships, value: 'Relationer' },
+                    { label: t.therapy_cat_grief, value: 'Sorg' },
+                    { label: t.therapy_cat_other, value: 'Annan' }
+                  ].map(u => (
+                    <label key={u.value} className="flex items-center gap-3 cursor-pointer">
+                      <input type="checkbox" value={u.value} onChange={handleCheckboxChange} className="w-4 h-4 rounded text-orange-500 bg-white/10 border-white/20" />
+                      <span className="text-white/80">{u.label}</span>
                     </label>
                   ))}
                 </div>
-                <textarea rows={1} placeholder="Beskriv mer här..." className="w-full p-4 bg-black/30 border border-white/10 rounded-xl text-white outline-none focus:ring-2 focus:ring-orange-500" value={formData.annan_utmaning_text} onChange={(e) => setFormData({ ...formData, annan_utmaning_text: e.target.value })} />
+                <textarea rows={1} placeholder={t.therapy_describe_more} className="w-full p-4 bg-black/30 border border-white/10 rounded-xl text-white outline-none focus:ring-2 focus:ring-orange-500" value={formData.annan_utmaning_text} onChange={(e) => setFormData({ ...formData, annan_utmaning_text: e.target.value })} />
               </fieldset>
 
               <fieldset className="p-6 border border-white/10 rounded-2xl bg-white/5">
-                <legend className="text-lg font-bold text-orange-300 px-3 mb-4">3. Önskemål & Kontakt</legend>
+                <legend className="text-lg font-bold text-orange-300 px-3 mb-4">{t.therapy_section3}</legend>
                 <div className="mb-6">
-                  <p className="font-medium text-white/90 mb-3">Föredragen mötesform?</p>
+                  <p className="font-medium text-white/90 mb-3">{t.therapy_pref_meeting}</p>
                   <div className="space-y-2">
-                    {['Fysiska möten på plats.', 'Digitalt via Zoom.'].map((opt) => (
+                    {[t.therapy_physical, t.therapy_digital].map((opt) => (
                       <label key={opt} className="flex items-center gap-3 cursor-pointer group">
                         <input
                           type="radio"
@@ -299,18 +314,18 @@ const Therapy: React.FC<TherapyProps> = ({ setPage }) => {
                 </div>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm text-white/60 mb-2">Namn</label>
+                    <label className="block text-sm text-white/60 mb-2">{t.therapy_name_label}</label>
                     <input type="text" required className="w-full p-3 bg-black/30 border border-white/10 rounded-xl text-white" value={formData.namn} onChange={(e) => setFormData({ ...formData, namn: e.target.value })} />
                   </div>
                   <div>
-                    <label className="block text-sm text-white/60 mb-2">E-post</label>
+                    <label className="block text-sm text-white/60 mb-2">{t.therapy_email_label}</label>
                     <input type="email" required className="w-full p-3 bg-black/30 border border-white/10 rounded-xl text-white" value={formData.epost} onChange={(e) => setFormData({ ...formData, epost: e.target.value })} />
                   </div>
                 </div>
               </fieldset>
 
               <button type="submit" className="w-full py-5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold rounded-xl shadow-xl hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-3">
-                Skicka in och hitta matchning <Send size={20} />
+                {t.therapy_submit_btn} <Send size={20} />
               </button>
             </form>
           </div>
@@ -319,10 +334,10 @@ const Therapy: React.FC<TherapyProps> = ({ setPage }) => {
         {formView === 'confirmation' && (
           <div className="glass bg-white/10 backdrop-blur-xl border border-white/20 p-12 rounded-[40px] text-center shadow-2xl animate-fade-in">
             <CheckCircle className="mx-auto text-green-400 mb-6" size={64} />
-            <h2 className="text-3xl font-bold text-white mb-4">Tack för ditt förtroende!</h2>
-            <p className="text-lg text-white/80 mb-6">Vi förbereder nu ett e-postmeddelande med dina svar.</p>
-            <p className="text-white/60">Klicka på "Skicka" i din e-postklient när den öppnas. Vi återkommer snarast!</p>
-            <button onClick={() => setFormView('splash')} className="mt-8 text-white hover:text-amber-400 underline font-bold">Gå tillbaka</button>
+            <h2 className="text-3xl font-bold text-white mb-4">{t.therapy_confirm_title}</h2>
+            <p className="text-lg text-white/80 mb-6">{t.therapy_confirm_desc}</p>
+            <p className="text-white/60">{t.therapy_confirm_note}</p>
+            <button onClick={() => setFormView('splash')} className="mt-8 text-white hover:text-amber-400 underline font-bold">{t.therapy_back}</button>
           </div>
         )}
       </div>

@@ -18,7 +18,7 @@ import { getEffectiveAvatar } from '../services/userUtils';
 
 interface ChatPageProps {
     user: Profile;
-    onlineUsers: Set<string>;
+    onlineUsers: Record<string, any>;
     initialThread?: string | null;
     onOpenSettings?: () => void;
     onLogout: () => void;
@@ -115,13 +115,13 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                 <div className="flex flex-col items-center gap-10 w-full">
                     {/* User Avatar with Pulse indicator */}
                     <div className="relative group cursor-pointer mb-4 overflow-hidden rounded-2.5rem p-0.5 bg-gradient-to-tr from-white/10 to-transparent">
-                        <div className={`w-14 h-14 rounded-2.5rem flex items-center justify-center text-xl font-black text-white shadow-2xl group-hover:scale-105 transition-transform duration-500 overflow-hidden ${getEffectiveAvatar(user.email, user.avatar_url)?.includes('icon-512') ? 'bg-slate-950 p-2' : 'bg-gradient-to-br from-orange-400 to-red-600'}`}>
+                        <div className={`w-14 h-14 rounded-2.5rem flex items-center justify-center text-xl font-black text-white shadow-2xl group-hover:scale-105 transition-transform duration-500 overflow-hidden ${getEffectiveAvatar(user.email || '', user.avatar_url || undefined)?.includes('icon-512') ? 'bg-slate-950 p-2' : 'bg-gradient-to-br from-orange-400 to-red-600'}`}>
                             {(() => {
-                                const avatar = getEffectiveAvatar(user.email, user.avatar_url);
+                                const avatar = getEffectiveAvatar(user.email || '', user.avatar_url || undefined);
                                 return avatar ? (
-                                    <img src={avatar} alt={user.full_name} className={`w-full h-full ${avatar.includes('icon-512') ? 'object-contain' : 'object-cover'}`} />
+                                    <img src={avatar} alt={user.full_name || 'Användare'} className={`w-full h-full ${avatar.includes('icon-512') ? 'object-contain' : 'object-cover'}`} />
                                 ) : (
-                                    user.full_name.charAt(0)
+                                    (user.full_name || 'A').charAt(0)
                                 );
                             })()}
                         </div>
@@ -300,24 +300,31 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                             </button>
                         </div>
                         <div className="space-y-2 overflow-y-auto no-scrollbar pb-24 md:pb-8">
-                            {/* Render Online Users from Global Presence */}
-                            {Array.from(globalOnlineUsers).map(userId => (
+                            {/* Render Online Users from Presence Metadata */}
+                            {Object.entries(globalOnlineUsers).map(([userId, info]) => (
                                 <div key={userId} className="flex items-center gap-4 p-4 rounded-[2rem] hover:bg-white/5 transition-all cursor-pointer group border border-transparent hover:border-white/5">
                                     <div className="relative">
-                                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-xl transition-transform group-hover:scale-105 duration-500`}>
-                                            <span className="font-bold">?</span>
+                                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl shadow-xl transition-transform group-hover:scale-105 duration-500 overflow-hidden ${getEffectiveAvatar(undefined, info.avatar_url)?.includes('icon-512') ? 'bg-slate-950 p-2' : 'bg-gradient-to-br from-indigo-500 to-purple-500 text-white'}`}>
+                                            {(() => {
+                                                const avatar = getEffectiveAvatar(undefined, info.avatar_url);
+                                                return avatar ? (
+                                                    <img src={avatar} alt={info.full_name || 'Medlem'} className={`w-full h-full ${avatar.includes('icon-512') ? 'object-contain' : 'object-cover'}`} />
+                                                ) : (
+                                                    <span className="font-bold">{(info.full_name || 'M')[0]}</span>
+                                                );
+                                            })()}
                                         </div>
                                         <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-4 border-slate-900 rounded-full shadow-lg"></div>
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-white group-hover:text-orange-400 transition-colors">Medlem</h4>
+                                        <h4 className="font-bold text-white group-hover:text-orange-400 transition-colors">{info.full_name || 'Medlem'}</h4>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Online</span>
+                                            <span className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Online nu</span>
                                         </div>
                                     </div>
                                 </div>
                             ))}
-                            {globalOnlineUsers.size === 0 && (
+                            {Object.keys(globalOnlineUsers).length === 0 && (
                                 <div className="text-center py-10 text-slate-500 italic">Laddar medlemmar...</div>
                             )}
                         </div>
@@ -383,7 +390,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                                 <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-2">Profil</h4>
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-400 to-red-600 flex items-center justify-center text-white font-bold">
-                                        {user.full_name.charAt(0)}
+                                        {(user.full_name || 'A').charAt(0)}
                                     </div>
                                     <div>
                                         <p className="font-bold text-white">{user.full_name}</p>
@@ -458,7 +465,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                                 </div>
                             </div>
                             <div className="flex items-center gap-2 md:gap-4 text-xs font-semibold text-slate-500">
-                                <span className="flex items-center gap-2 hover:text-white transition-colors cursor-pointer"><Users size={14} className="text-orange-500" /> <span className="hidden sm:inline">{globalOnlineUsers.size} medlemmar online</span><span className="sm:hidden">{globalOnlineUsers.size}</span></span>
+                                <span className="flex items-center gap-2 hover:text-white transition-colors cursor-pointer"><Users size={14} className="text-orange-500" /> <span className="hidden sm:inline">{Object.keys(globalOnlineUsers).length} medlemmar online</span><span className="sm:hidden">{Object.keys(globalOnlineUsers).length}</span></span>
                                 <span className="w-1.5 h-1.5 bg-slate-800 rounded-full"></span>
                                 <span className="italic opacity-80 font-medium line-clamp-1 max-w-[150px] md:max-w-none">"{currentRoom.description}"</span>
                             </div>

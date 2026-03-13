@@ -16,7 +16,7 @@ interface CommunityChatProps {
     threadId?: string;
     showHeader?: boolean;
     className?: string;
-    onlineUsers?: Set<string>;
+    onlineUsers?: Record<string, any>;
 }
 
 interface CommunityMessage extends ChatMessage {
@@ -310,7 +310,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                                     ) : (
                                         <div className="scale-125">{msg.persona?.avatar}</div>
                                     )}
-                                    <div className={`absolute -bottom-1 -right-1 w-4 h-4 border-4 border-slate-950 rounded-full ${isCurrentUser || (msg.user_id && onlineUsers?.has(msg.user_id)) ? 'bg-green-500' : 'bg-slate-500'}`}></div>
+                                    <div className={`absolute -bottom-1 -right-1 w-4 h-4 border-4 border-slate-950 rounded-full ${isCurrentUser || (msg.user_id && onlineUsers?.[msg.user_id]) ? 'bg-green-500' : 'bg-slate-500'}`}></div>
                                 </div>
                             ) : (
                                 <div className="w-12 shrink-0"></div>

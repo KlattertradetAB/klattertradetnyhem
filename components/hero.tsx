@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { GL } from "./gl";
 import { Pill } from "./pill";
 import { Button } from "./ui/button";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface HeroProps {
   onLoginClick: () => void;
@@ -10,6 +11,7 @@ interface HeroProps {
 }
 
 export function Hero({ onLoginClick, onContactClick }: HeroProps) {
+  const { t } = useLanguage();
   const [hovering, setHovering] = useState(false);
 
   return (
@@ -17,16 +19,15 @@ export function Hero({ onLoginClick, onContactClick }: HeroProps) {
       <GL hovering={hovering} />
 
       <div className="pb-16 mt-auto text-center relative z-10 px-4">
-        <Pill className="mb-6">EXKLUSIV TILLGÅNG</Pill>
+        <Pill className="mb-6">{t.hero_pill}</Pill>
 
         <h1 className="font-display text-4xl text-white text-balance mt-4 sm:text-8xl leading-[0.9] tracking-tighter">
-          Välkommen till <br />
-          <span className="text-[#b35c2a]">Horizonten</span> gemenskap
+          {t.hero_welcome} <br />
+          <span className="text-[#b35c2a]">Horizonten</span> {t.hero_community}
         </h1>
 
         <p className="font-sans text-sm sm:text-lg text-zinc-400 text-balance mt-8 max-w-[680px] mx-auto leading-relaxed">
-          Du som betalande medlem använder ditt vanliga inlogg på alternativet nedanför.
-          För er som inte är betalande medlemmar går det bra att höra av sig!
+          {t.hero_text}
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
@@ -36,7 +37,7 @@ export function Hero({ onLoginClick, onContactClick }: HeroProps) {
             onMouseEnter={() => setHovering(true)}
             onMouseLeave={() => setHovering(false)}
           >
-            Logga in
+            {t.hero_login}
             <span className="group-hover:translate-x-1 transition-transform">→</span>
           </button>
 
@@ -47,7 +48,7 @@ export function Hero({ onLoginClick, onContactClick }: HeroProps) {
             onMouseEnter={() => setHovering(true)}
             onMouseLeave={() => setHovering(false)}
           >
-            Kontakta oss
+            {t.hero_contact}
           </Button>
         </div>
       </div>

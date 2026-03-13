@@ -1,39 +1,45 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import Navigation from './components/Navigation';
 import BackgroundShapes from './components/BackgroundShapes';
 import CookieBanner from './components/CookieBanner';
-import Home from './pages/Home';
-import About from './pages/About';
-import Chat from './pages/Chat';
-import Therapy from './pages/Therapy';
-import GroupTherapy from './pages/GroupTherapy';
-import GestaltTraining from './pages/GestaltTraining';
-import BehandlingsPedagog from './pages/BehandlingsPedagog';
-import Blog from './pages/Blog';
-import Community from './pages/Community';
-import ContactUs from './pages/ContactUs';
-import Services from './pages/Services';
-import SelfCareApp from './self-care/App';
-import Downloads from './pages/Downloads';
-import LoginPage from './pages/Auth/LoginPage';
-import RegisterPage from './pages/Auth/RegisterPage';
-import ForgotPasswordPage from './pages/Auth/ForgotPasswordPage';
-import ResetPasswordPage from './pages/Auth/ResetPasswordPage';
-import BookPromotion from './pages/BookPromotion';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import CookiePolicy from './pages/CookiePolicy';
-import Terms from './pages/Terms';
-import GemenskapApp from './gemenskap/GemenskapApp';
-import PremiumApplication from './pages/PremiumApplication';
-import FreeRegistration from './pages/FreeRegistration';
+import Meta from './components/Meta';
+import Loader from './components/ui/Loader';
+
+// Lazy load page components
+const Home = lazy(() => import('./pages/Home'));
+const About = lazy(() => import('./pages/About'));
+const Chat = lazy(() => import('./pages/Chat'));
+const Therapy = lazy(() => import('./pages/Therapy'));
+const GroupTherapy = lazy(() => import('./pages/GroupTherapy'));
+const GestaltTraining = lazy(() => import('./pages/GestaltTraining'));
+const BehandlingsPedagog = lazy(() => import('./pages/BehandlingsPedagog'));
+const Blog = lazy(() => import('./pages/Blog'));
+const Community = lazy(() => import('./pages/Community'));
+const ContactUs = lazy(() => import('./pages/ContactUs'));
+const Services = lazy(() => import('./pages/Services'));
+const SelfCareApp = lazy(() => import('./self-care/App'));
+const Downloads = lazy(() => import('./pages/Downloads'));
+const LoginPage = lazy(() => import('./pages/Auth/LoginPage'));
+const RegisterPage = lazy(() => import('./pages/Auth/RegisterPage'));
+const ForgotPasswordPage = lazy(() => import('./pages/Auth/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('./pages/Auth/ResetPasswordPage'));
+const BookPromotion = lazy(() => import('./pages/BookPromotion'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const CookiePolicy = lazy(() => import('./pages/CookiePolicy'));
+const Terms = lazy(() => import('./pages/Terms'));
+const QualityMarking = lazy(() => import('./pages/QualityMarking'));
+const GemenskapApp = lazy(() => import('./gemenskap/GemenskapApp'));
+const PremiumApplication = lazy(() => import('./pages/PremiumApplication'));
+const FreeRegistration = lazy(() => import('./pages/FreeRegistration'));
+const GestaltApp = lazy(() => import('./gestalt-filosofi/App'));
 import { Page } from './types';
-import GestaltApp from './gestalt-filosofi/App';
 import { LanguageProvider as SelfCareLanguageProvider } from './self-care/contexts/LanguageContext';
 import { ThemeProvider as SelfCareThemeProvider } from './self-care/contexts/ThemeContext';
 import AdminDashboard from './self-care/components/AdminDashboard';
 import { supabase } from './gemenskap/services/supabase';
 import { AuthStatus } from './gemenskap/types';
+import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 export const PAGE_URLS: Record<Page, string> = {
   [Page.HOME]: '/',
   [Page.ABOUT]: '/om-oss',
@@ -53,6 +59,7 @@ export const PAGE_URLS: Record<Page, string> = {
   [Page.FORGOT_PASSWORD]: '/glomt-losenord',
   [Page.RESET_PASSWORD]: '/aterstall-losenord',
   [Page.GEMENSKAP_APP]: '/app',
+  [Page.QUALITY_MARKING]: '/kvalitetsmarkering',
   [Page.BOOK]: '/bok',
   [Page.CHECKOUT]: '/kassa',
   [Page.PRIVACY]: '/sekretesspolicy',
@@ -66,11 +73,13 @@ export const PAGE_URLS: Record<Page, string> = {
 };
 
 const App: React.FC = () => {
+  const { t } = useLanguage();
   const [currentPage, setCurrentPage] = useState<Page>(Page.HOME);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
   const [isCookieBannerVisible, setIsCookieBannerVisible] = useState(true);
   const [authStatus, setAuthStatus] = useState<AuthStatus>(AuthStatus.IDLE);
+  const [loginInitialType, setLoginInitialType] = useState<'member' | 'admin'>('member');
 
   useEffect(() => {
     // Check for standalone mode
@@ -182,6 +191,8 @@ const App: React.FC = () => {
 
   const handleSetPage = (page: Page, state?: any) => {
     if (page !== currentPage) {
+      if (state?.initialType) setLoginInitialType(state.initialType);
+      else setLoginInitialType('member');
       const url = PAGE_URLS[page] || '/';
       window.history.pushState({ page, ...state }, '', url);
       setCurrentPage(page);
@@ -190,16 +201,6 @@ const App: React.FC = () => {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
-
-    // Update document title dynamically
-    if (currentPage === Page.HOME) {
-      document.title = 'Klätterträdet';
-    } else if (currentPage === Page.GEMENSKAP_APP) {
-      document.title = 'Horizonten gemenskap – Våga vara den du är';
-    } else {
-      const pageTitle = currentPage.charAt(0) + currentPage.slice(1).toLowerCase().replace('_', ' ');
-      document.title = `${pageTitle} | Horizonten`;
-    }
   }, [currentPage]);
 
   const toggleTheme = () => {
@@ -208,105 +209,115 @@ const App: React.FC = () => {
 
 
   return (
-    <div className={`relative min-h-screen flex flex-col transition-all duration-700 ease-in-out ${isDarkMode ? 'bg-glossy-gradient-dark' : 'bg-glossy-gradient'}`}>
-      <BackgroundShapes />
-      <CookieBanner
-        setPage={handleSetPage}
-        isVisible={isCookieBannerVisible}
-        onClose={() => setIsCookieBannerVisible(false)}
-      />
-      {currentPage !== Page.GEMENSKAP_APP && !isStandalone && (
-        <Navigation
-          currentPage={currentPage}
+    <LanguageProvider>
+      <Meta currentPage={currentPage} />
+      <div className={`relative min-h-screen flex flex-col transition-all duration-700 ease-in-out ${isDarkMode ? 'bg-glossy-gradient-dark' : 'bg-glossy-gradient'}`}>
+        <BackgroundShapes />
+        <CookieBanner
           setPage={handleSetPage}
-          isDarkMode={isDarkMode}
-          toggleTheme={toggleTheme}
+          isVisible={isCookieBannerVisible}
+          onClose={() => setIsCookieBannerVisible(false)}
         />
-      )}
+        {currentPage !== Page.GEMENSKAP_APP && !isStandalone && (
+          <Navigation
+            currentPage={currentPage}
+            setPage={handleSetPage}
+            isDarkMode={isDarkMode}
+            toggleTheme={toggleTheme}
+          />
+        )}
 
-      <main className="flex-1 w-full flex flex-col">
-        {(() => {
-          switch (currentPage) {
-            case Page.HOME: return <Home setPage={handleSetPage} />;
-            case Page.ABOUT: return <About />;
-            case Page.CHAT: return <Chat />;
-            case Page.THERAPY: return <Therapy setPage={handleSetPage} />;
-            case Page.GROUP_THERAPY: return <GroupTherapy setPage={handleSetPage} />;
-            case Page.GESTALT_TRAINING: return <GestaltTraining setPage={handleSetPage} />;
-            case Page.BEHANDLINGS_PEDAGOG: return <BehandlingsPedagog setPage={handleSetPage} />;
-            case Page.BLOG: return <Blog setPage={handleSetPage} />;
-            case Page.COMMUNITY: return <Community setPage={handleSetPage} />;
-            case Page.CONTACT: return <ContactUs />;
-            case Page.SERVICES: return <Services setPage={handleSetPage} />;
-            case Page.SURVEY: return (
-              <SelfCareLanguageProvider>
-                <SelfCareThemeProvider>
-                  <SelfCareApp />
-                </SelfCareThemeProvider>
-              </SelfCareLanguageProvider>
-            );
-            case Page.DOWNLOADS: return <Downloads setPage={handleSetPage} />;
-            case Page.GESTALT_WORKSHEET: return <GestaltApp onBack={() => handleSetPage(Page.DOWNLOADS)} />;
-            case Page.LOGIN: return <LoginPage setPage={handleSetPage} />;
-            case Page.REGISTER: return <RegisterPage setPage={handleSetPage} />;
-            case Page.FORGOT_PASSWORD: return <ForgotPasswordPage setPage={handleSetPage} />;
-            case Page.RESET_PASSWORD: return <ResetPasswordPage setPage={handleSetPage} />;
-            case Page.BOOK: return <BookPromotion setPage={handleSetPage} />;
-            case Page.CHECKOUT: return (
-              <div className="container mx-auto px-6 py-24 text-center">
-                <h1 className="text-4xl font-bold text-white mb-4">Kassa</h1>
-                <p className="text-zinc-400">Betalningslösning kommer snart...</p>
-                <button onClick={() => handleSetPage(Page.BOOK)} className="mt-8 text-amber-500 font-bold underline">Tillbaka</button>
+        <main className="flex-1 w-full flex flex-col">
+          <Suspense fallback={
+            <div className="flex-1 flex items-center justify-center">
+              <Loader />
+            </div>
+          }>
+            {(() => {
+              switch (currentPage) {
+                case Page.HOME: return <Home setPage={handleSetPage} />;
+                case Page.ABOUT: return <About />;
+                case Page.CHAT: return <Chat />;
+                case Page.THERAPY: return <Therapy setPage={handleSetPage} />;
+                case Page.GROUP_THERAPY: return <GroupTherapy setPage={handleSetPage} />;
+                case Page.GESTALT_TRAINING: return <GestaltTraining setPage={handleSetPage} />;
+                case Page.BEHANDLINGS_PEDAGOG: return <BehandlingsPedagog setPage={handleSetPage} />;
+                case Page.BLOG: return <Blog setPage={handleSetPage} />;
+                case Page.COMMUNITY: return <Community setPage={handleSetPage} />;
+                case Page.CONTACT: return <ContactUs />;
+                case Page.SERVICES: return <Services setPage={handleSetPage} />;
+                case Page.SURVEY: return (
+                  <SelfCareLanguageProvider>
+                    <SelfCareThemeProvider>
+                      <SelfCareApp />
+                    </SelfCareThemeProvider>
+                  </SelfCareLanguageProvider>
+                );
+                case Page.DOWNLOADS: return <Downloads setPage={handleSetPage} />;
+                case Page.GESTALT_WORKSHEET: return <GestaltApp onBack={() => handleSetPage(Page.DOWNLOADS)} />;
+                case Page.LOGIN: return <LoginPage setPage={handleSetPage} initialType={loginInitialType} />;
+                case Page.REGISTER: return <RegisterPage setPage={handleSetPage} />;
+                case Page.FORGOT_PASSWORD: return <ForgotPasswordPage setPage={handleSetPage} />;
+                case Page.RESET_PASSWORD: return <ResetPasswordPage setPage={handleSetPage} />;
+                case Page.BOOK: return <BookPromotion setPage={handleSetPage} />;
+                case Page.CHECKOUT: return (
+                  <div className="container mx-auto px-6 py-24 text-center">
+                    <h1 className="text-4xl font-bold text-white mb-4">{t.checkout_title}</h1>
+                    <p className="text-zinc-400">{t.checkout_soon}</p>
+                    <button onClick={() => handleSetPage(Page.BOOK)} className="mt-8 text-amber-500 font-bold underline">{t.back_btn}</button>
+                  </div>
+                );
+                case Page.PRIVACY: return <PrivacyPolicy setPage={handleSetPage} />;
+                case Page.COOKIE_POLICY: return (
+                  <CookiePolicy
+                    setPage={handleSetPage}
+                    onOpenSettings={() => setIsCookieBannerVisible(true)}
+                  />
+                );
+                case Page.TERMS: return <Terms setPage={handleSetPage} />;
+                case Page.PREMIUM_APPLICATION: return <PremiumApplication setPage={handleSetPage} />;
+                case Page.FREE_REGISTRATION: return <FreeRegistration setPage={handleSetPage} />;
+                case Page.QUALITY_MARKING: return <QualityMarking setPage={handleSetPage} />;
+                case Page.ADMIN_SURVEY_STATS: return <AdminDashboard />;
+                case Page.ADMIN_PANEL: return <GemenskapApp onBackToSite={(targetPage?: Page, state?: any) => handleSetPage(targetPage || Page.HOME, state)} initialTab="admin" />;
+                case Page.GEMENSKAP_APP: return <GemenskapApp onBackToSite={(targetPage?: Page, state?: any) => handleSetPage(targetPage || Page.HOME, state)} />;
+                default: return <Home setPage={handleSetPage} />;
+              }
+            })()}
+          </Suspense>
+        </main>
+
+        {currentPage !== Page.GEMENSKAP_APP && !isStandalone && (
+          <footer className="py-12 mt-auto border-t border-white/10">
+            <div className="max-w-[1600px] mx-auto px-6 flex flex-col items-center gap-6">
+              <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 text-[10px] md:text-xs font-bold text-white/30 tracking-widest uppercase">
+                <button
+                  onClick={() => handleSetPage(Page.COOKIE_POLICY)}
+                  className="hover:text-amber-500 transition-colors whitespace-nowrap"
+                >
+                  {t.footer_cookies}
+                </button>
+                <button
+                  onClick={() => handleSetPage(Page.TERMS)}
+                  className="hover:text-amber-500 transition-colors whitespace-nowrap"
+                >
+                  {t.footer_terms}
+                </button>
+                <button
+                  onClick={() => handleSetPage(Page.PRIVACY)}
+                  className="hover:text-amber-500 transition-colors whitespace-nowrap"
+                >
+                  {t.footer_privacy}
+                </button>
               </div>
-            );
-            case Page.PRIVACY: return <PrivacyPolicy setPage={handleSetPage} />;
-            case Page.COOKIE_POLICY: return (
-              <CookiePolicy
-                setPage={handleSetPage}
-                onOpenSettings={() => setIsCookieBannerVisible(true)}
-              />
-            );
-            case Page.TERMS: return <Terms setPage={handleSetPage} />;
-            case Page.PREMIUM_APPLICATION: return <PremiumApplication setPage={handleSetPage} />;
-            case Page.FREE_REGISTRATION: return <FreeRegistration setPage={handleSetPage} />;
-            case Page.ADMIN_SURVEY_STATS: return <AdminDashboard />;
-            case Page.ADMIN_PANEL: return <GemenskapApp onBackToSite={(targetPage?: Page) => handleSetPage(targetPage || Page.HOME)} initialTab="admin" />;
-            case Page.GEMENSKAP_APP: return <GemenskapApp onBackToSite={(targetPage?: Page) => handleSetPage(targetPage || Page.HOME)} />;
-            default: return <Home setPage={handleSetPage} />;
-          }
-        })()}
-      </main>
-
-      {currentPage !== Page.GEMENSKAP_APP && !isStandalone && (
-        <footer className="py-12 mt-auto border-t border-white/10">
-          <div className="max-w-[1600px] mx-auto px-6 flex flex-col items-center gap-6">
-            <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 text-[10px] md:text-xs font-bold text-white/30 tracking-widest uppercase">
-              <button
-                onClick={() => handleSetPage(Page.COOKIE_POLICY)}
-                className="hover:text-amber-500 transition-colors whitespace-nowrap"
-              >
-                Cookies
-              </button>
-              <button
-                onClick={() => handleSetPage(Page.TERMS)}
-                className="hover:text-amber-500 transition-colors whitespace-nowrap"
-              >
-                Medlemsvillkor
-              </button>
-              <button
-                onClick={() => handleSetPage(Page.PRIVACY)}
-                className="hover:text-amber-500 transition-colors whitespace-nowrap"
-              >
-                Integritet & Sekretess
-              </button>
+              <div className="text-white/50 text-[10px] md:text-xs tracking-tight">
+                <p>&copy; {new Date().getFullYear()} Klätterträdet & Horizonten.</p>
+              </div>
             </div>
-            <div className="text-white/50 text-[10px] md:text-xs tracking-tight">
-              <p>&copy; 2025 Klätterträdet & Horizonten.</p>
-            </div>
-          </div>
-        </footer>
-      )}
-    </div>
+          </footer>
+        )}
+      </div>
+    </LanguageProvider>
   );
 };
 

@@ -1,5 +1,5 @@
 export interface Order {
-  id: number;
+  id: string;
   customer_name: string;
   email: string;
   book_title: string;
@@ -9,7 +9,7 @@ export interface Order {
 }
 
 export interface Booking {
-  id: number;
+  id: string;
   client_name: string;
   email: string;
   service_type: string;
@@ -20,12 +20,12 @@ export interface Booking {
 }
 
 export interface Message {
-  id: number;
+  id: string;
   sender_name: string;
   email: string;
   subject: string;
   message: string;
-  is_read: number;
+  is_read: boolean;
   created_at: string;
 }
 

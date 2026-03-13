@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../gemenskap/services/supabase';
 import { Page } from '../types';
 import { ShieldCheck, Settings, X, ChevronDown, ChevronUp, Lock, Eye } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface CookieBannerProps {
     setPage: (page: Page) => void;
@@ -10,6 +11,7 @@ interface CookieBannerProps {
 }
 
 const CookieBanner: React.FC<CookieBannerProps> = ({ setPage, isVisible, onClose }) => {
+    const { t } = useLanguage();
     const [showSettings, setShowSettings] = useState(false);
 
     const handleAcceptAll = async () => {
@@ -53,14 +55,13 @@ const CookieBanner: React.FC<CookieBannerProps> = ({ setPage, isVisible, onClose
                             <div className="flex items-center gap-3 text-orange-400">
                                 <ShieldCheck size={24} className="animate-pulse" />
                                 <h2 className="text-lg md:text-xl font-bold text-white tracking-tight">
-                                    Vi värnar om din integritet
+                                    {t.banner_title}
                                 </h2>
                             </div>
 
                             <div className="space-y-2 text-slate-300 text-xs md:text-sm leading-relaxed font-light max-w-2xl">
                                 <p>
-                                    Vi använder cookies för att ge dig en så trygg och fungerande upplevelse som möjligt.
-                                    Vissa krävs för grundfunktionen, medan andra hjälper oss att förbättra våra verktyg för dig.
+                                    {t.banner_text}
                                 </p>
                             </div>
 
@@ -69,13 +70,13 @@ const CookieBanner: React.FC<CookieBannerProps> = ({ setPage, isVisible, onClose
                                     onClick={() => setPage(Page.COOKIE_POLICY)}
                                     className="text-xs font-bold text-slate-400 hover:text-orange-400 underline transition-colors uppercase tracking-widest"
                                 >
-                                    Läs vår policy
+                                    {t.banner_policy_link}
                                 </button>
                                 <button
                                     onClick={() => setShowSettings(!showSettings)}
                                     className="flex items-center gap-1 text-xs font-bold text-slate-400 hover:text-orange-400 underline transition-colors uppercase tracking-widest"
                                 >
-                                    {showSettings ? <ChevronUp size={14} /> : <ChevronDown size={14} />} {showSettings ? 'Dölj inställningar' : 'Inställningar'}
+                                    {showSettings ? <ChevronUp size={14} /> : <ChevronDown size={14} />} {showSettings ? t.banner_settings_hide : t.banner_settings_show}
                                 </button>
                             </div>
                         </div>
@@ -86,13 +87,13 @@ const CookieBanner: React.FC<CookieBannerProps> = ({ setPage, isVisible, onClose
                                 onClick={handleAcceptAll}
                                 className="px-6 py-3 bg-orange-500 hover:bg-orange-400 text-slate-950 rounded-xl font-black transition-all hover:scale-105 shadow-xl shadow-orange-500/20 text-xs md:text-sm"
                             >
-                                Godkänn alla
+                                {t.banner_accept_all}
                             </button>
                             <button
                                 onClick={handleAcceptNecessary}
                                 className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl font-bold transition-all text-xs md:text-sm"
                             >
-                                Endast nödvändiga
+                                {t.banner_accept_necessary}
                             </button>
                         </div>
                     </div>
@@ -103,26 +104,26 @@ const CookieBanner: React.FC<CookieBannerProps> = ({ setPage, isVisible, onClose
                             <div className="glass bg-white/5 p-6 rounded-2xl border border-white/5 space-y-3">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2 text-white font-bold">
-                                        <Lock size={16} className="text-blue-400" /> Nödvändiga
+                                        <Lock size={16} className="text-blue-400" /> {t.banner_settings_necessary_title}
                                     </div>
-                                    <span className="text-[10px] uppercase tracking-widest text-slate-500 font-black">Alltid aktiva</span>
+                                    <span className="text-[10px] uppercase tracking-widest text-slate-500 font-black">{t.banner_settings_necessary_status}</span>
                                 </div>
                                 <p className="text-xs text-slate-400 leading-relaxed font-light">
-                                    Dessa är sidans "autonoma nervsystem". Krävs för grundläggande funktioner som säkerhet och sessioner.
+                                    {t.banner_settings_necessary_desc}
                                 </p>
                             </div>
 
                             <div className="glass bg-white/5 p-6 rounded-2xl border border-white/5 space-y-3 opacity-60">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2 text-white font-bold">
-                                        <Eye size={16} className="text-orange-400" /> Analys & Statistik
+                                        <Eye size={16} className="text-orange-400" /> {t.banner_settings_analytics_title}
                                     </div>
                                     <div className="w-10 h-5 bg-slate-800 rounded-full relative">
                                         <div className="absolute right-1 top-1 bottom-1 w-3 bg-slate-600 rounded-full"></div>
                                     </div>
                                 </div>
                                 <p className="text-xs text-slate-400 leading-relaxed font-light">
-                                    Hjälper oss att förstå hur sidan används så vi kan förbättra upplevelsen. (Privacy by default: inaktiverat tills du godkänner).
+                                    {t.banner_settings_analytics_desc}
                                 </p>
                             </div>
                         </div>
@@ -132,7 +133,7 @@ const CookieBanner: React.FC<CookieBannerProps> = ({ setPage, isVisible, onClose
                 <button
                     onClick={onClose}
                     className="absolute top-6 right-6 text-slate-500 hover:text-white transition-colors"
-                    aria-label="Stäng"
+                    aria-label={t.banner_close_label}
                 >
                     <X size={20} />
                 </button>

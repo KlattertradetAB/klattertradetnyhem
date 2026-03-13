@@ -7,16 +7,18 @@ import { Heading } from '@/components/heading'
 import { Input } from '@/components/input'
 import { Strong, Text, TextLink } from '@/components/text'
 import { Logo } from '@/components/logo'
+import NewsletterSignup from '@/components/NewsletterSignup'
 import { supabase } from '@/gemenskap/services/supabase'
 import { Page } from '@/types'
 import { Mail, Lock, ShieldCheck, AlertCircle } from 'lucide-react'
 
 interface LoginPageProps {
     setPage: (page: Page) => void
+    initialType?: 'member' | 'admin'
 }
 
-export default function LoginPage({ setPage }: LoginPageProps) {
-    const [loginType, setLoginType] = useState<'member' | 'admin'>('member')
+export default function LoginPage({ setPage, initialType = 'member' }: LoginPageProps) {
+    const [loginType, setLoginType] = useState<'member' | 'admin'>(initialType)
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
@@ -67,84 +69,101 @@ export default function LoginPage({ setPage }: LoginPageProps) {
     }
 
     return (
-        <AuthLayout>
-            <form onSubmit={handleLogin} className="grid w-full grid-cols-1 gap-8">
-                <div className="flex justify-center mb-2">
-                    <img
-                        src="/assets/logo2.png"
-                        alt="Horizonten"
-                        className="h-20 w-auto object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]"
-                    />
-                </div>
+        <>
+            <AuthLayout>
+                <form onSubmit={handleLogin} className="grid w-full grid-cols-1 gap-8">
+                    <div className="flex justify-center mb-2">
+                        <img
+                            src="/assets/logo2.png"
+                            alt="Horizonten"
+                            className="h-20 w-auto object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+                        />
+                    </div>
 
-                <div className="flex p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl">
-                    <button
-                        type="button"
-                        onClick={() => setLoginType('member')}
-                        className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${loginType === 'member' ? 'bg-white dark:bg-zinc-700 shadow-sm text-zinc-950 dark:text-white' : 'text-zinc-500'}`}
-                    >
-                        Medlem
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => setLoginType('admin')}
-                        className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${loginType === 'admin' ? 'bg-orange-500 text-white shadow-sm' : 'text-zinc-500'}`}
-                    >
-                        Styrelse / Admin
-                    </button>
-                </div>
+                    <div className="flex p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl">
+                        <button
+                            type="button"
+                            onClick={() => setLoginType('member')}
+                            className={`flex-1 py-3 text-xs font-bold rounded-lg transition-all ${loginType === 'member' ? 'bg-white dark:bg-zinc-700 shadow-sm text-zinc-950 dark:text-white' : 'text-zinc-500'}`}
+                        >
+                            Horizonten community login
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setLoginType('admin')}
+                            className={`flex-1 py-3 text-xs font-bold rounded-lg transition-all ${loginType === 'admin' ? 'bg-orange-500 text-white shadow-sm' : 'text-zinc-500'}`}
+                        >
+                            Horizonten styrelse
+                        </button>
+                    </div>
 
-                <Heading>{loginType === 'admin' ? 'Admin Inloggning' : 'Logga in på Gemenskapen'}</Heading>
+                    <Heading>{loginType === 'admin' ? 'Admin Inloggning' : 'Logga in på Gemenskapen'}</Heading>
 
-                {error && (
-                    <Text className="text-red-600 dark:text-red-400 font-medium">
-                        {error}
-                    </Text>
-                )}
+                    {error && (
+                        <Text className="text-red-600 dark:text-red-400 font-medium">
+                            {error}
+                        </Text>
+                    )}
 
-                <Field>
-                    <Label>Email</Label>
-                    <Input
-                        type="email"
-                        name="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                </Field>
-                <Field>
-                    <Label>Lösenord</Label>
-                    <Input
-                        type="password"
-                        name="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                </Field>
-                <div className="flex items-center justify-between">
-                    <CheckboxField>
-                        <Checkbox name="remember" />
-                        <Label>Kom ihåg mig</Label>
-                    </CheckboxField>
+                    <Field>
+                        <Label>Email</Label>
+                        <Input
+                            type="email"
+                            name="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </Field>
+                    <Field>
+                        <Label>Lösenord</Label>
+                        <Input
+                            type="password"
+                            name="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </Field>
+                    <div className="flex items-center justify-between">
+                        <CheckboxField>
+                            <Checkbox name="remember" />
+                            <Label>Kom ihåg mig</Label>
+                        </CheckboxField>
+                        <Text>
+                            <button type="button" onClick={() => setPage(Page.FORGOT_PASSWORD)}>
+                                <Strong>Glömt lösenord?</Strong>
+                            </button>
+                        </Text>
+                    </div>
+                    <div className="space-y-4">
+                        <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-slate-950 font-black py-4 rounded-2xl shadow-lg shadow-orange-500/20" disabled={loading}>
+                            {loading ? 'Loggar in...' : 'Logga in'}
+                        </Button>
+                    </div>
                     <Text>
-                        <button type="button" onClick={() => setPage(Page.FORGOT_PASSWORD)}>
-                            <Strong>Glömt lösenord?</Strong>
+                        Har du inget konto?{' '}
+                        <button type="button" onClick={() => setPage(Page.REGISTER)}>
+                            <Strong>Skapa konto</Strong>
                         </button>
                     </Text>
+                </form>
+
+                {/* Community Stats Card */}
+                <div className="stats-outer animate-fade-in" style={{ animationDelay: '0.4s' }}>
+                    <div className="stats-dot"></div>
+                    <div className="stats-card">
+                        <div className="stats-ray"></div>
+                        <div className="stats-topl stats-line"></div>
+                        <div className="stats-leftl stats-line"></div>
+                        <div className="stats-bottoml stats-line"></div>
+                        <div className="stats-rightl stats-line"></div>
+                        <div className="stats-text">850+</div>
+                        <div className="stats-subtext">Medlemmar i communityt</div>
+                    </div>
                 </div>
-                <div className="space-y-4">
-                    <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-slate-950 font-black py-4 rounded-2xl shadow-lg shadow-orange-500/20" disabled={loading}>
-                        {loading ? 'Loggar in...' : 'Logga in'}
-                    </Button>
-                </div>
-                <Text>
-                    Har du inget konto?{' '}
-                    <button type="button" onClick={() => setPage(Page.REGISTER)}>
-                        <Strong>Skapa konto</Strong>
-                    </button>
-                </Text>
-            </form>
-        </AuthLayout>
+            </AuthLayout>
+            <NewsletterSignup />
+        </>
     )
 }

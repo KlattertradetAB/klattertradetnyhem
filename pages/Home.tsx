@@ -6,8 +6,10 @@ import Newsletter from '../components/Newsletter';
 import PDFViewer from '../components/PDFViewer';
 import TiltedImage from '../components/TiltedImage';
 import Experts from '../gemenskap/components/Experts';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const SWUpdateIndicator: React.FC = () => {
+  const { t } = useLanguage();
   const [updateAvailable, setUpdateAvailable] = useState(false);
 
   useEffect(() => {
@@ -39,7 +41,7 @@ const SWUpdateIndicator: React.FC = () => {
         <div className="w-2.5 h-2.5 bg-orange-500 rounded-full relative"></div>
       </div>
       <span className="text-[10px] font-black text-orange-500 uppercase tracking-widest">
-        Uppdatering tillgänglig – Klicka för att hämta
+        {t.home_update_available}
       </span>
     </div>
   );
@@ -50,19 +52,20 @@ interface HomeProps {
 }
 
 const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
+  const { t } = useLanguage();
   const [isPdfOpen, setIsPdfOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
 
   const slides = [
     {
-      title: "Ett grundläggande attributionsfel",
-      description: "Varför dömer vi andra hårdare än oss själva? En genomgång av hur våra hjärnor snedvrider verkligheten i sociala relationer.",
+      title: t.home_carousel_title1,
+      description: t.home_carousel_desc1,
       pdfUrl: "/Attributionsfel-narcissism.pdf"
     },
     {
-      title: "Polarisering och personlighetsstörningar",
-      description: "En djupanalys av hur dömande och polarisering påverkar våra relationer och vår självbild i ett kliniskt sammanhang.",
+      title: t.home_carousel_title2,
+      description: t.home_carousel_desc2,
       pdfUrl: "/Polarisering-av-personlighetsstörningar .pdf"
     }
   ];
@@ -112,7 +115,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
               </span>
             </h1>
             <p className="text-base md:text-lg text-white/90 leading-relaxed max-w-md mx-auto md:mx-0 font-light">
-              Specialistutbildning, terapi och handledning med fokus på traumamedvetenhet och personlig mognad. Välkommen till vår gemenskap.
+              {t.home_hero_subtitle}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pt-2 w-full sm:w-auto">
               <a
@@ -120,14 +123,14 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
                 onClick={(e) => { e.preventDefault(); setPage(Page.CHAT); }}
                 className="w-full sm:w-auto px-6 md:px-8 py-3 md:py-3.5 bg-white text-slate-900 hover:bg-white/90 rounded-xl font-bold transition-all hover:scale-105 flex items-center justify-center gap-2 shadow-xl shadow-white/10"
               >
-                Våra Utbildningar <ArrowRight size={18} />
+                {t.home_hero_cta_utbildning} <ArrowRight size={18} />
               </a>
               <a
                 href={PAGE_URLS[Page.CONTACT]}
                 onClick={(e) => { e.preventDefault(); setPage(Page.CONTACT); }}
                 className="w-full sm:w-auto px-6 md:px-8 py-3 md:py-3.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-bold transition-all hover:scale-105 flex items-center justify-center gap-2"
               >
-                Boka tid <Calendar size={18} />
+                {t.home_hero_cta_boka} <Calendar size={18} />
               </a>
             </div>
           </div>
@@ -151,7 +154,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
         <div className="flex justify-between items-center px-2">
           <h2 className="text-xl md:text-2xl font-black text-white italic tracking-tight flex items-center gap-2">
             <Star className="text-orange-500" size={20} />
-            Nytt från oss
+            {t.home_weekly}
           </h2>
           {/* Service Worker Update Indicator */}
           <SWUpdateIndicator />
@@ -185,7 +188,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
 
             <div className="relative z-10">
               <span className="text-[10px] bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full font-black uppercase tracking-[0.2em] mb-2 inline-block">
-                Veckans Djupdykning
+                {t.home_weekly_label}
               </span>
               <h4 className="text-xl md:text-2xl font-black text-white mb-1 group-hover:text-orange-400 transition-colors tracking-tight">
                 {slides[currentSlide].title}
@@ -198,7 +201,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
                 onClick={(e) => { e.stopPropagation(); e.preventDefault(); setPage(Page.BLOG); }}
                 className="flex items-center gap-2 text-orange-400 text-[10px] md:text-xs font-black group-hover:gap-3 transition-all hover:text-white"
               >
-                Läs de nya blogginläggen <ChevronRight size={16} />
+                {t.home_blog_read_more} <ChevronRight size={16} />
               </a>
             </div>
           </div>
@@ -229,17 +232,16 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
           />
         </div>
         <div className="md:w-3/4 space-y-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-white leading-tight">Vår nya bok: Myndighetsinducerat trauma, från subjekt till objekt</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-white leading-tight">{t.home_book_title}</h2>
           <p className="text-zinc-400 text-sm md:text-base leading-relaxed">
-            En unik djupdykning i systemets påverkan på individen och vägen mot läkning.
-            Innehåller praktiska verktyg och fallstudier för både drabbade och professionella.
+            {t.home_book_desc}
           </p>
           <a
             href={PAGE_URLS[Page.BOOK]}
             onClick={(e) => { e.preventDefault(); setPage(Page.BOOK); }}
             className="flex items-center gap-2 text-amber-500 font-bold hover:underline transition-all group-hover:translate-x-2 text-sm md:text-base"
           >
-            Läs mer om boken <ArrowRight size={20} />
+            {t.home_book_link} <ArrowRight size={20} />
           </a>
         </div>
       </div>
@@ -247,18 +249,18 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
       <div className="w-full glass bg-gradient-to-r from-amber-500/20 to-orange-600/20 border border-white/10 rounded-[2.5rem] p-6 md:p-10 relative overflow-hidden group min-h-[320px] flex items-center justify-center">
         <div className="relative z-10 max-w-2xl text-center space-y-4">
           <div className="inline-block px-3 py-1 bg-amber-500/20 rounded-full border border-amber-500/30 text-amber-500 text-[10px] font-black uppercase tracking-widest">
-            Aktuell Specialistutbildning
+            {t.home_mit_label}
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight">Myndighetsinducerat Trauma (MiT)</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight">{t.home_mit_title}</h2>
           <p className="text-sm md:text-base text-amber-100/80 leading-relaxed">
-            Vår nya specialistutbildning ger dig verktygen att förstå, bemöta och stötta klienter som farit illa av systemet och myndighetsutövning.
+            {t.home_mit_desc}
           </p>
           <a
             href={PAGE_URLS[Page.CHAT]}
             onClick={(e) => { e.preventDefault(); setPage(Page.CHAT); }}
             className="flex items-center justify-center gap-2 px-6 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl font-black transition-all hover:scale-105 shadow-2xl shadow-amber-500/20 text-sm md:text-base"
           >
-            Läs mer om MiT <ArrowRight size={20} />
+            {t.home_mit_link} <ArrowRight size={20} />
           </a>
         </div>
       </div>
@@ -266,9 +268,9 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
       {/* Philosophy Section */}
       <div className="grid md:grid-cols-3 gap-4 md:gap-6">
         {[
-          { src: "/hemsida-bild2.jpeg", title: "Empati", text: "Vi möter dig där du är, utan dömande, med fokus på din unika livssituation.", rot: "-2deg" },
-          { src: "/hemsida-bild3.jpeg", title: "Trygghet", text: "En trygg bas är förutsättningen för all form av läkning och utveckling.", rot: "1deg" },
-          { src: "/hemsida-bild4.jpeg", title: "Insikt", text: "Genom 'Här, Nu och Hur' skapar vi medvetenhet som leder till verklig förändring.", rot: "-1deg" }
+          { src: "/hemsida-bild2.jpeg", title: t.home_philosophy_empati, text: t.home_philosophy_empati_desc, rot: "-2deg" },
+          { src: "/hemsida-bild3.jpeg", title: t.home_philosophy_trygghet, text: t.home_philosophy_trygghet_desc, rot: "1deg" },
+          { src: "/hemsida-bild4.jpeg", title: t.home_philosophy_insikt, text: t.home_philosophy_insikt_desc, rot: "-1deg" }
         ].map((item, i) => (
           <div key={i} className="glass bg-white/5 border border-white/10 p-5 md:p-6 rounded-3xl hover:bg-white/10 transition-colors group flex flex-col items-center text-center">
             <TiltedImage
@@ -286,8 +288,8 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
       {/* Tjänster Section */}
       <div className="space-y-6 md:space-y-8">
         <div className="text-center space-y-1">
-          <h2 className="text-2xl md:text-3xl font-bold text-white">Våra Tjänster</h2>
-          <p className="text-zinc-400 text-xs md:text-sm max-w-2xl mx-auto">Vi erbjuder ett brett spektrum av tjänster för både individer och professionella.</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-white">{t.home_tjanster_title}</h2>
+          <p className="text-zinc-400 text-xs md:text-sm max-w-2xl mx-auto">{t.home_tjanster_subtitle}</p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -300,10 +302,9 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
                 defaultRotation="-2deg"
                 grayscale={false}
               />
-              <h3 className="text-xl md:text-2xl font-bold text-white">Enskild Terapi</h3>
+              <h3 className="text-xl md:text-2xl font-bold text-white">{t.home_enskild_terapi}</h3>
               <p className="text-zinc-400 text-xs md:text-sm leading-relaxed">
-                Gestaltterapeutisk grund med fokus på att lösa upp knutar som står i vägen för det liv du vill leva.
-                Vi jobbar med stress, ångest, sorg och PTSD.
+                {t.home_enskild_terapi_desc}
               </p>
             </div>
             <a
@@ -311,7 +312,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
               onClick={(e) => { e.preventDefault(); setPage(Page.THERAPY); }}
               className="mt-4 md:mt-6 flex items-center gap-2 text-white font-bold hover:text-red-400 transition-colors text-xs md:text-sm"
             >
-              Läs mer om terapi <ArrowRight size={18} />
+              {t.home_therapy_read_more} <ArrowRight size={18} />
             </a>
           </div>
 
@@ -324,9 +325,9 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
                 defaultRotation="2deg"
                 grayscale={false}
               />
-              <h3 className="text-xl md:text-2xl font-bold text-white">Grupp- & Parterapi</h3>
+              <h3 className="text-xl md:text-2xl font-bold text-white">{t.home_grupp_terapi}</h3>
               <p className="text-zinc-400 text-xs md:text-sm leading-relaxed">
-                Läkning genom relation och gemenskap. Vi erbjuder specialiserad terapi för grupper och par.
+                {t.home_grupp_terapi_desc}
               </p>
             </div>
             <a
@@ -334,7 +335,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
               onClick={(e) => { e.preventDefault(); setPage(Page.GROUP_THERAPY); }}
               className="mt-4 md:mt-6 flex items-center gap-2 text-white font-bold hover:text-indigo-400 transition-colors text-xs md:text-sm"
             >
-              Läs mer om parterapi <ArrowRight size={18} />
+              {t.home_grupp_terapi_link} <ArrowRight size={18} />
             </a>
           </div>
 
@@ -346,9 +347,9 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
                 className="w-full h-56"
                 defaultRotation="-1deg"
               />
-              <h3 className="text-xl md:text-2xl font-bold text-white">Behandlingspedagog</h3>
+              <h3 className="text-xl md:text-2xl font-bold text-white">{t.home_behandlingspedagog}</h3>
               <p className="text-zinc-400 text-xs md:text-sm leading-relaxed">
-                Vår yrkesutbildning för dig som vill arbeta professionellt med människor i förändring. 8 block av praktisk och teoretisk kunskap.
+                {t.home_behandlingspedagog_desc}
               </p>
             </div>
             <a
@@ -356,7 +357,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
               onClick={(e) => { e.preventDefault(); setPage(Page.BEHANDLINGS_PEDAGOG); }}
               className="mt-4 md:mt-6 flex items-center gap-2 text-white font-bold hover:text-amber-400 transition-colors text-xs md:text-sm"
             >
-              Läs mer om behandlingspedagog <ArrowRight size={18} />
+              {t.home_behandlingspedagog_link} <ArrowRight size={18} />
             </a>
           </div>
         </div>
@@ -369,28 +370,25 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
       <div className="space-y-16 md:space-y-24 py-12">
         <div className="text-center space-y-6 mx-auto">
           <h2 className="text-4xl md:text-6xl font-black text-white italic tracking-tight leading-[1.1]">
-            Horizonten Gemenskap – <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-200 to-white">
-              Din digitala flock
-            </span>
+            {t.home_gemenskap_title}
           </h2>
           <p className="text-xl md:text-2xl text-amber-500/90 font-bold italic tracking-wide">
-            Ingen läker i vakuum. Vi behöver varandra.
+            {t.home_gemenskap_subtitle}
           </p>
           <div className="h-1 w-24 bg-gradient-to-r from-orange-500 to-transparent mx-auto rounded-full"></div>
           <p className="text-zinc-400 text-lg md:text-xl leading-relaxed font-light">
-            På Klätterträdet vet vi att psykisk hälsa inte bara handlar om vad som sker under en timme i terapistolen. Det handlar om vad som händer däremellan. Det handlar om vardagen. Därför har vi, tillsammans med våra partners Socialkraft och Twisted-stacks, skapat Horizonten Gemenskap.
+            {t.home_gemenskap_desc}
           </p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-12 items-center mx-auto">
           <div className="space-y-6">
             <div className="inline-block px-4 py-1.5 bg-orange-500/10 rounded-full border border-orange-500/20 text-orange-500 text-xs font-black uppercase tracking-widest">
-              Mer än bara en app
+              {t.home_gemenskap_mer_an}
             </div>
-            <h3 className="text-3xl font-black text-white italic">En omsorgsfullt designad plattform</h3>
+            <h3 className="text-3xl font-black text-white italic">{t.home_gemenskap_platform}</h3>
             <p className="text-zinc-400 text-lg leading-relaxed font-light">
-              Detta är inte sociala medier som stjäl din energi. Det är en omsorgsfullt designad plattform för återhämtning, igenkänning och växtkraft. Vi har flyttat in vår filosofi om Self-care, Bottom-up och trygghet i en digital miljö som du alltid har med dig i fickan.
+              {t.home_gemenskap_platform_desc}
             </p>
           </div>
           <div className="relative group flex justify-center">
@@ -408,14 +406,14 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
 
         <div className="space-y-12">
           <div className="text-center space-y-2">
-            <h3 className="text-3xl font-black text-white italic tracking-tight">Vad hittar du här?</h3>
-            <p className="text-zinc-500">Mångsidigt stöd för din personliga resa.</p>
+            <h3 className="text-3xl font-black text-white italic tracking-tight">{t.home_find_here_title}</h3>
+            <p className="text-zinc-500">{t.home_find_here_sub}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mx-auto">
             {[
-              { title: "Gratis Stöd", text: "En plats där du kan dela erfarenheter med andra som förstår. Att spegla sig i andra minskar skam och bryter isolering.", icon: <Users className="text-orange-500" size={32} /> },
-              { title: "Verktyg", text: "Tillgång till material, övningar och mallar som stöttar din process.", icon: <Sparkles className="text-amber-400" size={32} /> },
-              { title: "Möjligheter", text: "Som medlem kan du delta i (eller själv hålla i) digitala självhjälpsmöten via våra videorum.", icon: <Calendar className="text-white" size={32} /> }
+              { title: t.home_feature_gemenskap, text: t.home_feature_gemenskap_desc, icon: <Users className="text-orange-500" size={32} /> },
+              { title: t.home_feature_verktyg, text: t.home_feature_verktyg_desc, icon: <Sparkles className="text-amber-400" size={32} /> },
+              { title: t.home_feature_mojligheter, text: t.home_feature_mojligheter_desc, icon: <Calendar className="text-white" size={32} /> }
             ].map((item, i) => (
               <div key={i} className="glass bg-white/5 border border-white/10 p-8 rounded-3xl hover:bg-white/10 transition-all group hover:-translate-y-2">
                 <div className="mb-6 p-4 bg-white/5 rounded-2xl w-fit group-hover:scale-110 transition-transform">
@@ -432,15 +430,15 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
           <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-orange-500/5 rounded-full blur-3xl group-hover:bg-orange-500/10 transition-colors"></div>
           <div className="relative z-10 space-y-12 text-center">
             <div className="space-y-4">
-              <h3 className="text-3xl font-black text-white italic tracking-tight">Ett unikt samarbete</h3>
-              <p className="text-zinc-400 text-lg font-light">Horizonten är resultatet av tre krafter som förenas för din skull:</p>
+              <h3 className="text-3xl font-black text-white italic tracking-tight">{t.home_samarbete_title}</h3>
+              <p className="text-zinc-400 text-lg font-light">{t.home_samarbete_subtitle}</p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-12">
               {[
-                { name: "Klätterträdet", text: "Bidrar med den terapeutiska grunden, kunskapen om trauma och nervsystemet.", icon: <Heart className="text-red-400" size={24} /> },
-                { name: "Socialkraft", text: "Säkerställer perspektivet av rättvisa, stöd i myndighetsfrågor och empowerment.", icon: <Shield className="text-blue-400" size={24} /> },
-                { name: "Twisted-stacks", text: "Möjliggör tekniken som bygger broar mellan människor på ett säkert sätt.", icon: <Sparkles className="text-purple-400" size={24} /> }
+                { name: t.home_partner_klattertradet, text: t.home_partner_klattertradet_desc, icon: <Heart className="text-red-400" size={24} /> },
+                { name: t.home_partner_socialkraft, text: t.home_partner_socialkraft_desc, icon: <Shield className="text-blue-400" size={24} /> },
+                { name: t.home_partner_twisted, text: t.home_partner_twisted_desc, icon: <Sparkles className="text-purple-400" size={24} /> }
               ].map((partner, i) => (
                 <div key={i} className="space-y-4">
                   <div className="flex items-center justify-center gap-3">
@@ -458,38 +456,38 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
         <div className="space-y-24">
           <div className="text-center space-y-6 mx-auto">
             <h2 className="text-4xl md:text-5xl font-black text-white italic tracking-tight">
-              Vårt Specialistteam
+              {t.home_specialist_title}
             </h2>
             <p className="text-xl text-amber-500 font-bold italic">
-              Handplockad kompetens för hela människan.
+              {t.home_specialist_subtitle}
             </p>
             <div className="space-y-6 text-zinc-400 text-lg md:text-xl leading-relaxed font-light text-left md:text-center">
               <p>
-                Jag brukar säga att trygghet börjar med kompetens. För att kunna guida en annan människa genom svår terräng – oavsett om det handlar om djupa barndomstrauman eller stressrelaterad ohälsa – krävs en guide som är trygg, erfaren och välutbildad.
+                {t.home_specialist_intro1}
               </p>
               <p>
-                Därför är jag otroligt stolt och tacksam över det team vi har samlat här på Klätterträdet och Horizonten.
+                {t.home_specialist_intro2}
               </p>
             </div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-12 items-center mx-auto">
             <div className="space-y-6">
-              <h3 className="text-3xl font-black text-white italic">Vi har sållat fram de bästa</h3>
+              <h3 className="text-3xl font-black text-white italic">{t.home_specialist_selection_title}</h3>
               <p className="text-zinc-400 text-lg leading-relaxed font-light">
-                Vi ställer extremt höga krav på våra medarbetare. Inte bara gällande deras akademiska meriter, utan på deras förmåga till närvaro och bemötande. De terapeuter och behandlare du möter hos oss är noga utsorterade för att de är bäst inom sina respektive fält.
+                {t.home_specialist_selection_desc1}
               </p>
               <p className="text-zinc-400 text-lg leading-relaxed font-light">
-                Vi jobbar inte efter en "one-size-fits-all"-modell. Vi vet att olika nervsystem behöver olika ingångar för att läka. Därför har vi samlat en bredd av expertis under samma tak:
+                {t.home_specialist_selection_desc2}
               </p>
             </div>
             <div className="relative p-8 glass bg-white/5 border border-white/10 rounded-[2.5rem] space-y-4">
               {[
-                { label: "Traumaterapi & Bottom-up", desc: "Specialister på att arbeta med kroppens minnen och nervsystemets reglering." },
-                { label: "KBT & Beteendevetenskap", desc: "För dig som behöver struktur, verktyg och tankemönsterförändring." },
-                { label: "Psykoanalys & Psychodynamic", desc: "För djupare förståelse av omedvetna processer och livsmönster." },
-                { label: "Hypnos", desc: "Ett kraftfullt verktyg för att nå bortom det logiska sinnet och arbeta med djupare förändring." },
-                { label: "Hudvård & Somatisk omsorg", desc: "Self-care handlar också om att vårda kroppens gräns mot omvärlden." }
+                { label: t.home_specialist_tag1, desc: t.home_specialist_tag1_desc },
+                { label: t.home_specialist_tag2, desc: t.home_specialist_tag2_desc },
+                { label: t.home_specialist_tag3, desc: t.home_specialist_tag3_desc },
+                { label: t.home_specialist_tag4, desc: t.home_specialist_tag4_desc },
+                { label: t.home_specialist_tag5, desc: t.home_specialist_tag5_desc }
               ].map((item, i) => (
                 <div key={i} className="flex gap-4">
                   <div className="mt-1 w-1.5 h-1.5 bg-orange-500 rounded-full shrink-0"></div>
@@ -507,8 +505,8 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
 
             <div className="pt-8 space-y-8">
               <div className="space-y-2">
-                <p className="text-2xl font-black text-white italic">Välkommen in i värmen.</p>
-                <p className="text-orange-500 font-bold uppercase tracking-widest text-xs">Det är gratis att bli medlem.</p>
+                <p className="text-2xl font-black text-white italic">{t.home_valkommen}</p>
+                <p className="text-orange-500 font-bold uppercase tracking-widest text-xs">{t.home_gratis_medlem}</p>
               </div>
 
               <div className="flex flex-wrap justify-center gap-6">
@@ -517,14 +515,14 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
                   onClick={(e) => { e.preventDefault(); setPage(Page.CONTACT); }}
                   className="px-10 py-5 bg-white text-slate-900 hover:bg-white/90 rounded-2xl font-black transition-all hover:scale-105 flex items-center justify-center gap-3 shadow-2xl shadow-white/10 uppercase tracking-widest text-xs"
                 >
-                  Ta kontakt med oss <ArrowRight size={20} />
+                  {t.home_ta_kontakt} <ArrowRight size={20} />
                 </a>
                 <a
                   href={PAGE_URLS[Page.THERAPY]}
                   onClick={(e) => { e.preventDefault(); setPage(Page.THERAPY, { showForm: true }); }}
                   className="px-10 py-5 bg-white/5 hover:bg-white/10 border border-white/20 rounded-2xl text-white font-black transition-all hover:scale-105 flex items-center justify-center gap-3 uppercase tracking-widest text-xs"
                 >
-                  Hjälp med att hitta en terapeut
+                  {t.home_hitta_terapeut}
                 </a>
               </div>
             </div>

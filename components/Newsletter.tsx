@@ -1,8 +1,10 @@
 
 import React, { useState } from 'react';
 import { Send, Sparkles, Check, Mail } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Newsletter: React.FC = () => {
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,13 +40,13 @@ const Newsletter: React.FC = () => {
         
         <div className="newsletter-text text-center lg:text-left space-y-2 lg:max-w-md">
           <div className="inline-flex items-center gap-2 px-3 py-0.5 bg-amber-500/10 rounded-full border border-amber-500/20 text-amber-500 text-[10px] font-bold uppercase tracking-widest mb-1">
-            <Mail size={12} /> Nyhetsbrev
+            <Mail size={12} /> {t.news_badge}
           </div>
           <h3 className="text-2xl md:text-3xl font-bold text-white leading-tight">
-            Prenumerera på vårt nyhetsbrev
+            {t.news_title}
           </h3>
           <p className="text-zinc-400 text-sm font-medium leading-relaxed">
-            Reflektioner om trauma och utveckling – direkt till din inkorg.
+            {t.news_subtitle}
           </p>
         </div>
         
@@ -54,7 +56,7 @@ const Newsletter: React.FC = () => {
               <div className="w-10 h-10 bg-emerald-500 text-black rounded-full flex items-center justify-center shadow-lg">
                 <Check size={20} strokeWidth={3} />
               </div>
-              <span className="text-emerald-400 font-bold">Tack! Vi har lagt till dig på listan.</span>
+              <span className="text-emerald-400 font-bold">{t.news_success}</span>
             </div>
           ) : (
             <form 
@@ -64,7 +66,7 @@ const Newsletter: React.FC = () => {
               <div className="flex flex-col sm:flex-row gap-3 flex-1">
                 <input 
                   type="text" 
-                  placeholder="Ditt namn" 
+                  placeholder={t.news_placeholder_name} 
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="flex-1 p-4 bg-black/40 border border-white/10 rounded-xl text-white placeholder-zinc-600 outline-none focus:border-amber-500 transition-all text-sm"
@@ -72,7 +74,7 @@ const Newsletter: React.FC = () => {
                 />
                 <input 
                   type="email" 
-                  placeholder="Din e-postadress" 
+                  placeholder={t.news_placeholder_email} 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="flex-[1.2] p-4 bg-black/40 border border-white/10 rounded-xl text-white placeholder-zinc-600 outline-none focus:border-amber-500 transition-all text-sm"
@@ -88,14 +90,14 @@ const Newsletter: React.FC = () => {
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 ) : (
                   <>
-                    Prenumerera <Send size={16} />
+                    {t.news_btn} <Send size={16} />
                   </>
                 )}
               </button>
             </form>
           )}
           <p className="mt-4 text-[10px] text-zinc-500 text-center lg:text-left flex items-center justify-center lg:justify-start gap-2 italic">
-            <Sparkles size={10} className="text-amber-500" /> Din integritet är viktig. Vi hanterar dina uppgifter med största omsorg.
+            <Sparkles size={10} className="text-amber-500" /> {t.news_privacy_note}
           </p>
         </div>
         

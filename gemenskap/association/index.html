@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Horizonten Gemenskap – Föreningen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;700&display=swap" rel="stylesheet">
+    <script>
+      // Prevent FOUC (Flash of Unstyled Content) for dark mode
+      if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark')
+      } else {
+        document.documentElement.classList.remove('dark')
+      }
+
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              'brand-primary': '#4F46E5', // Indigo 600
+              'brand-secondary': '#E9C46A', // A warm, inviting gold/yellow
+              'brand-accent': '#2A9D8F', // Teal
+              'brand-dark': '#264653', // Dark teal/blue
+              'brand-bg': '#F8F9FA', // Light gray background
+              'brand-btn': '#264653', // Dark blue-green for buttons
+              'brand-btn-hover': '#2A9D8F', // Teal for button hover
+              'brown-primary': '#B08968', // Primary brown
+              'brown-light': '#DDBEA9',   // Light brown
+              'gray-box': '#212121',     // Dark gray for box backgrounds
+              'gray-border': '#333333',  // Slightly lighter gray for borders
+              'gray-darkBorder': '#424242', // A bit darker for subtle depth
+              'gray-light': '#E0E0E0',   // Light gray text/elements
+              'gray-text': '#B0B0B0',    // Medium gray for general text
+            },
+            fontFamily: {
+              sans: ['Inter', 'Unbounded', 'sans-serif'],
+            },
+            borderRadius: {
+              'large': '12px',
+              'medium': '8px',
+            },
+            boxShadow: {
+              card: '0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.1)',
+            },
+            keyframes: {
+              blob: {
+                '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                '100%': { transform: 'translate(0px, 0px) scale(1)' },
+              },
+              'pulse-subtle': {
+                '0%, 100%': { transform: 'scale(1)', boxShadow: '0 0 30px rgba(233,196,106,0.3)' },
+                '50%': { transform: 'scale(1.03)', boxShadow: '0 0 50px rgba(233,196,106,0.6)' },
+              }
+            },
+            animation: {
+              blob: 'blob 7s infinite',
+              'pulse-subtle': 'pulse-subtle 2s ease-in-out infinite',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f9fafb; /* gray-50 */
+      }
+      html.dark body {
+        background-color: #0f172a; /* slate-900 */
+      }
+      #root {
+        /* App is now full-width by default */
+        background-color: transparent;
+      }
+
+      #root.dashboard-view {
+        /* This class is used to ensure dashboard is full width, which is now the default. */
+        /* It can be kept for semantic reasons or future specific styles. */
+        max-width: 100%;
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+
+      .animate-blob {
+        animation: blob 7s infinite;
+      }
+      .animation-delay-2000 {
+        animation-delay: -2s;
+      }
+      .animation-delay-4000 {
+        animation-delay: -4s;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "framer-motion": "https://aistudiocdn.com/framer-motion@^11.13.1",
+    "clsx": "https://aistudiocdn.com/clsx@^2.1.1",
+    "tailwind-merge": "https://aistudiocdn.com/tailwind-merge@^2.5.5"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="index.tsx"></script>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

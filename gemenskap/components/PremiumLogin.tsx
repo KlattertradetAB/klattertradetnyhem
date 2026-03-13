@@ -15,6 +15,7 @@ const PremiumLogin: React.FC<PremiumLoginProps> = ({ onLoginSuccess, onBack, onR
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [fullName, setFullName] = useState("");
+    const [role, setRole] = useState<'designer' | 'student' | 'teacher'>('designer');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [message, setMessage] = useState<string | null>(null);
@@ -27,11 +28,24 @@ const PremiumLogin: React.FC<PremiumLoginProps> = ({ onLoginSuccess, onBack, onR
         setMessage(null);
 
         try {
-            await authService.login(email, password);
+            if (isLogin) {
+                await authService.login(email, password);
+            } else {
+                await authService.register({
+                    email,
+                    password,
+                    fullName,
+                    role: role as any,
+                    membershipLevel: 2,
+                    membershipActive: true
+                });
+                setMessage('Ett bekräftelsemail har skickats till din e-postadress. Vänligen kontrollera din inkorg.');
+                setIsLogin(true);
+            }
             // Success is handled by the auth state listener in GemenskapApp
         } catch (err: any) {
-            console.error('Premium Login error:', err);
-            setError(err.message || 'Fel vid inloggning. Kontrollera dina uppgifter.');
+            console.error('Premium Auth error:', err);
+            setError(err.message || 'Fel vid autentisering. Kontrollera dina uppgifter.');
         } finally {
             setIsLoading(false);
         }
@@ -152,6 +166,42 @@ const PremiumLogin: React.FC<PremiumLoginProps> = ({ onLoginSuccess, onBack, onR
                     </div>
                 )}
 
+                <div className="space-y-3">
+                    <label className="block text-sm font-medium text-slate-300 ml-1">Välj din roll</label>
+                    <div className="role-radio-group">
+                        <label className="label">
+                            <input
+                                type="radio"
+                                name="role-premium"
+                                value="designer"
+                                checked={role === 'designer'}
+                                onChange={() => setRole('designer')}
+                            />
+                            <p className="text">Designer</p>
+                        </label>
+                        <label className="label">
+                            <input
+                                type="radio"
+                                name="role-premium"
+                                value="student"
+                                checked={role === 'student'}
+                                onChange={() => setRole('student')}
+                            />
+                            <p className="text">Student</p>
+                        </label>
+                        <label className="label">
+                            <input
+                                type="radio"
+                                name="role-premium"
+                                value="teacher"
+                                checked={role === 'teacher'}
+                                onChange={() => setRole('teacher')}
+                            />
+                            <p className="text">Teacher</p>
+                        </label>
+                    </div>
+                </div>
+
                 <button
                     type="submit"
                     disabled={isLoading || (!isLogin && !acceptedTerms)}
@@ -168,9 +218,19 @@ const PremiumLogin: React.FC<PremiumLoginProps> = ({ onLoginSuccess, onBack, onR
                 </button>
             </form>
 
-            {/* Footer */}
-            {!isStandalone && (
-                <div className="mt-8 text-center text-slate-500 text-sm">
+            <div className="mt-8 text-center text-slate-500 text-sm space-y-4">
+                <p>
+                    {isLogin ? 'Inget konto?' : 'Har du redan ett konto?'}
+                    {' '}
+                    <button
+                        type="button"
+                        onClick={() => setIsLogin(!isLogin)}
+                        className="text-[#b35c2a] font-bold hover:underline"
+                    >
+                        {isLogin ? 'Skapa konto' : 'Logga in'}
+                    </button>
+                </p>
+                {!isStandalone && (
                     <p>
                         Inte medlem än?
                         {' '}
@@ -178,11 +238,11 @@ const PremiumLogin: React.FC<PremiumLoginProps> = ({ onLoginSuccess, onBack, onR
                             onClick={onRegister}
                             className="text-[#b35c2a] hover:text-[#9a4f24] transition-colors font-medium ml-1"
                         >
-                            Ansök om medlemskap
+                            Ansök om premium medlemskap
                         </button>
                     </p>
-                </div>
-            )}
+                )}
+            </div>
 
             {/* Back to selection */}
             {!isStandalone && (

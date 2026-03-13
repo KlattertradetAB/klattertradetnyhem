@@ -26,6 +26,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [role, setRole] = useState<'designer' | 'student' | 'teacher'>('designer');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -41,10 +42,21 @@ const LoginForm: React.FC<LoginFormProps> = ({
       if (isLogin) {
         // LOGIN
         await authService.login(email, password);
-        // App.tsx listener handles the rest
+      } else {
+        // SIGNUP
+        await authService.register({
+          email,
+          password,
+          fullName,
+          role: role as any,
+          membershipLevel: 1,
+          membershipActive: true
+        });
+        setMessage('Ett bekräftelsemail har skickats till din e-postadress. Vänligen kontrollera din inkorg.');
+        setIsLogin(true); // Switch back to login after successful signup initiation
       }
     } catch (err: any) {
-      console.error('Login Error:', err);
+      console.error('Auth Error:', err);
       setError(err.message || 'Ett oväntat fel uppstod.');
     } finally {
       setLoading(false);
@@ -144,6 +156,42 @@ const LoginForm: React.FC<LoginFormProps> = ({
             </div>
           )}
 
+          <div className="space-y-3">
+            <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">Välj din roll</label>
+            <div className="role-radio-group">
+              <label className="label">
+                <input
+                  type="radio"
+                  name="role"
+                  value="designer"
+                  checked={role === 'designer'}
+                  onChange={() => setRole('designer')}
+                />
+                <p className="text">Designer</p>
+              </label>
+              <label className="label">
+                <input
+                  type="radio"
+                  name="role"
+                  value="student"
+                  checked={role === 'student'}
+                  onChange={() => setRole('student')}
+                />
+                <p className="text">Student</p>
+              </label>
+              <label className="label">
+                <input
+                  type="radio"
+                  name="role"
+                  value="teacher"
+                  checked={role === 'teacher'}
+                  onChange={() => setRole('teacher')}
+                />
+                <p className="text">Teacher</p>
+              </label>
+            </div>
+          </div>
+
           <button
             type="submit"
             disabled={loading || (!isLogin && !acceptedTerms)}
@@ -170,14 +218,25 @@ const LoginForm: React.FC<LoginFormProps> = ({
           )}
         </form>
 
-        <div className="mt-8 pt-6 border-t border-slate-800 text-center">
+        <div className="mt-8 pt-6 border-t border-slate-800 text-center space-y-4">
           <p className="text-slate-500 text-sm">
-            Ingen tillgång?{' '}
+            {isLogin ? 'Inget konto?' : 'Har du redan ett konto?'}
+            {' '}
+            <button
+              type="button"
+              onClick={() => setIsLogin(!isLogin)}
+              className="text-orange-400 font-bold hover:underline"
+            >
+              {isLogin ? 'Skapa konto' : 'Logga in'}
+            </button>
+          </p>
+          <p className="text-slate-500 text-xs">
+            Eller{' '}
             <button
               onClick={onNavigateToPremium}
               className="text-orange-400 hover:text-orange-300 font-semibold underline underline-offset-4 focus:outline-none"
             >
-              Ansök om medlemskap
+              Ansök om premium medlemskap
             </button>
           </p>
         </div>
