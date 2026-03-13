@@ -49,6 +49,29 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Handle mobile menu scroll lock
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileMenuOpen]);
+
+  // Handle resize to close mobile menu
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const isServicesActive = [Page.SERVICES, Page.CHAT, Page.THERAPY, Page.GROUP_THERAPY, Page.GESTALT_TRAINING, Page.BEHANDLINGS_PEDAGOG].includes(currentPage);
   const isResourcesActive = [Page.COMMUNITY, Page.SURVEY, Page.DOWNLOADS, Page.QUALITY_MARKING].includes(currentPage);
 
@@ -327,49 +350,91 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
             </button>
           </div>
 
-          {/* Mobile Menu */}
+          {/* Mobile Menu - Full Screen Overlay */}
           {isMobileMenuOpen && (
-            <div className="absolute top-full left-0 w-full mt-4 p-4 md:hidden">
-              <div className="glass bg-black/98 backdrop-blur-md border border-white/20 rounded-2xl p-6 flex flex-col gap-4 shadow-2xl max-h-[80vh] overflow-y-auto no-scrollbar">
-
-                <div className="flex flex-col gap-1">
-                  <a href={PAGE_URLS[Page.HOME]} onClick={(e) => handleNavClick(Page.HOME, e)} className={`w-full py-3 rounded-xl font-bold text-left px-4 transition-colors ${currentPage === Page.HOME ? 'text-blue-400 bg-blue-500/10 border border-blue-500/20' : 'text-white/80 hover:bg-white/5'}`}>{t.nav_home}</a>
-                  <a href={PAGE_URLS[Page.ABOUT]} onClick={(e) => handleNavClick(Page.ABOUT, e)} className={`w-full py-3 rounded-xl font-bold text-left px-4 transition-colors ${currentPage === Page.ABOUT ? 'text-blue-400 bg-blue-500/10 border border-blue-500/20' : 'text-white/80 hover:bg-white/5'}`}>{t.nav_about}</a>
-                </div>
-
-                <div className="bg-white/5 rounded-2xl p-4 space-y-3">
-                  <div className="px-1 text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">{t.nav_services_training}</div>
-                  <div className="grid grid-cols-1 gap-1">
-                    <a href={
-                      PAGE_URLS[Page.SERVICES]} onClick={(e) => handleNavClick(Page.SERVICES, e)} className={`w-full py-3 rounded-xl font-bold text-left px-4 text-sm transition-colors ${currentPage === Page.SERVICES ? 'text-blue-400 bg-blue-500/10' : 'text-white/70 hover:bg-white/5'}`}>{t.nav_visa_alla}</a>
-                    <a href={PAGE_URLS[Page.BEHANDLINGS_PEDAGOG]} onClick={(e) => handleNavClick(Page.BEHANDLINGS_PEDAGOG, e)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.BEHANDLINGS_PEDAGOG ? 'text-blue-400 bg-blue-500/10' : 'text-white/70 hover:bg-white/5'}`}>{t.nav_behandlingspedagog}</a>
-                    <a href={PAGE_URLS[Page.CHAT]} onClick={(e) => handleNavClick(Page.CHAT, e)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.CHAT ? 'text-blue-400 bg-blue-500/10' : 'text-white/70 hover:bg-white/5'}`}>{t.nav_mit}</a>
-                    <a href={PAGE_URLS[Page.GESTALT_TRAINING]} onClick={(e) => handleNavClick(Page.GESTALT_TRAINING, e)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.GESTALT_TRAINING ? 'text-blue-400 bg-blue-500/10' : 'text-white/70 hover:bg-white/5'}`}>{t.nav_gestalt}</a>
-                    <a href={PAGE_URLS[Page.THERAPY]} onClick={(e) => handleNavClick(Page.THERAPY, e)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.THERAPY ? 'text-blue-400 bg-blue-500/10' : 'text-white/70 hover:bg-white/5'}`}>{t.nav_enskild_terapi}</a>
-                    <a href={PAGE_URLS[Page.GROUP_THERAPY]} onClick={(e) => handleNavClick(Page.GROUP_THERAPY, e)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.GROUP_THERAPY ? 'text-blue-400 bg-blue-500/10' : 'text-white/70 hover:bg-white/5'}`}>{t.nav_grupp_terapi}</a>
+            <div className="fixed inset-0 z-[100] md:hidden">
+              {/* Backdrop */}
+              <div 
+                className="absolute inset-0 bg-black/95 backdrop-blur-2xl animate-fade-in"
+                onClick={() => setIsMobileMenuOpen(false)}
+              ></div>
+              
+              {/* Menu Content */}
+              <div className="relative h-full flex flex-col p-8 animate-in slide-in-from-right duration-500">
+                {/* Header inside menu */}
+                <div className="flex justify-between items-center mb-12">
+                  <div className="flex items-center gap-3">
+                    <img src="/assets/logo2.png" alt="Logo" className="w-10 h-10 object-contain" />
+                    <span className="text-xl font-bold text-white">Meny</span>
                   </div>
+                  <button 
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="p-3 bg-white/10 rounded-2xl text-white hover:bg-white/20 transition-all"
+                  >
+                    <X size={28} />
+                  </button>
                 </div>
 
-                <div className="bg-white/5 rounded-2xl p-4 space-y-3">
-                  <div className="px-1 text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">{t.nav_resources}</div>
-                  <div className="grid grid-cols-1 gap-1">
-                    <a href={PAGE_URLS[Page.COMMUNITY]} onClick={(e) => handleNavClick(Page.COMMUNITY, e)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.COMMUNITY ? 'text-amber-400 bg-amber-500/10 border border-amber-500/20' : 'text-white/70 hover:bg-white/5'}`}>{t.nav_gemenskap}</a>
-                    <a href={PAGE_URLS[Page.QUALITY_MARKING]} onClick={(e) => handleNavClick(Page.QUALITY_MARKING, e)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.QUALITY_MARKING ? 'text-blue-400 bg-blue-500/10 border border-blue-500/20' : 'text-white/70 hover:bg-white/5'}`}>{t.nav_kvalitetsmarkering}</a>
-                    <a href={PAGE_URLS[Page.SURVEY]} onClick={(e) => handleNavClick(Page.SURVEY, e)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.SURVEY ? 'text-blue-400 bg-blue-500/10 border border-blue-500/20' : 'text-white/70 hover:bg-white/5'}`}>{t.nav_enkat}</a>
-                    <a href={PAGE_URLS[Page.DOWNLOADS]} onClick={(e) => handleNavClick(Page.DOWNLOADS, e)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.DOWNLOADS ? 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/20' : 'text-white/70 hover:bg-white/5'}`}>{t.nav_nedladdningar}</a>
-                    <a href={PAGE_URLS[Page.BLOG]} onClick={(e) => handleNavClick(Page.BLOG, e)} className={`w-full py-3 rounded-xl font-medium text-left px-4 text-sm transition-colors ${currentPage === Page.BLOG ? 'text-blue-400 bg-blue-500/10 border border-blue-500/20' : 'text-white/70 hover:bg-white/5'}`}>{t.nav_blog}</a>
+                {/* Primary Links */}
+                <nav className="flex-1 flex flex-col gap-2 overflow-y-auto no-scrollbar">
+                  <div className="grid grid-cols-1 gap-2 mb-6">
+                    <a href={PAGE_URLS[Page.HOME]} onClick={(e) => handleNavClick(Page.HOME, e)} className={`w-full py-4 rounded-2xl font-black text-xl px-6 transition-all ${currentPage === Page.HOME ? 'text-blue-400 bg-blue-500/10 border border-blue-500/20' : 'text-white/90 hover:bg-white/5'}`}>
+                      {t.nav_home}
+                    </a>
+                    <a href={PAGE_URLS[Page.LOGIN]} onClick={(e) => handleNavClick(Page.LOGIN, e)} className={`w-full py-4 rounded-2xl font-black text-xl px-6 flex items-center gap-3 transition-all ${currentPage === Page.LOGIN ? 'bg-orange-500 text-slate-950' : 'bg-white/10 text-white'}`}>
+                      <LogIn size={24} /> {t.nav_login.toUpperCase()}
+                    </a>
                   </div>
-                </div>
 
-                <div className="flex flex-col gap-1">
-                  <a href={PAGE_URLS[Page.BLOG]} onClick={(e) => handleNavClick(Page.BLOG, e)} className={`w-full py-3 rounded-xl font-bold text-left px-4 transition-colors ${currentPage === Page.BLOG ? 'text-blue-400 bg-blue-500/10 border border-blue-500/20' : 'text-white/80 hover:bg-white/5'}`}>{t.nav_blog}</a>
-                  <a href={PAGE_URLS[Page.CONTACT]} onClick={(e) => handleNavClick(Page.CONTACT, e)} className={`w-full py-3 rounded-xl font-bold text-left px-4 transition-colors ${currentPage === Page.CONTACT ? 'text-blue-400 bg-blue-500/10 border border-blue-500/20' : 'text-white/80 hover:bg-white/5'}`}>{t.nav_contact}</a>
-                </div>
+                  <div className="space-y-6">
+                    {/* Services Section */}
+                    <div className="bg-white/5 rounded-3xl p-6 space-y-4">
+                      <div className="flex items-center gap-2 text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">
+                        <BookOpen size={14} /> {t.nav_services_label}
+                      </div>
+                      <div className="grid grid-cols-1 gap-1">
+                        <a href={PAGE_URLS[Page.SERVICES]} onClick={(e) => handleNavClick(Page.SERVICES, e)} className="text-white/90 font-bold py-2 hover:text-blue-400 transition-colors">{t.nav_visa_alla}</a>
+                        <a href={PAGE_URLS[Page.THERAPY]} onClick={(e) => handleNavClick(Page.THERAPY, e)} className="text-white/70 py-2 hover:text-blue-400 transition-colors">{t.nav_enskild_terapi}</a>
+                        <a href={PAGE_URLS[Page.BEHANDLINGS_PEDAGOG]} onClick={(e) => handleNavClick(Page.BEHANDLINGS_PEDAGOG, e)} className="text-white/70 py-2 hover:text-blue-400 transition-colors">{t.nav_behandlingspedagog}</a>
+                        <a href={PAGE_URLS[Page.CHAT]} onClick={(e) => handleNavClick(Page.CHAT, e)} className="text-white/70 py-2 hover:text-blue-400 transition-colors">{t.nav_mit}</a>
+                      </div>
+                    </div>
 
-                <div className="mt-2">
-                  <a href={PAGE_URLS[Page.LOGIN]} onClick={(e) => handleNavClick(Page.LOGIN, e)} className={`w-full py-4 rounded-2xl font-black text-center px-4 flex items-center justify-center gap-3 transition-all ${currentPage === Page.LOGIN ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'bg-white/10 text-white hover:bg-white/20'}`}>
-                    <LogIn size={20} /> {t.nav_login.toUpperCase()}
-                  </a>
+                    {/* Resources Section */}
+                    <div className="bg-white/5 rounded-3xl p-6 space-y-4">
+                      <div className="flex items-center gap-2 text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">
+                        <Users size={14} /> {t.nav_resources_label}
+                      </div>
+                      <div className="grid grid-cols-1 gap-1">
+                        <a href={PAGE_URLS[Page.COMMUNITY]} onClick={(e) => handleNavClick(Page.COMMUNITY, e)} className="text-amber-400 font-bold py-2 flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse"></span>
+                          {t.nav_gemenskap}
+                        </a>
+                        <a href={PAGE_URLS[Page.QUALITY_MARKING]} onClick={(e) => handleNavClick(Page.QUALITY_MARKING, e)} className="text-white/70 py-2 hover:text-blue-400 transition-colors">{t.nav_kvalitetsmarkering}</a>
+                        <a href={PAGE_URLS[Page.DOWNLOADS]} onClick={(e) => handleNavClick(Page.DOWNLOADS, e)} className="text-white/70 py-2 hover:text-blue-400 transition-colors">{t.nav_nedladdningar}</a>
+                        <a href={PAGE_URLS[Page.BLOG]} onClick={(e) => handleNavClick(Page.BLOG, e)} className="text-white/70 py-2 hover:text-blue-400 transition-colors">{t.nav_blog}</a>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-2">
+                      <a href={PAGE_URLS[Page.ABOUT]} onClick={(e) => handleNavClick(Page.ABOUT, e)} className="text-white/60 font-medium py-3 px-4 hover:text-white transition-colors">{t.nav_about}</a>
+                      <a href={PAGE_URLS[Page.CONTACT]} onClick={(e) => handleNavClick(Page.CONTACT, e)} className="text-white/60 font-medium py-3 px-4 hover:text-white transition-colors">{t.nav_contact}</a>
+                    </div>
+                  </div>
+                </nav>
+
+                {/* Footer inside menu */}
+                <div className="pt-8 mt-auto border-t border-white/10 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => setLang(lang === 'sv' ? 'en' : 'sv')}
+                      className="flex items-center gap-2 text-white/60 font-bold uppercase tracking-widest text-xs"
+                    >
+                      <Globe size={18} /> {lang}
+                    </button>
+                    <ThemeToggle isDarkMode={isDarkMode} onToggle={toggleTheme} size={24} />
+                  </div>
+                  <span className="text-[10px] text-white/20 font-bold uppercase tracking-widest">&copy; 2024</span>
                 </div>
               </div>
             </div>
