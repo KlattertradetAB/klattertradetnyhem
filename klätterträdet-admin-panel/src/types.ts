@@ -29,6 +29,17 @@ export interface Message {
   created_at: string;
 }
 
+export interface Blog {
+  id: string;
+  title: string;
+  description: string;
+  content: string;
+  image_url: string | null;
+  author_name: string;
+  created_at: string;
+  user_id?: string;
+}
+
 export interface Stats {
   summary: {
     orders: number;

@@ -4,6 +4,7 @@ import { Newspaper, Sparkles, Clock, Bell, CheckCircle, ArrowRight, BookOpen, Bo
 import { Page } from '../types';
 import Newsletter from '../components/Newsletter';
 import PDFViewer from '../components/PDFViewer';
+import SocialIconsWidget from '../components/SocialIconsWidget';
 import { useLanguage } from '../contexts/LanguageContext';
 import { supabase } from '../gemenskap/services/supabase';
 
@@ -327,6 +328,8 @@ const Blog: React.FC<BlogProps> = ({ setPage }) => {
           </div>
         </div>
       )}
+
+      <SocialIconsWidget />
 
       <Newsletter />
 

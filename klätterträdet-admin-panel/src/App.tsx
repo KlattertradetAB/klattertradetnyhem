@@ -25,7 +25,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { Order, Booking, Message, Stats } from './types';
+import { Order, Booking, Message, Stats, Blog } from './types';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -54,7 +54,7 @@ const StatCard = ({ title, value, icon: Icon, trend }: { title: string, value: s
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'bookings' | 'messages'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'bookings' | 'messages' | 'blog'>('dashboard');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
@@ -63,6 +63,8 @@ export default function App() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [showBlogForm, setShowBlogForm] = useState(false);
   
   const [bookingSearch, setBookingSearch] = useState('');
   const [bookingStatus, setBookingStatus] = useState('');
@@ -73,6 +75,7 @@ export default function App() {
       fetchOrders();
       fetchBookings();
       fetchMessages();
+      fetchBlogs();
     }
   }, [isLoggedIn]);
 
@@ -103,6 +106,12 @@ export default function App() {
     setMessages(data);
   };
 
+  const fetchBlogs = async () => {
+    const res = await fetch('/api/blogs');
+    const data = await res.json();
+    setBlogs(data);
+  };
+
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     const res = await fetch('/api/login', {
@@ -126,6 +135,12 @@ export default function App() {
       body: JSON.stringify({ status })
     });
     fetchOrders();
+  };
+
+  const deleteBlog = async (id: string) => {
+    if (!confirm('Är du säker på att du vill radera detta blogginlägg?')) return;
+    await fetch(`/api/blogs/${id}`, { method: 'DELETE' });
+    fetchBlogs();
   };
 
   if (!isLoggedIn) {
@@ -232,6 +247,16 @@ export default function App() {
             <MessageSquare className="w-5 h-5" />
             <span className="font-medium">Meddelanden</span>
           </button>
+          <button 
+            onClick={() => setActiveTab('blog')}
+            className={cn(
+              "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all",
+              activeTab === 'blog' ? "bg-orange-600/20 text-orange-500 border border-orange-500/20" : "text-white/60 hover:bg-white/5"
+            )}
+          >
+            <BookOpen className="w-5 h-5" />
+            <span className="font-medium">Blogg</span>
+          </button>
         </nav>
         
         <div className="p-4 border-t border-white/10">
@@ -254,6 +279,7 @@ export default function App() {
               {activeTab === 'orders' && 'Bokbeställningar'}
               {activeTab === 'bookings' && 'Terapibokningar'}
               {activeTab === 'messages' && 'Meddelanden'}
+              {activeTab === 'blog' && 'Blogghantering'}
             </h1>
             <p className="text-white/40">
               {new Date().toLocaleDateString('sv-SE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
@@ -523,6 +549,98 @@ export default function App() {
                   </div>
                 ))}
               </div>
+            </motion.div>
+          )}
+
+          {activeTab === 'blog' && (
+            <motion.div 
+              key="blog"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="space-y-6"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                  <button onClick={() => setShowBlogForm(false)} className={cn("px-4 py-2 rounded-lg text-xs font-bold transition-all", !showBlogForm ? "bg-orange-600 text-white" : "text-white/40")}>Lista</button>
+                  <button onClick={() => setShowBlogForm(true)} className={cn("px-4 py-2 rounded-lg text-xs font-bold transition-all", showBlogForm ? "bg-orange-600 text-white" : "text-white/40")}>Skapa Ny</button>
+                </div>
+              </div>
+
+              {!showBlogForm ? (
+                <div className="grid grid-cols-1 gap-4">
+                  {blogs.map((blog) => (
+                    <div key={blog.id} className="bg-glass-100 border border-white/10 rounded-3xl p-6 backdrop-blur-md flex items-center justify-between group">
+                      <div className="flex items-center gap-4">
+                        {blog.image_url ? (
+                          <img src={blog.image_url} className="w-16 h-16 rounded-xl object-cover" alt="" />
+                        ) : (
+                          <div className="w-16 h-16 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500">
+                             <BookOpen size={24} />
+                          </div>
+                        )}
+                        <div>
+                          <h4 className="font-bold text-white">{blog.title}</h4>
+                          <p className="text-xs text-white/40">{new Date(blog.created_at).toLocaleDateString()} • {blog.author_name}</p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => deleteBlog(blog.id)}
+                        className="p-2 bg-white/5 hover:bg-red-500/20 hover:text-red-400 rounded-xl transition-all border border-white/5"
+                      >
+                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                      </button>
+                    </div>
+                  ))}
+                  {blogs.length === 0 && <p className="text-center py-12 text-white/40 italic">Inga blogginlägg hittades</p>}
+                </div>
+              ) : (
+                <form 
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    const form = e.target as HTMLFormElement;
+                    const formData = new FormData(form);
+                    const postData = {
+                      title: formData.get('title'),
+                      description: formData.get('description'),
+                      content: formData.get('content'),
+                      image_url: formData.get('image_url') || null,
+                      author_name: 'Admin'
+                    };
+
+                    await fetch('/api/blogs', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(postData)
+                    });
+
+                    form.reset();
+                    setShowBlogForm(false);
+                    fetchBlogs();
+                  }}
+                  className="bg-glass-100 border border-white/10 rounded-[2.5rem] p-8 space-y-6"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                       <label className="text-xs font-bold text-white/40 uppercase tracking-widest px-1">Rubrik</label>
+                       <input name="title" required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50" />
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-xs font-bold text-white/40 uppercase tracking-widest px-1">Bild-URL (Valfritt)</label>
+                       <input name="image_url" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest px-1">Beskrivning</label>
+                    <textarea name="description" required rows={2} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 resize-none" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest px-1">Innehåll</label>
+                    <textarea name="content" required rows={10} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 font-mono text-sm leading-relaxed" />
+                  </div>
+                  <button type="submit" className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-orange-600/20 transition-all active:scale-[0.98]">Publicera Inlägg</button>
+                </form>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

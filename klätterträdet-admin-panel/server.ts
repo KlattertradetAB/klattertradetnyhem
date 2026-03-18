@@ -9,7 +9,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = 3001;
 
   app.use(express.json());
 
@@ -104,6 +104,46 @@ async function startServer() {
     
     if (error) return res.status(500).json(error);
     res.json(data);
+  });
+
+  app.get('/api/blogs', authMiddleware, async (req, res) => {
+    const { data, error } = await supabase
+      .from('blogs')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) return res.status(500).json(error);
+    res.json(data);
+  });
+
+  app.post('/api/blogs', authMiddleware, async (req, res) => {
+    const { title, description, content, image_url, author_name } = req.body;
+    const { data, error } = await supabase
+      .from('blogs')
+      .insert({
+        title,
+        description,
+        content,
+        image_url,
+        author_name,
+        created_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+    
+    if (error) return res.status(500).json(error);
+    res.json(data);
+  });
+
+  app.delete('/api/blogs/:id', authMiddleware, async (req, res) => {
+    const { id } = req.params;
+    const { error } = await supabase
+      .from('blogs')
+      .delete()
+      .eq('id', id);
+    
+    if (error) return res.status(500).json(error);
+    res.json({ success: true });
   });
 
   app.post('/api/login', (req, res) => {
