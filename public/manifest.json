@@ -1,8 +1,8 @@
 {
   "name": "Horizonten gemenskap",
-  "short_name": "Horizonten gemenskap",
+  "short_name": "Horizonten Gemenskap",
   "description": "Din digitala flock – community, självhjälp och stöd för personlig utveckling.",
-  "start_url": "/",
+  "start_url": "/app",
   "scope": "/",
   "display": "standalone",
   "background_color": "#020617",
