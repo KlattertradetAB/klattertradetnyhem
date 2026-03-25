@@ -12,7 +12,7 @@ import {
 import { NewThreadModal } from './NewThreadModal';
 import { InviteFriendModal } from './InviteFriendModal';
 import { VideoRoom } from './VideoRoom';
-import { getNotifications, subscribeToNotifications, clearNotifications, NotificationItem, addNotification } from '../services/notificationStore';
+import { getNotifications, subscribeToNotifications, clearNotifications, markThreadAsRead, NotificationItem, addNotification } from '../services/notificationStore';
 import { supabase } from '../services/supabase';
 import { getEffectiveAvatar } from '../services/userUtils';
 
@@ -86,7 +86,10 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
         return () => unsubscribe();
     }, []);
 
-    // Presence & Global Notifications handled in GemenskapApp.tsx
+    // Helper to get unread threads
+    const unreadNotifications = notifications.filter(n => !n.is_read);
+    const unreadCount = unreadNotifications.length;
+    const unreadThreadIds = new Set(unreadNotifications.filter(n => n.type === 'chat' && n.thread_id).map(n => n.thread_id));
 
     // Helper to check if a room is locked for the current user
     const isRoomLocked = (roomId: string) => {
@@ -133,7 +136,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                         {[
                             { id: 'discussions', icon: <MessageCircle size={26} />, label: 'Chatt' },
                             { id: 'members', icon: <Users size={26} />, label: 'Medlemmar' },
-                            { id: 'notifications', icon: <Bell size={26} />, label: 'Notiser', badge: notifications.length > 0 },
+                            { id: 'notifications', icon: <Bell size={26} />, label: 'Notiser', badge: unreadCount > 0 },
                         ].map((item) => (
                             <button
                                 key={item.id}
@@ -213,6 +216,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                                                     if (!locked) {
                                                         setActiveRoom(room.id);
                                                         setMobileShowChat(true);
+                                                        markThreadAsRead(room.id);
                                                     }
                                                 }}
                                                 disabled={locked}
@@ -233,6 +237,12 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                                                     <p className="text-[11px] opacity-60 line-clamp-1 font-medium leading-relaxed">{room.description}</p>
                                                 </div>
                                                 {activeRoom === room.id && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-orange-500 rounded-r-full shadow-[0_0_15px_rgba(249,115,22,1)]"></div>}
+                                                
+                                                {/* Notification Red Dot */}
+                                                {(unreadThreadIds.has(room.id) && activeRoom !== room.id) && (
+                                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 w-3 h-3 bg-red-500 rounded-full shadow-[0_0_10px_rgba(239,68,68,0.8)] animate-pulse"></div>
+                                                )}
+
                                                 {room.hasVideo && !locked && (
                                                     <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full animate-pulse">
                                                         <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
@@ -261,6 +271,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                                                     if (!locked) {
                                                         setActiveRoom(room.id);
                                                         setMobileShowChat(true);
+                                                        markThreadAsRead(room.id);
                                                     }
                                                 }}
                                                 disabled={locked}
@@ -281,6 +292,11 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                                                     <p className="text-[11px] opacity-60 line-clamp-1 font-medium leading-relaxed">{room.description}</p>
                                                 </div>
                                                 {activeRoom === room.id && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-orange-500 rounded-r-full shadow-[0_0_15px_rgba(249,115,22,1)]"></div>}
+                                                
+                                                {/* Notification Red Dot */}
+                                                {(unreadThreadIds.has(room.id) && activeRoom !== room.id) && (
+                                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 w-3 h-3 bg-red-500 rounded-full shadow-[0_0_10px_rgba(239,68,68,0.8)] animate-pulse"></div>
+                                                )}
                                             </button>
                                         );
                                     })}
@@ -363,8 +379,18 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                                 </div>
                             ) : (
                                 notifications.map((n, i) => (
-                                    <div key={n.id} className="flex gap-4 p-5 rounded-[2rem] bg-white/5 border border-white/5 hover:border-white/10 transition-all cursor-pointer group">
-                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-orange-500/10 text-orange-400 border border-orange-500/20`}>
+                                    <div 
+                                        key={n.id} 
+                                        onClick={() => {
+                                            if (!n.is_read) {
+                                                import('../services/notificationStore').then(m => m.markAsRead(n.id));
+                                            }
+                                        }}
+                                        className={`flex gap-4 p-5 rounded-[2rem] transition-all cursor-pointer group relative ${!n.is_read ? 'bg-white/10 border-white/20' : 'bg-white/5 border-white/5 hover:border-white/10'}`}>
+                                        
+                                        {!n.is_read && <div className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-8 bg-red-500 rounded-r-full shadow-[0_0_10px_rgba(239,68,68,0.8)]"></div>}
+
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${n.type === 'admin' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 'bg-orange-500/10 text-orange-400 border-orange-500/20'}`}>
                                             <Bell size={14} />
                                         </div>
                                         <div className="space-y-1">
@@ -528,7 +554,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                         { id: 'chat', label: 'Chatt', icon: MessageCircle, action: () => setMobileShowChat(true) },
                         { id: 'rooms', label: 'Rum', icon: LayoutGrid, action: () => { setMobileShowChat(false); setActiveNav('discussions'); } },
                         { id: 'members', label: 'Medlemmar', icon: Users, action: () => { setMobileShowChat(false); setActiveNav('members'); } },
-                        { id: 'notifications', label: 'Notiser', icon: Bell, action: () => { setMobileShowChat(false); setActiveNav('notifications'); }, badge: notifications.length }
+                        { id: 'notifications', label: 'Notiser', icon: Bell, action: () => { setMobileShowChat(false); setActiveNav('notifications'); }, badge: unreadCount }
                     ].map((item) => {
                         const isActive = item.id === 'chat' ? mobileShowChat : (!mobileShowChat && activeNav === (item.id === 'rooms' ? 'discussions' : item.id));
                         return (

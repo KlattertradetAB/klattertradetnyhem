@@ -7,6 +7,8 @@ export interface NotificationItem {
     message: string;
     created_at: string;
     is_read: boolean;
+    thread_id?: string;
+    type?: string;
 }
 
 export type NotificationListener = (notifications: NotificationItem[]) => void;
@@ -40,7 +42,7 @@ const maintainLimit = async (userId: string) => {
     }
 };
 
-export const addNotification = async (notification: { title: string; message: string }) => {
+export const addNotification = async (notification: { title: string; message: string; thread_id?: string; type?: string }) => {
     const user = await getCurrentUser();
     if (!user) return;
 
@@ -50,6 +52,8 @@ export const addNotification = async (notification: { title: string; message: st
             user_id: user.id,
             title: notification.title,
             message: notification.message,
+            thread_id: notification.thread_id,
+            type: notification.type || 'chat',
             is_read: false
         }])
         .select()
@@ -60,6 +64,21 @@ export const addNotification = async (notification: { title: string; message: st
         fetchNotifications();
     }
     return { data, error };
+};
+
+export const createAdminNotification = async (title: string, message: string) => {
+    const { data: admins } = await supabase.from('profiles').select('id').eq('role', 'admin');
+    if (!admins) return;
+
+    const inserts = admins.map(a => ({
+        user_id: a.id,
+        title,
+        message,
+        type: 'admin',
+        is_read: false
+    }));
+
+    await supabase.from('notifications').insert(inserts);
 };
 
 export const fetchNotifications = async () => {
@@ -121,8 +140,12 @@ const setupSubscription = async () => {
                 table: 'notifications',
                 filter: `user_id=eq.${user.id}`,
             },
-            (payload: any) => {
+            async (payload: any) => {
                 fetchNotifications();
+                const newNotif = payload.new;
+                // Om de är offline dyker detta aldrig upp, men är de inloggade får de ett ljud/browser notis
+                const { sendNotification } = await import('./notifications');
+                sendNotification(newNotif.title, newNotif.message);
             }
         )
         .subscribe();
@@ -136,6 +159,22 @@ export const markAsRead = async (id: string) => {
 
     if (!error) {
         fetchNotifications(); // Refresh state
+    }
+};
+
+export const markThreadAsRead = async (threadId: string) => {
+    const user = await getCurrentUser();
+    if (!user) return;
+
+    const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('user_id', user.id)
+        .eq('thread_id', threadId)
+        .eq('is_read', false);
+
+    if (!error) {
+        fetchNotifications();
     }
 };
 

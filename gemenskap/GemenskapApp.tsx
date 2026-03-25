@@ -130,41 +130,9 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
       m.registerServiceWorker();
     });
 
-    // Global Message Listener for Notifications
-    const notificationChannel = supabase
-      .channel('global_chat_notifications')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, async (payload: any) => {
-        const newMsg = payload.new;
-        if (user && newMsg.user_id !== user.id && user.notifications_enabled !== false) {
-          const { sendNotification } = await import('./services/notifications');
-          const { PERSONAS } = await import('./services/personas');
-
-          let senderName = 'Någon';
-          let icon = '💬';
-          let color = 'bg-blue-500';
-
-          if (newMsg.is_ai) {
-            const persona = PERSONAS.find(p => p.id === newMsg.persona_id);
-            senderName = persona ? persona.name : 'AI';
-            icon = persona ? persona.avatar : '🤖';
-            color = persona ? persona.color : 'bg-slate-800';
-          } else {
-            const { data } = await (supabase as any).from('profiles').select('full_name').eq('id', newMsg.user_id).single();
-            if (data) senderName = data.full_name;
-          }
-
-          // Truncate content to first 3 words
-          const snippet = newMsg.content.split(' ').slice(0, 3).join(' ') + (newMsg.content.split(' ').length > 3 ? '...' : '');
-
-          // Save to notification history (persisted in DB)
-          const { addNotification } = await import('./services/notificationStore');
-          await addNotification({ title: `Nytt från ${senderName}`, message: snippet });
-
-          // Show browser notification immediately
-          sendNotification(`Nytt från ${senderName}`, snippet);
-        }
-      })
-      .subscribe();
+    // The global chat notifications listener has been removed. 
+    // Notifications are now generated cleanly by a Databas Trigger (NOTIS_FIX.sql) 
+    // and received in realtime via the notificationStore's public:notifications channel.scribe();
 
     // History handling
     const handlePopState = (event: PopStateEvent) => {
@@ -312,7 +280,6 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
     return () => {
       window.removeEventListener('popstate', handlePopState);
       subscription.unsubscribe();
-      supabase.removeChannel(notificationChannel);
       if (presenceChannel) supabase.removeChannel(presenceChannel);
     };
   }, [authStatus, isPremiumView, user?.id]);
