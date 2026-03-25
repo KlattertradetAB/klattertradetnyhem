@@ -220,11 +220,34 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
 
         try {
             await supabase.from('chat_messages').insert({
-                content: textToSend,
+                thread_id: threadId === 'general' ? null : threadId, // Adjusted thread_id logic
                 user_id: user.id,
+                content: textToSend, // Changed from newMessage to textToSend for consistency
                 is_ai: false,
-                thread_id: threadId === 'general' ? null : threadId
+                persona_id: null // Added persona_id
             });
+
+            // Frontend Fan-Out Notifications
+            // To provide robust offline notifications, the sender creates the notification for the community
+            try {
+                const { data: profiles } = await supabase.from('profiles').select('id').neq('id', user.id).limit(100);
+                if (profiles && profiles.length > 0) {
+                    const snippet = textToSend.split(' ').slice(0, 5).join(' ') + (textToSend.split(' ').length > 5 ? '...' : '');
+                    const notificationInserts = profiles.map(p => ({
+                        user_id: p.id,
+                        title: `Nytt i ${threadId === 'general' ? 'Gemenskapen' : 'chatten'}`,
+                        message: `${user.full_name?.split(' ')[0] || 'Någon'}: ${snippet}`,
+                        thread_id: threadId,
+                        type: 'chat',
+                        is_read: false
+                    }));
+                    
+                    // We fire and forget this bulk insert so it doesn't block the UI
+                    supabase.from('notifications').insert(notificationInserts).then();
+                }
+            } catch (e) {
+                console.error("Failed to fan-out notifications", e);
+            }
 
             /* AI Response Logic Disabled for now
             const userMessages = messages.filter(m => m.role === 'user');
