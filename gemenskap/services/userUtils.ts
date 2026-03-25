@@ -3,14 +3,17 @@
  * Determines the effective avatar URL for a user.
  * Enforces a specific icon for admin emails.
  */
-export const getEffectiveAvatar = (email?: string, avatarUrl?: string | null): string | null => {
-    const adminEmails = ['billy.ljungberg90@gmail.com', 'billy@klattertradet.se'];
+export const getEffectiveAvatar = (email?: string, avatarUrl?: string | null, role?: string | null): string | null => {
+    // Fallback till emails för admins, men rollen bör helst slå in
+    const legacyAdminEmails = ['billy.ljungberg90@gmail.com', 'billy@klattertradet.se', 'jeanettejohansson1989@gmail.com'];
+    const isAdmin = role === 'admin' || (email && legacyAdminEmails.includes(email.toLowerCase()));
 
-    if (email && adminEmails.includes(email)) {
-        return '/icon-512.png';
+    if (isAdmin) {
+        return '/assets/logo2.png';
     }
 
-    return avatarUrl || null;
+    // Tvingar vanliga medlemmar att använda initialer genom att inte returnera deras avatar_url
+    return null;
 };
 
 /**

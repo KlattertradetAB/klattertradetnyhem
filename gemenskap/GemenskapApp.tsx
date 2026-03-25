@@ -486,9 +486,9 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
                   <div className="flex items-center gap-3 px-2 mb-6">
                     <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-orange-400 to-red-600 flex items-center justify-center text-xs font-bold text-white border border-white/10">
                       {(() => {
-                        const avatar = getEffectiveAvatar(user.email || undefined, user.avatar_url || undefined);
+                        const avatar = getEffectiveAvatar(user.email || undefined, user.avatar_url || undefined, user.role || undefined);
                         return avatar ? (
-                          <img src={avatar} alt={user.full_name || 'Användare'} className={`w-full h-full ${getEffectiveAvatar(user.email || undefined) ? 'object-contain p-1.5 bg-slate-900' : 'object-cover'}`} />
+                          <img src={avatar} alt={user.full_name || 'Användare'} className={`w-full h-full ${avatar.includes('logo2') ? 'object-contain p-1.5 bg-slate-900' : 'object-cover'}`} />
                         ) : (
                           (user.full_name || 'A').charAt(0)
                         );
@@ -608,9 +608,9 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
                   <div className="relative">
                     <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-800">
                       {(() => {
-                        const avatar = getEffectiveAvatar(user.email || undefined, user.avatar_url || undefined);
+                        const avatar = getEffectiveAvatar(user.email || undefined, user.avatar_url || undefined, user.role || undefined);
                         return avatar ? (
-                          <img src={avatar} alt="" className={`w-full h-full ${getEffectiveAvatar(user.email || undefined) ? 'object-contain p-1.5 bg-slate-900' : 'object-cover'}`} />
+                          <img src={avatar} alt="" className={`w-full h-full ${avatar.includes('logo2') ? 'object-contain p-1.5 bg-slate-900' : 'object-cover'}`} />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-xs font-bold">{(user.full_name || 'A')[0]}</div>
                         );

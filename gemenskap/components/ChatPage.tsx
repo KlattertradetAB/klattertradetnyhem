@@ -115,9 +115,9 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                 <div className="flex flex-col items-center gap-10 w-full">
                     {/* User Avatar with Pulse indicator */}
                     <div className="relative group cursor-pointer mb-4 overflow-hidden rounded-2.5rem p-0.5 bg-gradient-to-tr from-white/10 to-transparent">
-                        <div className={`w-14 h-14 rounded-2.5rem flex items-center justify-center text-xl font-black text-white shadow-2xl group-hover:scale-105 transition-transform duration-500 overflow-hidden ${getEffectiveAvatar(user.email || '', user.avatar_url || undefined)?.includes('icon-512') ? 'bg-slate-950 p-2' : 'bg-gradient-to-br from-orange-400 to-red-600'}`}>
+                        <div className={`w-14 h-14 rounded-2.5rem flex items-center justify-center text-xl font-black text-white shadow-2xl group-hover:scale-105 transition-transform duration-500 overflow-hidden ${getEffectiveAvatar(user.email || '', user.avatar_url || undefined, user.role || undefined)?.includes('logo2') ? 'bg-slate-950 p-2' : 'bg-gradient-to-br from-orange-400 to-red-600'}`}>
                             {(() => {
-                                const avatar = getEffectiveAvatar(user.email || '', user.avatar_url || undefined);
+                                const avatar = getEffectiveAvatar(user.email || '', user.avatar_url || undefined, user.role || undefined);
                                 return avatar ? (
                                     <img src={avatar} alt={user.full_name || 'Användare'} className={`w-full h-full ${avatar.includes('icon-512') ? 'object-contain' : 'object-cover'}`} />
                                 ) : (
@@ -304,9 +304,9 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                             {Object.entries(globalOnlineUsers).map(([userId, info]) => (
                                 <div key={userId} className="flex items-center gap-4 p-4 rounded-[2rem] hover:bg-white/5 transition-all cursor-pointer group border border-transparent hover:border-white/5">
                                     <div className="relative">
-                                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl shadow-xl transition-transform group-hover:scale-105 duration-500 overflow-hidden ${getEffectiveAvatar(undefined, info.avatar_url)?.includes('icon-512') ? 'bg-slate-950 p-2' : 'bg-gradient-to-br from-indigo-500 to-purple-500 text-white'}`}>
+                                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl shadow-xl transition-transform group-hover:scale-105 duration-500 overflow-hidden ${getEffectiveAvatar(undefined, info.avatar_url, undefined)?.includes('logo2') ? 'bg-slate-950 p-2' : 'bg-gradient-to-br from-indigo-500 to-purple-500 text-white'}`}>
                                             {(() => {
-                                                const avatar = getEffectiveAvatar(undefined, info.avatar_url);
+                                                const avatar = getEffectiveAvatar(undefined, info.avatar_url, undefined);
                                                 return avatar ? (
                                                     <img src={avatar} alt={info.full_name || 'Medlem'} className={`w-full h-full ${avatar.includes('icon-512') ? 'object-contain' : 'object-cover'}`} />
                                                 ) : (

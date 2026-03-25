@@ -24,6 +24,7 @@ interface CommunityMessage extends ChatMessage {
     senderName?: string;
     senderEmail?: string;
     senderAvatar?: string;
+    senderRole?: string;
     id?: string;
     user_id?: string;
     is_ai?: boolean;
@@ -65,7 +66,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                 if (userIds.length > 0) {
                     const { data: profilesData } = await supabase
                         .from('profiles')
-                        .select('id, full_name, email, avatar_url')
+                        .select('id, full_name, email, avatar_url, role')
                         .in('id', userIds);
 
                     if (profilesData) {
@@ -84,6 +85,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                     senderName: msg.is_ai ? undefined : (profilesMap[msg.user_id]?.full_name || 'Medlem'),
                     senderEmail: msg.is_ai ? undefined : profilesMap[msg.user_id]?.email,
                     senderAvatar: msg.is_ai ? undefined : profilesMap[msg.user_id]?.avatar_url,
+                    senderRole: msg.is_ai ? undefined : profilesMap[msg.user_id]?.role,
                     edit_count: msg.edit_count || 0,
                     is_edited: !!msg.is_edited,
                     user_id: msg.user_id
@@ -120,16 +122,18 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                     let senderName = 'Någon';
                     let senderEmail = '';
                     let senderAvatar = '';
+                    let senderRole = ''; // Initialize senderRole
                     if (!newMsg.is_ai) {
                         const { data } = await (supabase
                             .from('profiles')
-                            .select('full_name, email, avatar_url')
+                            .select('full_name, email, avatar_url, role')
                             .eq('id', newMsg.user_id)
                             .single() as any);
                         if (data) {
                             senderName = (data as any).full_name;
                             senderEmail = (data as any).email;
                             senderAvatar = (data as any).avatar_url;
+                            (newMsg as any).senderRole = (data as any).role;
                         }
                     }
 
@@ -209,7 +213,8 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
             timestamp: new Date(),
             senderName: user.full_name || 'Okänd',
             senderEmail: user.email || '',
-            senderAvatar: getEffectiveAvatar(user.email || undefined, user.avatar_url || undefined) || undefined
+            senderAvatar: getEffectiveAvatar(user.email || undefined, user.avatar_url || undefined, user.role || undefined) || undefined,
+            senderRole: user.role || undefined
         };
         setMessages(prev => [...prev, optimisticMsg]);
 
@@ -300,7 +305,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                                 <div className={`w-12 h-12 rounded-[1.25rem] flex items-center justify-center shrink-0 shadow-2xl relative group cursor-pointer overflow-hidden ${isCurrentUser ? 'bg-gradient-to-br from-orange-400 to-red-600 text-white' : (msg.persona?.color || 'bg-slate-800') + ' text-white'}`}>
                                     {isCurrentUser || msg.role === 'user' ? (
                                         (() => {
-                                            const avatar = getEffectiveAvatar(msg.senderEmail, msg.senderAvatar);
+                                            const avatar = getEffectiveAvatar(msg.senderEmail, msg.senderAvatar, msg.senderRole);
                                             return avatar ? (
                                                 <img src={avatar} alt={msg.senderName} className={`w-full h-full ${avatar.includes('icon-512') ? 'object-contain p-1.5 bg-slate-900' : 'object-cover'}`} />
                                             ) : (
