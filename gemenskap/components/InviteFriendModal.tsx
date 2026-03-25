@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { supabase } from '../services/supabase';
+import { getCurrentUser } from '../services/auth';
 import { X, Send, UserPlus, Mail } from 'lucide-react';
 
 interface InviteFriendModalProps {
@@ -8,17 +10,28 @@ interface InviteFriendModalProps {
 export const InviteFriendModal: React.FC<InviteFriendModalProps> = ({ onClose }) => {
     const [email, setEmail] = useState('');
     const [message, setMessage] = useState('');
+    const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setStatus('sending');
+        
+        try {
+            const user = await getCurrentUser();
+            const inviterName = user?.full_name || 'En medlem';
 
-        const subject = encodeURIComponent('Inbjudan till Horizonten Gemenskap');
-        const defaultBody = `Hej!\n\nJag är medlem i Horizonten och tror att det skulle vara något för dig. Det är en plats för personlig utveckling och gemenskap.\n\nKolla in det här: https://klattertradet.se\n\n${message ? `\nMeddelande från mig:\n${message}` : ''}`;
+            const { error } = await supabase.functions.invoke('invite-friend', {
+                body: { email, message, inviterName }
+            });
 
-        const body = encodeURIComponent(defaultBody);
-
-        window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-        onClose();
+            if (error) throw error;
+            
+            setStatus('success');
+            setTimeout(onClose, 2500);
+        } catch (error) {
+            console.error("Invite error:", error);
+            setStatus('error');
+        }
     };
 
     return (
@@ -84,10 +97,11 @@ export const InviteFriendModal: React.FC<InviteFriendModalProps> = ({ onClose })
 
                         <button
                             type="submit"
-                            className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-5 rounded-2xl flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95 shadow-[0_10px_30px_rgba(79,70,229,0.3)] group"
+                            disabled={status === 'sending' || status === 'success'}
+                            className={`w-full font-black py-5 rounded-2xl flex items-center justify-center gap-3 transition-all ${status === 'success' ? 'bg-green-500 text-white' : status === 'error' ? 'bg-red-500 text-white' : 'bg-indigo-600 hover:bg-indigo-500 text-white hover:scale-[1.02] active:scale-95 shadow-[0_10px_30px_rgba(79,70,229,0.3)]'} group`}
                         >
-                            Skicka inbjudan
-                            <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                            {status === 'sending' ? 'Skickar...' : status === 'success' ? 'Inbjudan skickad!' : status === 'error' ? 'Ett fel uppstod. Försök igen.' : 'Skicka inbjudan'}
+                            {status === 'idle' && <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />}
                         </button>
                     </form>
                 </div>
