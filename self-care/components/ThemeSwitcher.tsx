@@ -3,6 +3,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { themes } from '../themes';
 import { SunIcon, MoonIcon } from './icons';
 import LanguageSwitcher from './LanguageSwitcher';
+import ThemeToggle from '../../components/ui/ThemeToggle';
 
 const ThemeSwitcher: React.FC = () => {
   const { themeName, setThemeName, colorMode, toggleColorMode } = useTheme();
@@ -12,21 +13,11 @@ const ThemeSwitcher: React.FC = () => {
       <div className="flex items-center gap-x-4">
             {/* Dark/Light Mode Toggle */}
             <div className="flex items-center justify-center gap-2">
-                <SunIcon className="w-5 h-5 text-yellow-500" />
-                <button
-                    onClick={toggleColorMode}
-                    className="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border border-white/30 dark:border-white/20 bg-white/20 dark:bg-black/10 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-secondary focus:ring-offset-2 backdrop-blur-sm"
-                    aria-pressed={colorMode === 'dark'}
-                >
-                    <span className="sr-only">Toggle dark mode</span>
-                    <span
-                        aria-hidden="true"
-                        className={`${
-                            colorMode === 'dark' ? 'translate-x-5' : 'translate-x-0'
-                        } inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out border border-gray-200 dark:border-transparent`}
-                    />
-                </button>
-                <MoonIcon className="w-5 h-5 text-slate-400" />
+                <ThemeToggle 
+                  isDarkMode={colorMode === 'dark'} 
+                  onToggle={toggleColorMode} 
+                  size={46}
+                />
             </div>
 
             {/* Theme Circles */}

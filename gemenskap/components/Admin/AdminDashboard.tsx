@@ -120,8 +120,32 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
     const [profileSearch, setProfileSearch] = useState('');
     const [allBlogs, setAllBlogs] = useState<any[]>([]);
     const [allThreads, setAllThreads] = useState<any[]>([]);
+    const [allHandbookPages, setAllHandbookPages] = useState<any[]>([]);
     const [showBlogForm, setShowBlogForm] = useState(false);
     const [showThreadForm, setShowThreadForm] = useState(false);
+    const [showHandbookForm, setShowHandbookForm] = useState(false);
+
+    // Blog form state
+    const [blogTitle, setBlogTitle] = useState('');
+    const [blogDescription, setBlogDescription] = useState('');
+    const [blogImageUrl, setBlogImageUrl] = useState('');
+    const [blogContent, setBlogContent] = useState('');
+
+    const applyBlogTemplate = (type: 'news' | 'article' | 'monthly') => {
+        if (type === 'news') {
+            setBlogTitle('Nyhet: [Kort rubrik]');
+            setBlogDescription('En kort sammanfattning av nyheten...');
+            setBlogContent('## Vad har hänt?\n\n[Beskriv nyheten här]\n\n## När?\n\n[Ange tid/datum]\n\n## Hur påverkar detta dig?\n\n[Beskriv konsekvenser/nästa steg]');
+        } else if (type === 'article') {
+            setBlogTitle('[Titel på din artikel/krönika]');
+            setBlogDescription('En intresseväckande ingress som beskriver vad artikeln handlar om...');
+            setBlogContent('## Bakgrund\n\n[Skriv om bakgrunden till ämnet]\n\n## Insikter och Reflektioner\n\n[Dela dina tankar och analyser]\n\n## Slutsats\n\n[Summera och ge en konkret avslutning]');
+        } else if (type === 'monthly') {
+            setBlogTitle('Månadsbrev: [Månad] [År]');
+            setBlogDescription('En summering av månaden som gått och vad som händer framöver.');
+            setBlogContent('## Tillbakablick på månaden\n\n* [Händelse 1]\n* [Händelse 2]\n\n## Kommande aktiviteter\n\n* [Aktivitet 1]\n* [Aktivitet 2]\n\n## En hälsning från redaktionen\n\n[Ditt meddelande]');
+        }
+    };
 
     useEffect(() => {
         if (user.role === 'admin') {
@@ -189,6 +213,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
             const { data: threadsData } = await supabase.from('threads').select('*').order('created_at', { ascending: false });
             if (threadsData) setAllThreads(threadsData);
         }
+        if (activeSection === 'handbook') {
+            const { data: handbookData } = await supabase.from('board_handbook' as any).select('*').order('created_at', { ascending: false });
+            if (handbookData) setAllHandbookPages(handbookData);
+        }
         if (activeSection === 'moderation') {
             let query = supabase.from('profiles').select('*').order('created_at', { ascending: false });
             if (profileSearch) {
@@ -242,6 +270,24 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
     const deleteThread = async (id: string) => {
         if (!confirm('Är du säker på att du vill radera denna forumtråd?')) return;
         await supabase.from('threads').delete().eq('id', id);
+        fetchData();
+    };
+
+    const deleteHandbookPage = async (id: string) => {
+        if (!confirm('Är du säker på att du vill radera denna handboksida?')) return;
+        await supabase.from('board_handbook' as any).delete().eq('id', id);
+        fetchData();
+    };
+
+    const handleCourseApp = async (app: CourseApplication) => {
+        await supabase.from('course_applications').update({ status: 'Behandlas' }).eq('id', app.id);
+        window.location.href = `mailto:${app.email}?subject=Angående din utbildningsansökan: ${app.course_type}&body=Hej ${app.applicant_name},%0D%0A%0D%0A`;
+        fetchData();
+    };
+
+    const handleTherapyRequest = async (req: TherapyRequest) => {
+        await supabase.from('therapy_matchmaking').update({ status: 'Behandlas' }).eq('id', req.id);
+        window.location.href = `mailto:${req.email}?subject=Angående din terapimatchning&body=Hej ${req.applicant_name},%0D%0A%0D%0A`;
         fetchData();
     };
 
@@ -629,7 +675,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                                         {app.workplace && <p className="text-slate-500 text-xs mt-4 italic">Arbetsplats: {app.workplace}</p>}
                                     </div>
                                     <div className="md:w-32 shrink-0 flex flex-col justify-center gap-2">
-                                        <button className="py-3 bg-white text-slate-950 rounded-xl text-xs font-black">Hantera</button>
+                                        <button onClick={() => handleCourseApp(app)} className="py-3 bg-white hover:bg-slate-200 text-slate-950 rounded-xl text-xs font-black transition-all">Hantera</button>
                                         <button 
                                             onClick={() => deleteMessage(app.id, 'course')}
                                             className="py-3 bg-white/5 text-slate-400 rounded-xl text-xs font-bold border border-white/10 hover:border-red-500/50 hover:text-red-500 transition-all"
@@ -658,7 +704,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                                         <p className="text-slate-300 text-sm">Söker: {req.meeting_form}</p>
                                     </div>
                                     <div className="md:w-32 shrink-0 flex flex-col justify-center gap-2">
-                                        <button className="py-3 bg-white text-slate-950 rounded-xl text-xs font-black">Matcha</button>
+                                        <button onClick={() => handleTherapyRequest(req)} className="py-3 bg-white hover:bg-slate-200 text-slate-950 rounded-xl text-xs font-black transition-all">Matcha</button>
                                         <button 
                                             onClick={() => deleteMessage(req.id, 'therapy')}
                                             className="py-3 bg-white/5 text-slate-400 rounded-xl text-xs font-bold border border-white/10 hover:border-red-500/50 hover:text-red-500 transition-all"
@@ -744,18 +790,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                         ) : (
                             <form onSubmit={async (e) => {
                                 e.preventDefault();
-                                const form = e.target as HTMLFormElement;
-                                const title = (form.elements.namedItem('title') as HTMLInputElement).value;
-                                const description = (form.elements.namedItem('description') as HTMLTextAreaElement).value;
-                                const content = (form.elements.namedItem('content') as HTMLTextAreaElement).value;
-                                const imageUrl = (form.elements.namedItem('imageUrl') as HTMLInputElement).value;
 
                                 try {
                                     const { error } = await supabase.from('blogs').insert({
-                                        title,
-                                        description,
-                                        content,
-                                        image_url: imageUrl || null,
+                                        title: blogTitle,
+                                        description: blogDescription,
+                                        content: blogContent,
+                                        image_url: blogImageUrl || null,
                                         user_id: user.id,
                                         author_name: user.full_name || 'Admin',
                                         created_at: new Date().toISOString(),
@@ -764,7 +805,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                                     if (error) throw error;
 
                                     alert('Blogginlägg skapat!');
-                                    form.reset();
+                                    setBlogTitle('');
+                                    setBlogDescription('');
+                                    setBlogContent('');
+                                    setBlogImageUrl('');
                                     setShowBlogForm(false);
                                     fetchData();
                                 } catch (error) {
@@ -772,12 +816,25 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                                     alert('Kunde inte skapa blogginlägg. Försök igen.');
                                 }
                             }} className="space-y-6 bg-white/5 border border-white/5 p-8 rounded-[2.5rem]">
+                                
+                                <div className="mb-8">
+                                    <label className="block text-slate-400 text-xs font-black uppercase tracking-widest mb-3 px-1">Snabbstart: Välj en mall</label>
+                                    <div className="flex flex-wrap gap-3">
+                                        <button type="button" onClick={() => applyBlogTemplate('news')} className="px-4 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 rounded-xl text-xs font-bold transition-all">Nyhetsuppdatering</button>
+                                        <button type="button" onClick={() => applyBlogTemplate('article')} className="px-4 py-2 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/20 rounded-xl text-xs font-bold transition-all">Artikel / Krönika</button>
+                                        <button type="button" onClick={() => applyBlogTemplate('monthly')} className="px-4 py-2 bg-green-500/10 hover:bg-green-500/20 text-green-400 border border-green-500/20 rounded-xl text-xs font-bold transition-all">Månadsbrev</button>
+                                        <button type="button" onClick={() => { setBlogTitle(''); setBlogDescription(''); setBlogContent(''); setBlogImageUrl(''); }} className="px-4 py-2 bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 rounded-xl text-xs font-bold transition-all">Rensa formulär</button>
+                                    </div>
+                                </div>
+
                                 <div>
                                     <label className="block text-slate-400 text-xs font-black uppercase tracking-widest mb-3 px-1">Rubrik</label>
                                     <input
                                         name="title"
                                         type="text"
                                         required
+                                        value={blogTitle}
+                                        onChange={(e) => setBlogTitle(e.target.value)}
                                         className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all"
                                         placeholder="Vad ska blogginlägget heta?"
                                     />
@@ -788,6 +845,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                                         name="description"
                                         required
                                         rows={2}
+                                        value={blogDescription}
+                                        onChange={(e) => setBlogDescription(e.target.value)}
                                         className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all resize-none"
                                         placeholder="En kort ingress som lockar till läsning..."
                                     />
@@ -797,6 +856,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                                     <input
                                         name="imageUrl"
                                         type="url"
+                                        value={blogImageUrl}
+                                        onChange={(e) => setBlogImageUrl(e.target.value)}
                                         className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all"
                                         placeholder="https://images.unsplash.com/..."
                                     />
@@ -807,6 +868,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                                         name="content"
                                         required
                                         rows={15}
+                                        value={blogContent}
+                                        onChange={(e) => setBlogContent(e.target.value)}
                                         className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all resize-none font-mono text-sm leading-relaxed"
                                         placeholder="Skriv ditt inlägg här..."
                                     />
@@ -918,6 +981,111 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                                     className="w-full bg-orange-500 hover:bg-orange-600 text-slate-950 font-black py-5 rounded-2xl transition-all shadow-xl shadow-orange-500/20 active:scale-[0.98]"
                                 >
                                     Skapa Tråd
+                                </button>
+                            </form>
+                        )}
+                    </div>
+                )}
+
+                {activeSection === 'handbook' && (
+                    <div className="space-y-8 max-w-4xl mx-auto">
+                        <div className="flex items-center justify-between mb-8">
+                            <h3 className="text-2xl font-black text-white">Styrelsehandbok</h3>
+                            <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                                <button onClick={() => setShowHandbookForm(false)} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${!showHandbookForm ? 'bg-orange-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}>Lista</button>
+                                <button onClick={() => setShowHandbookForm(true)} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${showHandbookForm ? 'bg-orange-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}>Skapa Ny</button>
+                            </div>
+                        </div>
+
+                        {!showHandbookForm ? (
+                            <div className="grid grid-cols-1 gap-4">
+                                {allHandbookPages.map(page => (
+                                    <div key={page.id} className="p-6 bg-white/5 border border-white/5 rounded-3xl flex items-center justify-between group">
+                                        <div>
+                                            <h4 className="font-bold text-white mb-1">{page.title}</h4>
+                                            <p className="text-xs text-slate-500">Kategori: {page.category === 'rules' ? 'Stadgar' : page.category === 'contacts' ? 'Kontakter' : page.category === 'archive' ? 'Arkiv' : 'Dokument'} • Uppdaterad: {new Date(page.created_at).toLocaleDateString()}</p>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button 
+                                                onClick={() => deleteHandbookPage(page.id)}
+                                                className="p-2 bg-white/5 hover:bg-red-500/20 hover:text-red-500 rounded-xl transition-all border border-white/5"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                                {allHandbookPages.length === 0 && <p className="text-center py-10 text-slate-500 italic">Inga sidor i handboken hittades. Klicka på "Skapa Ny" för att lägga till dokumentation.</p>}
+                            </div>
+                        ) : (
+                            <form onSubmit={async (e) => {
+                                e.preventDefault();
+                                const form = e.target as HTMLFormElement;
+                                const title = (form.elements.namedItem('title') as HTMLInputElement).value;
+                                const content = (form.elements.namedItem('content') as HTMLTextAreaElement).value;
+                                const category = (form.elements.namedItem('category') as HTMLSelectElement).value;
+
+                                try {
+                                    const { error } = await supabase.from('board_handbook' as any).insert({
+                                        title,
+                                        content,
+                                        category,
+                                        author_id: user.id,
+                                        created_at: new Date().toISOString(),
+                                    });
+
+                                    if (error) throw error;
+
+                                    alert('Sida skapad i handboken!');
+                                    form.reset();
+                                    setShowHandbookForm(false);
+                                    fetchData();
+                                } catch (error) {
+                                    console.error('Error creating handbook page:', error);
+                                    alert('Kunde inte spara inlägget. Kontrollera att tabellen "board_handbook" finns i databasen.');
+                                }
+                            }} className="space-y-6 bg-white/5 border border-white/5 p-8 rounded-[2.5rem]">
+                                <div>
+                                    <label className="block text-slate-400 text-xs font-black uppercase tracking-widest mb-3 px-1">Rubrik</label>
+                                    <input
+                                        name="title"
+                                        type="text"
+                                        required
+                                        className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all"
+                                        placeholder="T.ex. Stadgar, Rutiner eller Mötesprotokoll"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-slate-400 text-xs font-black uppercase tracking-widest mb-3 px-1">Kategori (Ikon)</label>
+                                    <select
+                                        name="category"
+                                        className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all"
+                                    >
+                                        <option value="document">Dokument (Generellt)</option>
+                                        <option value="rules">Stadgar & Regler</option>
+                                        <option value="contacts">Kontakter</option>
+                                        <option value="archive">Arkiv</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-slate-400 text-xs font-black uppercase tracking-widest mb-3 px-1">Innehåll (Markdown stöds)</label>
+                                    <textarea
+                                        name="content"
+                                        required
+                                        rows={12}
+                                        className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all resize-none font-mono text-sm leading-relaxed"
+                                        placeholder="Skriv innehållet här..."
+                                    />
+                                </div>
+                                <div className="bg-orange-500/10 border border-orange-500/20 p-4 rounded-2xl flex gap-3 text-orange-400 text-sm">
+                                    <Shield className="shrink-0" size={18} />
+                                    <p>Observera: För att spara krävs att en Supabase-tabell vid namn <strong>board_handbook</strong> är upprättad (kolumner: id, title, content, category, author_id, created_at).</p>
+                                </div>
+                                <button
+                                    type="submit"
+                                    className="w-full bg-orange-500 hover:bg-orange-600 text-slate-950 font-black py-5 rounded-2xl transition-all shadow-xl shadow-orange-500/20 active:scale-[0.98]"
+                                >
+                                    Spara i Handboken
                                 </button>
                             </form>
                         )}

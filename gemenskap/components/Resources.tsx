@@ -1,6 +1,7 @@
 import React from 'react';
 import { Package, Download, Globe, Shield, ArrowRight } from 'lucide-react';
 import PricingCard from '../../components/ui/PricingCard';
+import PremiumBadge from './PremiumBadge';
 
 const Resources: React.FC = () => {
     return (
@@ -13,6 +14,16 @@ const Resources: React.FC = () => {
                 <p className="text-xl text-slate-400 max-w-2xl mx-auto">
                     Här hittar du verktyg, material och fördjupning för din resa. 
                     Välj det stöd som passar dig bäst just nu.
+                </p>
+            </div>
+
+            {/* Premium Advertisement Icon */}
+            <div className="flex flex-col items-center justify-center pt-4 pb-8">
+                <a href="#medlemskap" className="transition-transform duration-300">
+                    <PremiumBadge />
+                </a>
+                <p className="mt-6 text-orange-400 font-bold tracking-[0.2em] uppercase text-sm">
+                    Uppgradera till Premium
                 </p>
             </div>
 

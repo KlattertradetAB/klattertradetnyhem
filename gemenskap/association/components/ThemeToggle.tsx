@@ -1,17 +1,23 @@
 import React from 'react';
 import { useTheme } from '../hooks';
-import { SunIcon, MoonIcon } from './Icons';
+import '../../../components/ui/ModernThemeToggle.css';
 
 const ThemeToggle: React.FC = () => {
     const { theme, setTheme } = useTheme();
+    const isDarkMode = theme === 'dark';
+    const switchId = React.useId();
+
     return (
-        <button
-            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-            className="p-2 rounded-full text-slate-400 hover:text-white hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 transition-colors"
-            aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-        >
-            {theme === 'light' ? <MoonIcon /> : <SunIcon />}
-        </button>
+        <div className="modern-theme-container transform scale-50 origin-center p-2">
+            <input 
+              type="checkbox" 
+              id={switchId}
+              className="modern-theme-checkbox" 
+              checked={isDarkMode}
+              onChange={() => setTheme(isDarkMode ? 'light' : 'dark')}
+            />
+            <label htmlFor={switchId} className="modern-theme-label" aria-label="Toggle Dark Mode"></label>
+        </div>
     );
 };
 

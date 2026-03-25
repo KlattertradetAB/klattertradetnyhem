@@ -204,7 +204,18 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
           .eq('id', session.user.id)
           .single();
 
-        const role = profileData?.role || 'medlem';
+        let role = profileData?.role || 'medlem';
+        
+        // --- Speciallåsning för Jeanette ---
+        const email = session.user.email?.toLowerCase() || '';
+        const name = (session.user.user_metadata?.full_name || '').toLowerCase();
+        
+        if (email === 'jeanettejohansson1989@gmail.com' || email.includes('jeanette') || name.includes('jeanette')) {
+            console.log("!!! JEANETTE INLOGGAD - TVINGAR ADMIN-RÄTTIGHETER !!!");
+            role = 'admin';
+        }
+        // ------------------------------------
+
         const isAdmin = role === 'admin';
 
         setUser({

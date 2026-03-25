@@ -39,43 +39,8 @@ const Blog: React.FC<BlogProps> = ({ setPage }) => {
     }
   };
 
-  const featuredPosts = [
-    {
-      title: t.blog_post1_title,
-      description: t.blog_post1_desc,
-      date: t.blog_status_popular,
-      category: t.blog_post1_category,
-      author: "Horizonten Team",
-      authorRole: t.blog_post1_author_role,
-      image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=600&h=400"
-    },
-    {
-      title: t.blog_post2_title,
-      description: t.blog_post2_desc,
-      date: t.blog_status_featured,
-      category: t.blog_post2_category,
-      author: "Billy Ljungberg",
-      authorRole: t.blog_post2_author_role,
-      image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&q=80&w=600&h=400"
-    }
-  ];
-
-  const blogPosts = [
-    {
-      title: t.blog_article1_title,
-      description: t.blog_article1_desc,
-      pdfUrl: "/Attributionsfel-narcissism.pdf",
-      category: t.blog_article1_category,
-      date: "2024-01-20"
-    },
-    {
-      title: t.blog_article2_title,
-      description: t.blog_article2_desc,
-      pdfUrl: "/Polarisering-av-personlighetsstörningar .pdf",
-      category: t.blog_article2_category,
-      date: "2024-01-15"
-    }
-  ];
+  const dynFeaturedPosts = supabasePosts.slice(0, 2);
+  const dynRegularPosts = supabasePosts.slice(2);
 
   const handleOpenPdf = (pdfUrl: string, title: string) => {
     setSelectedPdf({ url: pdfUrl, title });
@@ -111,15 +76,15 @@ const Blog: React.FC<BlogProps> = ({ setPage }) => {
         </div>
 
         <div className="mx-auto mt-10 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 border-t border-white/10 pt-10 sm:mt-16 sm:pt-16 lg:mx-0 lg:max-w-none lg:grid-cols-2 relative z-10">
-          {featuredPosts.map((post, idx) => (
-            <article key={idx} className="flex max-w-xl flex-col items-start justify-between group">
+          {dynFeaturedPosts.map((post, idx) => (
+            <article key={idx} className="flex max-w-xl flex-col items-start justify-between group cursor-pointer" onClick={() => handleOpenPost(post)}>
               <div className="flex items-center gap-x-4 text-xs">
-                <time className="text-white/40 font-bold tracking-widest uppercase">{post.date}</time>
-                <span className="relative z-10 rounded-full bg-orange-500/20 px-3 py-1.5 font-black text-orange-400 uppercase tracking-widest">{post.category}</span>
+                <time className="text-white/40 font-bold tracking-widest uppercase">{new Date(post.created_at).toLocaleDateString()}</time>
+                <span className="relative z-10 rounded-full bg-orange-500/20 px-3 py-1.5 font-black text-orange-400 uppercase tracking-widest">UTVALD</span>
               </div>
               <div className="group relative grow">
                 <h3 className="mt-6 text-2xl font-black text-white group-hover:text-amber-200 transition-colors leading-tight">
-                  <a href="#">
+                  <a href="#" onClick={(e) => { e.preventDefault(); handleOpenPost(post); }}>
                     <span className="absolute inset-0"></span>
                     {post.title}
                   </a>
@@ -127,15 +92,12 @@ const Blog: React.FC<BlogProps> = ({ setPage }) => {
                 <p className="mt-5 line-clamp-3 text-sm/6 text-white/50 font-light italic">{post.description}</p>
               </div>
               <div className="relative mt-10 flex items-center gap-x-4">
-                <img src={post.image} alt={post.author} className="size-12 rounded-2xl bg-white/5 object-cover shadow-2xl border border-white/10" />
+                <img src={post.image_url || "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=600&h=400"} alt={post.author_name || 'Admin'} className="size-12 rounded-2xl bg-white/5 object-cover shadow-2xl border border-white/10" />
                 <div className="text-sm">
                   <p className="font-black text-white uppercase tracking-wider text-[11px] mb-0.5">
-                    <a href="#">
-                      <span className="absolute inset-0"></span>
-                      {post.author}
-                    </a>
+                    {post.author_name || 'Admin'}
                   </p>
-                  <p className="text-white/30 text-[10px] font-bold uppercase">{post.authorRole}</p>
+                  <p className="text-white/30 text-[10px] font-bold uppercase">Författare</p>
                 </div>
               </div>
             </article>
@@ -151,10 +113,11 @@ const Blog: React.FC<BlogProps> = ({ setPage }) => {
 
         <div className="grid gap-6">
           {/* Supabase Posts */}
-          {supabasePosts.map((post) => (
+          {dynRegularPosts.map((post) => (
             <div
               key={post.id}
-              className="glass bg-white/[0.03] border border-white/10 rounded-[2.5rem] p-6 md:p-10 hover:bg-white/[0.05] hover:border-orange-500/30 transition-all duration-500 group relative overflow-hidden flex flex-col md:flex-row gap-8 items-center"
+              className="glass bg-white/[0.03] border border-white/10 rounded-[2.5rem] p-6 md:p-10 hover:bg-white/[0.05] hover:border-orange-500/30 transition-all duration-500 group relative overflow-hidden flex flex-col md:flex-row gap-8 items-center cursor-pointer"
+              onClick={() => handleOpenPost(post)}
             >
               <div className="md:w-1/3 w-full h-48 md:h-64 rounded-3xl overflow-hidden relative">
                 {post.image_url ? (
@@ -170,7 +133,7 @@ const Blog: React.FC<BlogProps> = ({ setPage }) => {
               <div className="md:w-2/3 space-y-4 text-center md:text-left">
                 <div className="flex flex-wrap justify-center md:justify-start gap-3 items-center">
                   <span className="text-[10px] font-black uppercase tracking-widest bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full">
-                    NYHET
+                    INLÄGG
                   </span>
                   <span className="text-[10px] font-bold text-white/30 flex items-center gap-1">
                     <Clock size={12} /> {new Date(post.created_at).toLocaleDateString()}
@@ -191,56 +154,11 @@ const Blog: React.FC<BlogProps> = ({ setPage }) => {
                 </p>
 
                 <button
-                  onClick={() => handleOpenPost(post)}
+                  onClick={(e) => { e.stopPropagation(); handleOpenPost(post); }}
                   className="flex items-center gap-2 text-orange-400 font-black text-sm md:text-base hover:gap-4 transition-all mx-auto md:mx-0"
                 >
                   {t.blog_read_more} <ArrowRight size={20} />
                 </button>
-              </div>
-            </div>
-          ))}
-
-          {/* Hardcoded PDF Posts */}
-          {blogPosts.map((post, index) => (
-            <div
-              key={index}
-              className="glass bg-white/[0.03] border border-white/10 rounded-[2.5rem] p-6 md:p-10 hover:bg-white/[0.05] hover:border-orange-500/30 transition-all duration-500 group relative overflow-hidden flex flex-col md:flex-row gap-8 items-center"
-            >
-              <div className="md:w-1/4 flex justify-center">
-                <div className="w-24 h-24 md:w-32 md:h-32 bg-orange-500/10 rounded-3xl flex items-center justify-center text-orange-400 group-hover:scale-110 transition-transform duration-500">
-                  <FileText size={48} />
-                </div>
-              </div>
-
-              <div className="md:w-3/4 space-y-4 text-center md:text-left">
-                <div className="flex flex-wrap justify-center md:justify-start gap-3 items-center">
-                  <span className="text-[10px] font-black uppercase tracking-widest bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full">
-                    {post.category}
-                  </span>
-                  <span className="text-[10px] font-bold text-white/30 flex items-center gap-1">
-                    <Clock size={12} /> {post.date}
-                  </span>
-                </div>
-
-                <h2 className="text-2xl md:text-3xl font-black text-white leading-tight group-hover:text-amber-200 transition-colors">
-                  {post.title}
-                </h2>
-
-                <p className="text-white/60 text-sm md:text-base leading-relaxed max-w-2xl font-light">
-                  {post.description}
-                </p>
-
-                <button
-                  onClick={() => handleOpenPdf(post.pdfUrl, post.title)}
-                  className="flex items-center gap-2 text-orange-400 font-black text-sm md:text-base hover:gap-4 transition-all mx-auto md:mx-0"
-                >
-                  {t.blog_read_more} <ArrowRight size={20} />
-                </button>
-              </div>
-
-              {/* Decorative background logo */}
-              <div className="absolute top-1/2 -translate-y-1/2 right-[5%] p-4 opacity-5 group-hover:opacity-10 transition-opacity blur-[1px] pointer-events-none">
-                <img src="/assets/logo2.png" alt="Logo" className="w-40 h-40 md:w-56 md:h-56 object-contain rotate-12" />
               </div>
             </div>
           ))}

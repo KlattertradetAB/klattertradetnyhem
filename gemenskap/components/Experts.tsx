@@ -147,6 +147,37 @@ const Experts: React.FC = () => {
                     </div>
                 </div>
 
+                {/* Jeanette Johansson */}
+                <div className="group bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden hover:border-orange-500/30 transition-all hover:shadow-[0_0_40px_-10px_rgba(249,115,22,0.15)] flex flex-col">
+                    <div className="relative h-80 overflow-hidden bg-slate-800">
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent z-10 opacity-60"></div>
+                        <img
+                            src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1000"
+                            alt="Jeanette Johansson"
+                            className="w-full h-full object-cover object-top opacity-60 grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-105"
+                        />
+                    </div>
+                    <div className="p-6 flex-grow flex flex-col">
+                        <div className="mb-4">
+                            <h3 className="text-2xl font-bold text-white mb-1">Jeanette Johansson</h3>
+                            <p className="text-orange-400 font-medium flex items-center gap-2">
+                                <Award size={16} />
+                                Behandlingspedagog & Hudterapeut
+                            </p>
+                        </div>
+                        <p className="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">
+                            Arbetar med yttre och inre välmående utifrån ett holistiskt perspektiv. Hjälper dig att hitta balans och harmoni.
+                        </p>
+                        <button
+                            onClick={() => window.location.href = 'mailto:jeanettejohansson1989@gmail.com,billy@klattertradet.se?subject=Bokningsförfrågan via Horizonten'}
+                            className="w-full bg-slate-800 hover:bg-orange-500 hover:text-slate-900 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 group/btn"
+                        >
+                            <Calendar size={18} />
+                            <span>Boka Samtal</span>
+                        </button>
+                    </div>
+                </div>
+
             </div>
         </div>
     );
