@@ -21,7 +21,10 @@ import {
     TrendingUp,
     AlertCircle,
     ChevronRight,
-    Search as SearchIcon
+    Search as SearchIcon,
+    Video,
+    Link,
+    Copy
 } from 'lucide-react';
 import { translations } from '../../translations';
 import { NAVIGATION_CATEGORIES } from '../../association/constants';
@@ -114,6 +117,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
         todayViews: 128
     });
     const [fetchError, setFetchError] = useState<string | null>(null);
+    const [chartData, setChartData] = useState<any[]>([]);
+    const [calendarOffset, setCalendarOffset] = useState(0); // 0 = latest 5 days, 1 = previous 5 days, etc.
 
     const [bookingSearch, setBookingSearch] = useState('');
     const [bookingStatus, setBookingStatus] = useState('');
@@ -180,6 +185,54 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                 unreadReports: 0,
                 unprocessedApps: (appCount || 0) + (therapyCount || 0)
             }));
+
+            // Fetch Real Analytics Data (Last 30 days instead of 7 to allow scrolling back)
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            thirtyDaysAgo.setHours(0, 0, 0, 0);
+
+            const { data: viewsData, error: viewsError } = await (supabase as any)
+                .from('page_views')
+                .select('created_at, session_id')
+                .gte('created_at', thirtyDaysAgo.toISOString());
+
+            if (!viewsError && viewsData) {
+                // Group by date (YYYY-MM-DD)
+                const groupedData: Record<string, { views: number, sessions: Set<string> }> = {};
+                
+                // Initialize last 30 days
+                for (let i = 0; i < 30; i++) {
+                    const d = new Date();
+                    d.setDate(d.getDate() - (29 - i));
+                    const dateStr = d.toISOString().split('T')[0];
+                    groupedData[dateStr] = { views: 0, sessions: new Set() };
+                }
+
+                viewsData.forEach((row: any) => {
+                    const dateStr = row.created_at.split('T')[0];
+                    if (groupedData[dateStr]) {
+                        groupedData[dateStr].views++;
+                        groupedData[dateStr].sessions.add(row.session_id);
+                    }
+                });
+
+                const finalChartData = Object.keys(groupedData).sort().map(date => ({
+                    date,
+                    views: groupedData[date].views,
+                    uniques: groupedData[date].sessions.size
+                }));
+
+                setChartData(finalChartData);
+
+                const todayStr = new Date().toISOString().split('T')[0];
+                const todayStats = groupedData[todayStr] || { views: 0, sessions: new Set() };
+
+                setStats((prev: any) => ({
+                    ...prev,
+                    todayViews: todayStats.views,
+                    todayUniques: todayStats.sessions.size
+                }));
+            }
         } catch (err) {
             console.error('General stats fetch error:', err);
         }
@@ -303,17 +356,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                 </div>
             </div>
         );
-    }
+    };
 
-    const chartData = [
-        { date: '2026-02-19', views: 400, uniques: 240 },
-        { date: '2026-02-20', views: 300, uniques: 139 },
-        { date: '2026-02-21', views: 200, uniques: 980 },
-        { date: '2026-02-22', views: 278, uniques: 390 },
-        { date: '2026-02-23', views: 189, uniques: 480 },
-        { date: '2026-02-24', views: 239, uniques: 380 },
-        { date: '2026-02-25', views: 349, uniques: 430 },
-    ];
+    // Calendar logic:
+    const displayData = chartData.slice(-7); // Chart always shows last 7 days
+    const maxOffset = Math.max(0, Math.ceil(chartData.length / 5) - 1);
+    const safeOffset = Math.max(0, Math.min(calendarOffset, maxOffset));
+    
+    // Calculate the slice for the 5-day calendar
+    const endIndex = chartData.length - (safeOffset * 5);
+    const startIndex = Math.max(0, endIndex - 5);
+    const calendarDays = chartData.slice(startIndex, endIndex);
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-in fade-in duration-700">
@@ -428,7 +481,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                             <h3 className="text-xl font-bold text-white mb-8">Besöksstatistik</h3>
                             <div className="h-[300px] w-full">
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <AreaChart data={chartData}>
+                                    <AreaChart data={displayData}>
                                         <defs>
                                             <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
                                                 <stop offset="5%" stopColor="#f97316" stopOpacity={0.3} />
@@ -453,7 +506,115 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* 5-Day Calendar History */}
+                        <div className="bg-white/5 border border-white/5 rounded-3xl p-8">
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-xl font-bold text-white">Besökskalender</h3>
+                                <div className="flex bg-slate-900/50 rounded-xl p-1 border border-white/5">
+                                    <button 
+                                        disabled={safeOffset >= maxOffset || chartData.length === 0}
+                                        onClick={() => setCalendarOffset(prev => prev + 1)} 
+                                        className="px-4 py-2 text-xs font-bold text-slate-300 hover:text-white disabled:opacity-30 disabled:hover:text-slate-300 transition-colors"
+                                    >
+                                        ← Äldre
+                                    </button>
+                                    <div className="w-px bg-white/10 my-2"></div>
+                                    <button 
+                                        disabled={safeOffset === 0}
+                                        onClick={() => setCalendarOffset(prev => Math.max(0, prev - 1))} 
+                                        className="px-4 py-2 text-xs font-bold text-slate-300 hover:text-white disabled:opacity-30 disabled:hover:text-slate-300 transition-colors"
+                                    >
+                                        Nyare →
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                                {calendarDays.length > 0 ? calendarDays.map((day, ix) => {
+                                    const dateObj = new Date(day.date);
+                                    const today = new Date().toISOString().split('T')[0];
+                                    const isToday = day.date === today;
+                                    
+                                    return (
+                                        <div key={ix} className={`border rounded-2xl p-5 text-center transition-all ${isToday ? 'bg-orange-500/10 border-orange-500/30' : 'bg-slate-900/40 border-white/5'}`}>
+                                            <p className={`text-xs font-bold uppercase tracking-wider mb-3 ${isToday ? 'text-orange-400' : 'text-slate-500'}`}>
+                                                {isToday ? 'Idag' : dateObj.toLocaleDateString('sv-SE', { weekday: 'short', month: 'short', day: 'numeric' })}
+                                            </p>
+                                            <p className="text-3xl font-black text-white mb-1">{day.uniques}</p>
+                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-4">Besökare</p>
+                                            <div className="pt-3 border-t border-white/5">
+                                                <p className="text-xs text-orange-400 font-bold">{day.views} visn.</p>
+                                            </div>
+                                        </div>
+                                    );
+                                }) : (
+                                    <div className="col-span-2 md:col-span-5 text-center py-6 text-slate-500 italic text-sm">Finns ingen data än under denna period</div>
+                                )}
+                            </div>
+
+                        {/* Video Meeting Quick Generator */}
+                        <div className="bg-gradient-to-br from-indigo-900/40 to-slate-900/40 border border-indigo-500/20 rounded-3xl p-8 relative overflow-hidden group mt-8">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none group-hover:bg-indigo-500/20 transition-colors"></div>
+                            
+                            <h3 className="text-xl font-bold text-white mb-3 flex items-center gap-3 relative z-10">
+                                <div className="p-2 bg-indigo-500/20 text-indigo-400 rounded-xl">
+                                    <Video size={20} />
+                                </div>
+                                Skapa Möteslänk
+                            </h3>
+                            <p className="text-sm text-slate-400 mb-6 relative z-10 max-w-2xl">Skriv in ett rumsnamn för att skapa en unik videolänk. När du skickar länken till någon navigeras de direkt in i ett privat, krypterat videomöte inne på klätterträdet. Ingen inloggning krävs för gäster.</p>
+                            
+                            <div className="flex flex-col md:flex-row gap-4 relative z-10">
+                                <div className="flex-1 relative">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500">
+                                        <Link size={16} />
+                                    </div>
+                                    <input 
+                                        type="text" 
+                                        placeholder="t.ex. styrelse-april" 
+                                        className="w-full bg-slate-900/80 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                                        onChange={(e) => {
+                                            const clean = e.target.value.replace(/[^a-zA-Z0-9_-]/g, '').toLowerCase();
+                                            const resultInput = document.getElementById('roomLinkResult') as HTMLInputElement;
+                                            if (resultInput) resultInput.value = clean ? `${window.location.origin}/videomote?room=${clean}` : '';
+                                        }}
+                                    />
+                                </div>
+                                <div className="flex-[2] flex gap-2">
+                                    <input 
+                                        id="roomLinkResult"
+                                        type="text"
+                                        readOnly
+                                        placeholder="Din länk dyker upp här..."
+                                        className="flex-1 bg-slate-950/50 border border-white/5 rounded-xl px-4 py-3 text-indigo-300 font-mono text-sm select-all cursor-pointer"
+                                        onClick={(e) => (e.target as HTMLInputElement).select()}
+                                    />
+                                    <button
+                                        onClick={(e) => {
+                                            const resultInput = document.getElementById('roomLinkResult') as HTMLInputElement;
+                                            if (resultInput && resultInput.value) {
+                                                navigator.clipboard.writeText(resultInput.value);
+                                                const btn = e.currentTarget;
+                                                const originalText = btn.innerHTML;
+                                                btn.innerHTML = '<span class="flex items-center gap-2">Kopierad!</span>';
+                                                btn.classList.add('bg-green-600', 'text-white');
+                                                btn.classList.remove('bg-indigo-600');
+                                                setTimeout(() => {
+                                                    btn.innerHTML = originalText;
+                                                    btn.classList.remove('bg-green-600');
+                                                    btn.classList.add('bg-indigo-600');
+                                                }, 2000);
+                                            }
+                                        }}
+                                        className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-indigo-500/25 whitespace-nowrap flex items-center gap-2"
+                                    >
+                                        <Copy size={16} /> Kopiera
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+
                             <div className="space-y-6">
                                 <h3 className="text-lg font-bold text-white flex items-center gap-3">
                                     <BookOpen className="text-orange-500" size={20} /> Senaste Beställningar
@@ -1076,10 +1237,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                                         className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all resize-none font-mono text-sm leading-relaxed"
                                         placeholder="Skriv innehållet här..."
                                     />
-                                </div>
-                                <div className="bg-orange-500/10 border border-orange-500/20 p-4 rounded-2xl flex gap-3 text-orange-400 text-sm">
-                                    <Shield className="shrink-0" size={18} />
-                                    <p>Observera: För att spara krävs att en Supabase-tabell vid namn <strong>board_handbook</strong> är upprättad (kolumner: id, title, content, category, author_id, created_at).</p>
                                 </div>
                                 <button
                                     type="submit"

@@ -8,9 +8,17 @@ interface PremiumBadgeProps {
 
 const PremiumBadge: React.FC<PremiumBadgeProps> = ({ onClick, className }) => {
   return (
-    <div className={`premium-badge-container ${className || ''}`} onClick={onClick}>
+    <div className={`premium-badge-wrapper ${className || ''}`} onClick={onClick}>
+      <div className="premium-badge-glow"></div>
       <div className="premium-badge-card">
-        <span></span>
+        <div className="premium-badge-glass-content">
+          <div className="premium-badge-ribbon">
+            <span>PREMIUM</span>
+          </div>
+          <div className="premium-badge-visual">
+            <div className="gem-shimmer"></div>
+          </div>
+        </div>
       </div>
     </div>
   );

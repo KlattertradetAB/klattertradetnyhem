@@ -33,6 +33,7 @@ const GemenskapApp = lazy(() => import('./gemenskap/GemenskapApp'));
 const PremiumApplication = lazy(() => import('./pages/PremiumApplication'));
 const FreeRegistration = lazy(() => import('./pages/FreeRegistration'));
 const GestaltApp = lazy(() => import('./gestalt-filosofi/App'));
+const StandaloneVideoRoom = lazy(() => import('./gemenskap/components/StandaloneVideoRoom').then(m => ({ default: m.StandaloneVideoRoom })));
 import { Page } from './types';
 import { LanguageProvider as SelfCareLanguageProvider } from './self-care/contexts/LanguageContext';
 import { ThemeProvider as SelfCareThemeProvider } from './self-care/contexts/ThemeContext';
@@ -40,6 +41,7 @@ import AdminDashboard from './self-care/components/AdminDashboard';
 import { supabase } from './gemenskap/services/supabase';
 import { AuthStatus } from './gemenskap/types';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
+import { trackPageView } from './gemenskap/services/analytics';
 export const PAGE_URLS: Record<Page, string> = {
   [Page.HOME]: '/',
   [Page.ABOUT]: '/om-oss',
@@ -52,6 +54,7 @@ export const PAGE_URLS: Record<Page, string> = {
   [Page.COMMUNITY]: '/gemenskap',
   [Page.CONTACT]: '/kontakt.bokning',
   [Page.SERVICES]: '/tjanster',
+  [Page.VIDEO_MEETING]: '/videomote',
   [Page.SURVEY]: '/enkät',
   [Page.DOWNLOADS]: '/bibliotek',
   [Page.LOGIN]: '/logga-in',
@@ -201,6 +204,8 @@ const App: React.FC = () => {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
+    const url = PAGE_URLS[currentPage] || '/';
+    trackPageView(url);
   }, [currentPage]);
 
   const toggleTheme = () => {
@@ -218,7 +223,7 @@ const App: React.FC = () => {
           isVisible={isCookieBannerVisible}
           onClose={() => setIsCookieBannerVisible(false)}
         />
-        {currentPage !== Page.GEMENSKAP_APP && !isStandalone && (
+        {currentPage !== Page.GEMENSKAP_APP && currentPage !== Page.VIDEO_MEETING && !isStandalone && (
           <Navigation
             currentPage={currentPage}
             setPage={handleSetPage}
@@ -280,6 +285,7 @@ const App: React.FC = () => {
                 case Page.QUALITY_MARKING: return <QualityMarking setPage={handleSetPage} />;
                 case Page.ADMIN_SURVEY_STATS: return <AdminDashboard />;
                 case Page.ADMIN_PANEL: return <GemenskapApp onBackToSite={(targetPage?: Page, state?: any) => handleSetPage(targetPage || Page.HOME, state)} initialTab="admin" />;
+                case Page.VIDEO_MEETING: return <StandaloneVideoRoom />;
                 case Page.GEMENSKAP_APP: return <GemenskapApp onBackToSite={(targetPage?: Page, state?: any) => handleSetPage(targetPage || Page.HOME, state)} />;
                 default: return <Home setPage={handleSetPage} />;
               }
@@ -287,7 +293,7 @@ const App: React.FC = () => {
           </Suspense>
         </main>
 
-        {currentPage !== Page.GEMENSKAP_APP && !isStandalone && (
+        {currentPage !== Page.GEMENSKAP_APP && currentPage !== Page.VIDEO_MEETING && !isStandalone && (
           <footer className="py-12 mt-auto border-t border-white/10">
             <div className="max-w-[1600px] mx-auto px-6 flex flex-col items-center gap-6">
               <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 text-[10px] md:text-xs font-bold text-white/30 tracking-widest uppercase">

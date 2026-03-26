@@ -1,61 +1,132 @@
-.premium-badge-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.premium-badge-wrapper {
+  position: relative;
+  width: 220px;
+  height: 280px;
+  perspective: 1000px;
+  cursor: pointer;
+}
+
+.premium-badge-glow {
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(circle at center, rgba(249, 115, 22, 0.4) 0%, transparent 70%);
+  filter: blur(20px);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 0;
+}
+
+.premium-badge-wrapper:hover .premium-badge-glow {
+  opacity: 1;
 }
 
 .premium-badge-card {
-  width: 200px;
-  height: 250px;
-  border-radius: 20px;
-  background: linear-gradient(170deg, rgba(58, 56, 56, 0.623) 0%, rgb(31, 31, 31) 100%);
   position: relative;
-  box-shadow: 0 25px 50px rgba(0,0,0,0.55);
-  cursor: pointer;
-  transition: all .3s;
-}
-
-.premium-badge-card:hover {
-  transform: scale(0.9);
-}
-
-.premium-badge-card span {
-  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 2rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
-  width: 150px;
-  height: 150px;
-  top: -10px;
-  left: -10px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.6s ease;
+  z-index: 10;
+}
+
+.premium-badge-wrapper:hover .premium-badge-card {
+  transform: translateY(-10px) rotateX(10deg) rotateY(-5deg);
+  box-shadow: 0 40px 70px -15px rgba(249, 115, 22, 0.3);
+  border-color: rgba(249, 115, 22, 0.5);
+}
+
+.premium-badge-glass-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 
-.premium-badge-card span::before {
-  content: 'Premium';
+.premium-badge-ribbon {
   position: absolute;
-  width: 150%;
-  height: 40px;
-  background-image: linear-gradient(45deg, #ff6547 0%, #ffb144  51%, #ff7053  100%);
-  transform: rotate(-45deg) translateY(-20px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  box-shadow: 0 5px 10px rgba(0,0,0,0.23);
+  top: 0;
+  left: 0;
+  width: 130px;
+  height: 130px;
+  overflow: hidden;
 }
 
-.premium-badge-card span::after {
+.premium-badge-ribbon span {
+  position: absolute;
+  display: block;
+  width: 225px;
+  padding: 10px 0;
+  background-color: #f97316;
+  background-image: linear-gradient(45deg, #f97316 0%, #fbbf24 100%);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  color: #fff;
+  font: 700 14px/1 'Outfit', sans-serif;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  text-transform: uppercase;
+  text-align: center;
+  left: -53px;
+  top: 30px;
+  transform: rotate(-45deg);
+}
+
+.premium-badge-visual {
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle at center, #fbbf24, #f97316);
+  border-radius: 50%;
+  position: relative;
+  box-shadow: 0 0 30px rgba(249, 115, 22, 0.4);
+  overflow: hidden;
+}
+
+.gem-shimmer {
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 300%;
+  height: 300%;
+  background: linear-gradient(
+    45deg,
+    transparent 0%,
+    transparent 40%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 60%,
+    transparent 100%
+  );
+  animation: shimmer 4s infinite linear;
+}
+
+@keyframes shimmer {
+  0% { transform: translate(-30%, -30%) rotate(0deg); }
+  100% { transform: translate(30%, 30%) rotate(0deg); }
+}
+
+.premium-badge-card::after {
   content: '';
   position: absolute;
-  width: 10px;
-  bottom: 0;
-  left: 0;
-  height: 10px;
-  z-index: -1;
-  box-shadow: 140px -140px #cc3f47;
-  background-image: linear-gradient(45deg, #FF512F 0%, #F09819  51%, #FF512F  100%);
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: 0.75s;
+}
+
+.premium-badge-wrapper:hover .premium-badge-card::after {
+  left: 125%;
 }
