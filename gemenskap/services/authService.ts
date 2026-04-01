@@ -1,5 +1,4 @@
 import { supabase } from './supabase';
-import { Database } from '../types/database.types';
 
 export type UserRole = 'user' | 'medlem' | 'admin';
 
@@ -40,6 +39,11 @@ export const authService = {
                     membership_level: membershipLevel,
                     role: role,
                     membership_active: membershipActive,
+                    // Extended Metadata
+                    signup_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    signup_language: navigator.language,
+                    signup_user_agent: navigator.userAgent,
+                    signup_at: new Date().toISOString()
                 },
             },
         });
@@ -70,6 +74,38 @@ export const authService = {
     },
 
     /**
+     * Send a password reset email.
+     */
+    async resetPassword(email: string) {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/#update-password`,
+        });
+        if (error) throw error;
+    },
+
+    /**
+     * Update the current user's password.
+     */
+    async updatePassword(password: string) {
+        const { error } = await supabase.auth.updateUser({ password });
+        if (error) throw error;
+    },
+
+    /**
+     * Resend the verification email for a user.
+     */
+    async resendVerificationEmail(email: string) {
+        const { error } = await supabase.auth.resend({
+            type: 'signup',
+            email: email,
+            options: {
+                emailRedirectTo: `${window.location.origin}/`,
+            }
+        });
+        if (error) throw error;
+    },
+
+    /**
      * Get the current user profile.
      */
     async getProfile(userId: string) {
@@ -81,5 +117,13 @@ export const authService = {
 
         if (error) throw error;
         return data;
+    },
+
+    /**
+     * Get the currently authenticated user session.
+     */
+    async getCurrentUser() {
+        const { data: { user } } = await supabase.auth.getUser();
+        return user;
     }
 };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../services/supabase';
-import { getCurrentUser } from '../services/auth';
+import { authService } from '../services/authService';
 import { X, Send, UserPlus, Mail } from 'lucide-react';
 
 interface InviteFriendModalProps {
@@ -17,8 +17,8 @@ export const InviteFriendModal: React.FC<InviteFriendModalProps> = ({ onClose })
         setStatus('sending');
         
         try {
-            const user = await getCurrentUser();
-            const inviterName = user?.full_name || 'En medlem';
+            const user = await authService.getCurrentUser();
+            const inviterName = (user?.user_metadata?.full_name) || 'En medlem';
 
             const { error } = await supabase.functions.invoke('invite-friend', {
                 body: { email, message, inviterName }

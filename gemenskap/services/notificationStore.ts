@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { getCurrentUser } from './auth';
+import { authService } from './authService';
 
 export interface NotificationItem {
     id: string;
@@ -43,7 +43,7 @@ const maintainLimit = async (userId: string) => {
 };
 
 export const addNotification = async (notification: { title: string; message: string; thread_id?: string; type?: string }) => {
-    const user = await getCurrentUser();
+    const user = await authService.getCurrentUser();
     if (!user) return;
 
     const { data, error } = await supabase
@@ -82,7 +82,7 @@ export const createAdminNotification = async (title: string, message: string) =>
 };
 
 export const fetchNotifications = async () => {
-    const user = await getCurrentUser();
+    const user = await authService.getCurrentUser();
     if (!user) return [];
 
     const { data, error } = await supabase
@@ -127,7 +127,7 @@ export const subscribeToNotifications = (listener: NotificationListener) => {
 };
 
 const setupSubscription = async () => {
-    const user = await getCurrentUser();
+    const user = await authService.getCurrentUser();
     if (!user) return;
 
     currentSubscription = supabase
@@ -163,7 +163,7 @@ export const markAsRead = async (id: string) => {
 };
 
 export const markThreadAsRead = async (threadId: string) => {
-    const user = await getCurrentUser();
+    const user = await authService.getCurrentUser();
     if (!user) return;
 
     const { error } = await supabase
@@ -179,7 +179,7 @@ export const markThreadAsRead = async (threadId: string) => {
 };
 
 export const clearNotifications = async () => {
-    const user = await getCurrentUser();
+    const user = await authService.getCurrentUser();
     if (!user) return;
 
     const { error } = await supabase

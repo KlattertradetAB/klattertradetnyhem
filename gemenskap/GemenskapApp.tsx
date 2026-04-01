@@ -3,6 +3,7 @@ import { AuthStatus, Profile } from './types';
 import { Page } from '../types';
 import LoginForm from './components/LoginForm';
 import PremiumLogin from './components/PremiumLogin';
+import UpdatePasswordForm from './components/UpdatePasswordForm';
 import { Hero } from '../components/hero';
 import { GL } from '../components/gl';
 import { supabase } from './services/supabase';
@@ -39,7 +40,8 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
   const [showLogin, setShowLogin] = useState(false);
   const [showPremiumIntro, setShowPremiumIntro] = useState(false);
   const [isPremiumView, setIsPremiumView] = useState(true);
-  const [initialView, setInitialView] = useState<'login' | 'signup'>('login');
+  const [initialView, setInitialView] = useState<'login' | 'signup' | 'forgot'>('login');
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [navHistory, setNavHistory] = useState<{ tab: string; topic: string | null }[]>([]);
   const [isStandalone, setIsStandalone] = useState(false);
@@ -101,9 +103,14 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
         setShowLogin(false);
         setShowPremiumIntro(false);
         setActiveTab('admin');
+      } else if (hash.includes('#update-password')) {
+        setShowLogin(true);
+        setShowPremiumIntro(false);
+        setIsUpdatingPassword(true);
       } else {
         setShowLogin(false);
         setShowPremiumIntro(false);
+        setIsUpdatingPassword(false);
       }
 
       // Sync internal history with hash changes if needed
@@ -165,12 +172,26 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
         setAuthStatus(AuthStatus.AUTHENTICATED);
         setShowLogin(false);
 
-        // Fetch rich profile from DB
-        const { data: profileData } = await (supabase as any)
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
+        // Fetch rich profile from DB with retry logic
+        let profileData = null;
+        let retries = 0;
+        const maxRetries = 5;
+
+        while (!profileData && retries < maxRetries) {
+          const { data } = await (supabase as any)
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+          
+          if (data) {
+            profileData = data;
+          } else {
+            console.log(`Profile not found yet, retrying... (${retries + 1}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, 500 * (retries + 1))); // Exponential backoff
+            retries++;
+          }
+        }
 
         let role = profileData?.role || 'medlem';
         
@@ -706,7 +727,18 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
           <div className="mb-8 flex justify-center">
             {/* Logo removed */}
           </div>
-          {isPremiumView ? (
+          {isUpdatingPassword ? (
+            <UpdatePasswordForm 
+              onSuccess={() => {
+                setIsUpdatingPassword(false);
+                window.location.hash = '#login';
+              }}
+              onBack={() => {
+                setIsUpdatingPassword(false);
+                window.location.hash = '#login';
+              }}
+            />
+          ) : isPremiumView ? (
             <PremiumLogin
               onLoginSuccess={handleLoginSuccess}
               isStandalone={isStandalone}
