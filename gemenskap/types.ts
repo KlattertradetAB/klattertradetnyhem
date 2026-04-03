@@ -50,3 +50,28 @@ export interface DbBlog {
   created_at: string;
   views?: number;
 }
+
+export interface DmRoom {
+  id: string;
+  created_at: string;
+  last_message_at: string;
+  metadata?: any;
+  other_user?: Profile; // Populated for UI convenience
+  last_message?: string;
+  unread_count?: number;
+}
+
+export interface DmParticipant {
+  room_id: string;
+  user_id: string;
+  last_read_at: string;
+}
+
+export interface DmMessage {
+  id: string;
+  room_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  is_edited?: boolean;
+}

@@ -17,12 +17,28 @@ const AIConsultant: React.FC<AIConsultantProps> = ({ user, initialTopic }) => {
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Initialize with topic if provided
+  // Initialize with topic and persona if provided
   useEffect(() => {
     if (initialTopic) {
+      // Check if topic is a persona selection (e.g. "consultant?persona=Saga")
+      if (initialTopic.includes('persona=')) {
+        const personaName = initialTopic.split('persona=')[1];
+        const persona = PERSONAS.find(p => p.name.toLowerCase() === personaName.toLowerCase());
+        if (persona) {
+          setSelectedPersona(persona);
+          const welcomeMsg: ChatMessage = {
+            role: 'model',
+            text: `Hej! Jag är ${persona.name}. Hur kan jag hjälpa dig idag?`,
+            timestamp: new Date()
+          };
+          setMessages([welcomeMsg]);
+          return;
+        }
+      }
+
       const topicMsg: ChatMessage = {
         role: 'model',
-        text: `Välkommen till tråden: "${initialTopic}". Hur kan jag hjälpa dig att driva denna diskussion framåt eller ge dig expertinsikter om ämnet?`,
+        text: `Välkommen! Hur kan jag hjälpa dig med "${initialTopic}"?`,
         timestamp: new Date()
       };
       setMessages([topicMsg]);

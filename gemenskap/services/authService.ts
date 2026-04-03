@@ -77,18 +77,28 @@ export const authService = {
      * Send a password reset email.
      */
     async resetPassword(email: string) {
+        console.log(`Attempting password reset for: ${email}`);
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
             redirectTo: `${window.location.origin}/#update-password`,
         });
-        if (error) throw error;
+        if (error) {
+            console.error('Password Reset Error:', error);
+            throw error;
+        }
+        console.log('Reset email sent successfully');
     },
 
     /**
      * Update the current user's password.
      */
     async updatePassword(password: string) {
+        console.log('Attempting to update user password');
         const { error } = await supabase.auth.updateUser({ password });
-        if (error) throw error;
+        if (error) {
+            console.error('Update Password Error:', error);
+            throw error;
+        }
+        console.log('Password updated successfully');
     },
 
     /**

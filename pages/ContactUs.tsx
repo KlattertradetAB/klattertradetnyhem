@@ -70,7 +70,7 @@ const therapists = [
     role: "Behandlingspedagog",
     subRole: "Hudterapeut",
     desc: "Arbetar med yttre och inre välmående utifrån ett holistiskt perspektiv. Hjälper dig att hitta balans.",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1000"
+    image: "/Jea-profil.png"
   },
 ];
 

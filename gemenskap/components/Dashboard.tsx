@@ -1,340 +1,298 @@
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Profile, Thread } from '../types';
 import { supabase } from '../services/supabase';
-import { Calendar, Users, MessageSquareText, Star, ChevronRight, MapPin, MessageCircle, FileText, BookOpen, Bot, ArrowRight, Sparkles } from 'lucide-react';
+import { 
+    Calendar, 
+    Users, 
+    MessageSquareText, 
+    Star, 
+    ChevronRight, 
+    MapPin, 
+    MessageCircle, 
+    FileText, 
+    BookOpen, 
+    Bot, 
+    ArrowRight, 
+    Sparkles,
+    LayoutGrid,
+    Clock,
+    Zap
+} from 'lucide-react';
 import PDFViewer from '../../components/PDFViewer';
 import { requestNotificationPermission } from '../services/notifications';
-
 import CommunityChat from './CommunityChat';
-
 import { Page } from '../../types';
+import { Card, CardContent } from '@/components/ui/card';
+import { MetricCard } from './ui/MetricCard';
+import { CalendarRow } from './ui/CalendarRow';
 
 interface DashboardProps {
-  user: Profile;
-  onThreadClick: (topic: string) => void;
-  onBackToSite: (page?: Page) => void;
+    user: Profile;
+    onThreadClick: (topic: string) => void;
+    onBackToSite: (page?: Page) => void;
 }
 
-
-
 const Dashboard: React.FC<DashboardProps> = ({ user, onThreadClick, onBackToSite }) => {
-  const [isPdfOpen, setIsPdfOpen] = useState(false);
-  const [activePdf, setActivePdf] = useState({ url: '', title: '' });
+    const [isPdfOpen, setIsPdfOpen] = useState(false);
+    const [activePdf, setActivePdf] = useState({ url: '', title: '' });
+    const [threads, setThreads] = useState<Thread[]>([]);
 
-  const openPdf = (url: string, title: string) => {
-    setActivePdf({ url, title });
-    setIsPdfOpen(true);
-  };
-
-
-  useEffect(() => {
-    // Request notification permission on mount (as "standard" setting)
-    requestNotificationPermission();
-  }, []);
-
-  const events = [
-    { id: 1, title: 'Myndighetsinducerat trauma bokrelease har vi i april -2026', date: 'April 2026', location: 'Bokrelease', type: 'Event', page: Page.BOOK },
-    { id: 2, title: 'Utbildning i myndighetsinducerat trauma drar igång i augusti -2026', date: 'Aug 2026', location: 'Digitalt/Gbg', type: 'Utbildning', page: Page.CHAT },
-    { id: 3, title: 'Här har du möjlighet att söka en plats som styrelsemedlem inför -2027!', date: 'Inför 2027', location: 'Socialt', type: 'Styrelse', page: Page.COMMUNITY },
-  ];
-
-  const [threads, setThreads] = useState<Thread[]>([]);
-
-  useEffect(() => {
-    const fetchThreads = async () => {
-      const { data, error } = await supabase
-        .from('threads')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      if (error) {
-        console.error('Error fetching threads:', error);
-      } else {
-        setThreads((data as any) || []);
-      }
+    const openPdf = (url: string, title: string) => {
+        setActivePdf({ url, title });
+        setIsPdfOpen(true);
     };
 
-    fetchThreads();
-  }, []);
+    useEffect(() => {
+        requestNotificationPermission();
+        fetchThreads();
+    }, []);
 
+    const fetchThreads = async () => {
+        const { data, error } = await supabase
+            .from('threads')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(5);
 
+        if (error) {
+            console.error('Error fetching threads:', error);
+        } else {
+            setThreads((data as any) || []);
+        }
+    };
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-in fade-in duration-700">
-      {/* Welcome Hero with Ultra-Premium Liquid Frozen Glass Effect */}
-      <section className="relative overflow-hidden rounded-[2.5rem] min-h-[280px] flex items-center border border-white/20 shadow-[0_20px_50px_rgba(249,115,22,0.15)] bg-slate-950">
+    const events = [
+        { id: 1, title: 'Myndighetsinducerat trauma bokrelease', date: 'April 2026', visitors: 142, views: 856, highlight: true },
+        { id: 2, title: 'Utbildning i trauma drar igång', date: 'Aug 2026', visitors: 89, views: 432 },
+        { id: 3, title: 'Sök plats som styrelsemedlem', date: 'Inför 2027', visitors: 45, views: 231 },
+    ];
 
-        {/* Liquid Layer: Moving background blobs */}
-        <div className="absolute inset-0 bg-orange-600 overflow-hidden pointer-events-none">
-          {/* Liquid Blob 1 */}
-          <div className="absolute top-[-30%] left-[-10%] w-[80%] h-[120%] bg-orange-400 rounded-full blur-[100px] opacity-70 animate-pulse transition-all duration-[10s]"></div>
-          {/* Liquid Blob 2 */}
-          <div className="absolute bottom-[-40%] right-[-5%] w-[70%] h-[100%] bg-amber-500 rounded-full blur-[120px] opacity-60 animate-bounce" style={{ animationDuration: '15s' }}></div>
-          {/* Liquid Blob 3 */}
-          <div className="absolute top-[10%] right-[10%] w-[50%] h-[60%] bg-orange-300 rounded-full blur-[90px] opacity-40 animate-pulse" style={{ animationDuration: '7s' }}></div>
-          {/* Liquid Blob 4 - Accent */}
-          <div className="absolute bottom-[10%] left-[20%] w-[30%] h-[40%] bg-white/20 rounded-full blur-[60px] opacity-30"></div>
-        </div>
-
-        {/* Frozen Glass Layer: High-end frosted overlay */}
-        <div className="absolute inset-0 backdrop-blur-[80px] bg-orange-600/25 border-t border-l border-white/30 rounded-[2.5rem]"></div>
-
-        {/* Subtle Grain Texture for tactile frosted feel */}
-        <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/p6.png')]"></div>
-
-        {/* Shine/Refraction effect */}
-        <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/10 to-transparent pointer-events-none"></div>
-
-        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 px-10 py-12 w-full">
-          <div className="text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.3)] text-center md:text-left">
-            <h2 className="text-4xl md:text-6xl font-black mb-4 tracking-tighter leading-[1.1]">
-              Din Överblick ... <br className="hidden md:block" />
-              <span className="bg-gradient-to-r from-white via-orange-50 to-orange-100 bg-clip-text text-transparent">
-                {user.full_name}
-              </span>
-            </h2>
-            <p className="text-white/90 font-semibold text-lg md:text-xl max-w-xl leading-relaxed">
-              Här är de senaste uppdateringarna för din gemenskap.
-            </p>
-          </div>
-
-          <div className="flex gap-4 items-center shrink-0">
-            <div className="bg-white/10 backdrop-blur-3xl px-6 py-6 rounded-[2rem] border border-white/20 text-center shadow-xl group hover:bg-white/15 transition-all">
-              <span className="block text-4xl font-black text-white group-hover:scale-110 transition-transform">142</span>
-              <span className="text-[10px] uppercase font-bold text-white/70 tracking-[0.2em]">Medlemmar</span>
-            </div>
-            <div className="bg-white/10 backdrop-blur-3xl px-6 py-6 rounded-[2rem] border border-white/20 text-center shadow-xl group hover:bg-white/15 transition-all">
-              <span className="block text-4xl font-black text-white group-hover:scale-110 transition-transform">{threads.length}</span>
-              <span className="text-[10px] uppercase font-bold text-white/70 tracking-[0.2em]">Nya trådar</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Threads Section */}
-        <div className="lg:col-span-2 space-y-8">
-          {/* Live Community Chat */}
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <CommunityChat
-              user={user}
-              className="h-[600px] border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl bg-black/20 backdrop-blur-sm"
-            />
-          </div>
-
-          {/* Blog/Feature Grid */}
-          <div className="space-y-6">
-            <h3 className="font-bold text-white flex items-center gap-2">
-              <Star className="text-orange-500" size={20} />
-              Utvalt innehåll
-            </h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Blog Post 1 */}
-              <div
-                onClick={() => openPdf('/Attributionsfel-narcissism.pdf', 'Ett grundläggande attributionsfel')}
-                className="bg-gradient-to-br from-slate-900 to-slate-800 border border-orange-500/30 p-8 rounded-[2rem] group hover:border-orange-500 transition-all cursor-pointer shadow-2xl relative overflow-hidden"
-              >
-                <div className="absolute top-0 right-0 p-4 opacity-30 group-hover:opacity-60 transition-opacity">
-                  <FileText size={60} className="text-orange-500/10 rotate-12" />
-                </div>
-                <div className="relative z-10">
-                  <span className="text-[10px] bg-orange-500 text-slate-950 px-3 py-1 rounded-full font-black uppercase tracking-widest mb-4 inline-block">
-                    Blogginlägg
-                  </span>
-                  <h4 className="text-2xl font-black text-white mb-3 group-hover:text-orange-400 transition-colors leading-tight">
-                    Ett grundläggande <br /> attributionsfel
-                  </h4>
-                  <p className="text-slate-400 mb-6 text-sm font-light leading-relaxed line-clamp-2">
-                    Varför dömer vi andra hårdare än oss själva? En genomgång av hur våra hjärnor snedvrider verkligheten.
-                  </p>
-                  <div className="flex items-center gap-3 text-white font-bold group-hover:gap-5 transition-all uppercase tracking-widest text-[10px]">
-                    Läs artikeln <ArrowRight size={16} className="text-orange-500" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Blog Post 2 */}
-              <div
-                onClick={() => openPdf('/Polarisering-av-personlighetsstörningar .pdf', 'Polarisering och personlighetsstörningar')}
-                className="bg-gradient-to-br from-slate-900 to-slate-800 border border-indigo-500/30 p-8 rounded-[2rem] group hover:border-indigo-500 transition-all cursor-pointer shadow-2xl relative overflow-hidden"
-              >
-                <div className="absolute top-0 right-0 p-4 opacity-30 group-hover:opacity-60 transition-opacity">
-                  <FileText size={60} className="text-indigo-500/10 rotate-12" />
-                </div>
-                <div className="relative z-10">
-                  <span className="text-[10px] bg-indigo-500 text-white px-3 py-1 rounded-full font-black uppercase tracking-widest mb-4 inline-block">
-                    Blogginlägg
-                  </span>
-                  <h4 className="text-2xl font-black text-white mb-3 group-hover:text-indigo-400 transition-colors leading-tight">
-                    Polarisering & <br /> personlighetsstörningar
-                  </h4>
-                  <p className="text-slate-400 mb-6 text-sm font-light leading-relaxed line-clamp-2">
-                    En djupanalys av hur dömande och polarisering påverkar våra relationer och vår självbild.
-                  </p>
-                  <div className="flex items-center gap-3 text-white font-bold group-hover:gap-5 transition-all uppercase tracking-widest text-[10px]">
-                    Läs artikeln <ArrowRight size={16} className="text-indigo-500" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Biblioteket Card */}
-              <div className="bg-slate-950/50 backdrop-blur-md border border-white/5 p-8 rounded-[2rem] group hover:border-orange-500/50 transition-all shadow-xl">
-                <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400 mb-6 group-hover:scale-110 transition-transform border border-blue-500/20">
-                  <BookOpen size={28} />
-                </div>
-                <h4 className="text-xl font-bold text-white mb-3">Biblioteket</h4>
-                <p className="text-slate-400 text-sm mb-6 leading-relaxed font-light">Mallar, guider och inspelade workshops från våra experter.</p>
-                <button className="flex items-center gap-2 text-orange-400 text-xs font-black uppercase tracking-widest group-hover:gap-4 transition-all">
-                  Utforska <ChevronRight size={16} />
-                </button>
-              </div>
-
-              {/* Meditation Card */}
-              <div className="bg-slate-950/50 backdrop-blur-md border border-white/5 p-8 rounded-[2rem] group hover:border-purple-500/50 transition-all shadow-xl">
-                <div className="w-14 h-14 bg-purple-500/10 rounded-2xl flex items-center justify-center text-purple-400 mb-6 group-hover:scale-110 transition-transform border border-purple-500/20">
-                  <Star size={28} />
-                </div>
-                <h4 className="text-xl font-bold text-white mb-3">Övningar</h4>
-                <p className="text-slate-400 text-sm mb-6 leading-relaxed font-light">Ljudfiler och guidade meditationer för din dagliga Self-care.</p>
-                <button className="flex items-center gap-2 text-purple-400 text-xs font-black uppercase tracking-widest group-hover:gap-4 transition-all">
-                  Lyssna nu <ChevronRight size={16} />
-                </button>
-              </div>
+    return (
+        <div className="space-y-8 pb-12">
+            {/* Header Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <MetricCard 
+                    title="Medlemmar" 
+                    value="142" 
+                    icon={Users} 
+                    color="text-blue-400" 
+                />
+                <MetricCard 
+                    title="Nya trådar" 
+                    value={threads.length} 
+                    icon={MessageSquareText} 
+                    color="text-orange-400" 
+                />
+                <MetricCard 
+                    title="Aktiva nu" 
+                    value="18" 
+                    icon={Zap} 
+                    color="text-green-400" 
+                />
+                <MetricCard 
+                    title="Dagar som medlem" 
+                    value="12" 
+                    icon={Clock} 
+                    color="text-purple-400" 
+                />
             </div>
 
-            {/* AI Assistants Quick Access */}
-            <div className="space-y-6 pt-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-bold text-white flex items-center gap-2">
-                  <Bot className="text-orange-500" size={20} />
-                  Direktkontakt med dina assistenter
-                </h3>
-                <button
-                  onClick={() => onThreadClick('consultant')}
-                  className="text-orange-400 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors"
-                >
-                  Visa alla
-                </button>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                  { name: 'Saga', avatar: '🎨', role: 'Kreativitet', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
-                  { name: 'Erik', avatar: '🏃‍♂️', role: 'Kropp & TMO', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
-                  { name: 'Lina', avatar: '🧘‍♀️', role: 'Trauma', color: 'bg-purple-500/10 text-purple-400 border-purple-500/20' },
-                  { name: 'Marcus', avatar: '💻', role: 'IT & Struktur', color: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' },
-                ].map(assistant => (
-                  <button
-                    key={assistant.name}
-                    onClick={() => onThreadClick('consultant')}
-                    className={`flex flex-col items-center p-6 rounded-[2rem] border transition-all hover:scale-105 active:scale-95 group ${assistant.color}`}
-                  >
-                    <span className="text-3xl mb-3 group-hover:scale-125 transition-transform">{assistant.avatar}</span>
-                    <span className="font-bold text-xs uppercase tracking-tighter block">{assistant.name}</span>
-                    <span className="text-[10px] opacity-60 font-medium block">{assistant.role}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Main Content Area */}
+                <div className="lg:col-span-8 space-y-8">
+                    {/* Live Community Chat */}
+                    <Card className="bg-card/40 border-white/5 rounded-[2.5rem] overflow-hidden">
+                        <CardContent className="p-0 h-[600px]">
+                            <CommunityChat
+                                user={user}
+                                className="h-full border-0 rounded-none shadow-none bg-transparent"
+                            />
+                        </CardContent>
+                    </Card>
 
-        <PDFViewer
-          isOpen={isPdfOpen}
-          onClose={() => setIsPdfOpen(false)}
-          pdfUrl={activePdf.url}
-          title={activePdf.title}
-        />
+                    {/* Featured Content Area */}
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                <Star className="text-orange-500" size={24} />
+                                Utvalt innehåll
+                            </h3>
+                        </div>
 
-        {/* Sidebar */}
-        <div className="space-y-8">
-          {/* Threads Widget */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
-            <div className="px-6 py-4 border-b border-slate-800 bg-slate-800/30">
-              <h3 className="font-bold flex items-center gap-2 text-white">
-                <MessageSquareText className="text-orange-500" size={18} />
-                Senaste Trådar
-              </h3>
-            </div>
-            <div className="p-2">
-              {threads.length === 0 ? (
-                <div className="p-4 text-center text-slate-500 text-sm italic">
-                  Inga trådar än.
-                </div>
-              ) : (
-                threads.map((thread) => (
-                  <div
-                    key={thread.id}
-                    onClick={() => onThreadClick(thread.id)}
-                    className="p-4 rounded-xl hover:bg-slate-800 transition-colors cursor-pointer group border-b border-slate-800/50 last:border-0"
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider truncate max-w-[80px]">
-                        {thread.category || 'Allmänt'}
-                      </span>
-                      <span className="text-[10px] text-slate-500 font-medium whitespace-nowrap ml-2">
-                        {new Date(thread.created_at).toLocaleDateString()}
-                      </span>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {[
+                                {
+                                    id: 'attr',
+                                    title: 'Ett grundläggande attributionsfel',
+                                    desc: 'Varför dömer vi andra hårdare än oss själva?',
+                                    tag: 'Blogg',
+                                    icon: FileText,
+                                    color: 'text-orange-500',
+                                    url: '/Attributionsfel-narcissism.pdf'
+                                },
+                                {
+                                    id: 'polar',
+                                    title: 'Polarisering & Personlighetsstörningar',
+                                    desc: 'Djupanalys av hur dömande påverkar relationer.',
+                                    tag: 'Nyhet',
+                                    icon: Info,
+                                    color: 'text-indigo-500',
+                                    url: '/Polarisering-av-personlighetsstörningar .pdf'
+                                }
+                            ].map(item => (
+                                <Card 
+                                    key={item.id}
+                                    onClick={() => openPdf(item.url, item.title)}
+                                    className="bg-card/40 border-white/5 rounded-3xl group hover:bg-card/60 transition-all cursor-pointer overflow-hidden"
+                                >
+                                    <CardContent className="p-8 relative">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <div className={`text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-full bg-white/5 border border-white/10 ${item.color}`}>
+                                                {item.tag}
+                                            </div>
+                                            <item.icon className={`w-5 h-5 ${item.color} opacity-50 group-hover:opacity-100 transition-opacity`} />
+                                        </div>
+                                        <h4 className="text-xl font-bold text-white mb-2 leading-tight group-hover:text-orange-400 transition-colors">
+                                            {item.title}
+                                        </h4>
+                                        <p className="text-slate-400 text-xs mb-6 line-clamp-2">{item.desc}</p>
+                                        <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 group-hover:text-white transition-colors">
+                                            Visa dokument <ArrowRight size={14} />
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
                     </div>
-                    <h4 className="font-bold text-slate-100 group-hover:text-orange-400 transition-colors leading-snug mb-1">
-                      {thread.title}
-                    </h4>
-                    <p className="text-xs text-slate-500 line-clamp-2">
-                      {thread.description}
-                    </p>
-                  </div>
-                ))
-              )}
-            </div>
-            <div className="p-4 bg-slate-800/50">
-              <button
-                onClick={() => onThreadClick('general')}
-                className="w-full bg-slate-700 hover:bg-slate-600 py-2 rounded-lg text-sm font-bold transition-colors"
-              >
-                Gå till forumet
-              </button>
-            </div>
-          </div>
-
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
-            <div className="px-6 py-4 border-b border-slate-800 bg-slate-800/30">
-              <h3 className="font-bold flex items-center gap-2 text-white">
-                <Calendar className="text-orange-500" size={18} />
-                Kommande Event
-              </h3>
-            </div>
-            <div className="p-2">
-              {events.map((event) => (
-                <div
-                  key={event.id}
-                  onClick={() => onBackToSite(event.page)}
-                  className="p-4 rounded-xl hover:bg-slate-800 transition-colors cursor-pointer group"
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <span className="text-[10px] bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider">{event.type}</span>
-                    <span className="text-xs text-slate-500 font-medium">{event.date}</span>
-                  </div>
-                  <h4 className="font-bold text-slate-100 group-hover:text-orange-400 transition-colors leading-snug">{event.title}</h4>
-                  <div className="flex items-center gap-1 mt-2 text-xs text-slate-500">
-                    <MapPin size={12} /> {event.location}
-                  </div>
                 </div>
-              ))}
+
+                {/* Sidebar area */}
+                <div className="lg:col-span-4 space-y-8">
+                    {/* Events Widget */}
+                    <Card className="bg-card/40 border-white/5 rounded-[2.5rem] overflow-hidden">
+                        <CardContent className="p-8 space-y-6">
+                            <div className="flex items-center justify-between mb-2">
+                                <h3 className="font-bold text-white flex items-center gap-2">
+                                    <Calendar className="text-orange-500" size={20} />
+                                    Kommande
+                                </h3>
+                                <div className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Kalender</div>
+                            </div>
+
+                            <div className="space-y-4">
+                                {events.map(event => (
+                                    <CalendarRow 
+                                        key={event.id}
+                                        date={event.date}
+                                        visitors={event.visitors}
+                                        views={event.views}
+                                        highlight={event.highlight}
+                                    />
+                                ))}
+                            </div>
+
+                            <button
+                                onClick={() => onThreadClick('experts')}
+                                className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-xs uppercase tracking-widest hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+                            >
+                                Visa alla event
+                                <ChevronRight size={16} />
+                            </button>
+                        </CardContent>
+                    </Card>
+
+                    {/* Recent Threads Widget */}
+                    <Card className="bg-card/40 border-white/5 rounded-[2.5rem] overflow-hidden">
+                        <CardContent className="p-8 space-y-6">
+                            <h3 className="font-bold text-white flex items-center gap-2">
+                                <MessageSquareText className="text-orange-500" size={20} />
+                                Senaste
+                            </h3>
+                            
+                            <div className="space-y-4">
+                                {threads.map(thread => (
+                                    <div 
+                                        key={thread.id} 
+                                        onClick={() => onThreadClick(thread.id)}
+                                        className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-orange-500/30 transition-all cursor-pointer group"
+                                    >
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="text-[9px] font-black uppercase text-orange-500/80 tracking-widest">
+                                                {thread.category || 'Forum'}
+                                            </span>
+                                            <div className="w-1 h-1 rounded-full bg-white/20" />
+                                            <span className="text-[9px] font-bold text-slate-500">
+                                                {new Date(thread.created_at).toLocaleDateString()}
+                                            </span>
+                                        </div>
+                                        <h4 className="text-sm font-bold text-white group-hover:text-orange-400 transition-colors line-clamp-1">
+                                            {thread.title}
+                                        </h4>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <button
+                                onClick={() => onThreadClick('general')}
+                                className="w-full py-4 rounded-2xl bg-orange-500 text-white shadow-lg shadow-orange-500/20 font-black text-xs uppercase tracking-widest hover:bg-orange-600 transition-all"
+                            >
+                                GÖ TILL FORUMET
+                            </button>
+                        </CardContent>
+                    </Card>
+
+                    {/* AI Quick Contact */}
+                    <Card className="bg-gradient-to-br from-indigo-500/20 to-transparent border-indigo-500/20 rounded-[2.5rem] overflow-hidden group">
+                        <CardContent className="p-8 space-y-6">
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
+                                    <Bot size={28} />
+                                </div>
+                                <h4 className="text-lg font-bold text-white">AI-Assistans</h4>
+                            </div>
+                            <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+                                {[
+                                    { name: 'Saga', avatar: '🎨', color: 'bg-emerald-500/10 text-emerald-400' },
+                                    { name: 'Mikael', avatar: '🍃', color: 'bg-emerald-600/10 text-emerald-500' },
+                                    { name: 'Elena', avatar: '🤝', color: 'bg-rose-500/10 text-rose-400' },
+                                    { name: 'Lina', avatar: '🧘‍♀️', color: 'bg-purple-500/10 text-purple-400' },
+                                    { name: 'Erik', avatar: '🏃‍♂️', color: 'bg-blue-500/10 text-blue-400' },
+                                ].map((ass) => (
+                                    <button 
+                                        key={ass.name} 
+                                        onClick={() => onThreadClick(`consultant?persona=${ass.name}`)}
+                                        className={`flex-shrink-0 w-12 h-12 rounded-2xl ${ass.color} border border-white/5 flex items-center justify-center text-xl shadow-lg hover:scale-110 active:scale-95 transition-all duration-300 group`}
+                                        title={`Prata med ${ass.name}`}
+                                    >
+                                        <span className="group-hover:rotate-12 transition-transform">{ass.avatar}</span>
+                                    </button>
+                                ))}
+                            </div>
+                            <p className="text-slate-400 text-[10px] leading-relaxed">
+                                Behöver du snabb hjälp? Mikael, Elena och våra andra AI-coacher finns här dygnet runt.
+                            </p>
+                            <button
+                                onClick={() => onThreadClick('consultant')}
+                                className="w-full py-3 rounded-xl bg-white/10 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/20 transition-all"
+                            >
+                                Starta samtal
+                            </button>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
-            <div className="p-4 bg-slate-800/50">
-              <button
-                onClick={() => onThreadClick('experts')}
-                className="w-full bg-slate-700 hover:bg-slate-600 py-2 rounded-lg text-sm font-bold transition-colors"
-              >
-                Visa kalender
-              </button>
-            </div>
-          </div>
+
+            <PDFViewer
+                isOpen={isPdfOpen}
+                onClose={() => setIsPdfOpen(false)}
+                pdfUrl={activePdf.url}
+                title={activePdf.title}
+            />
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default Dashboard;
+
+// Missing icons for the header mapping if needed
+import { Info } from 'lucide-react';

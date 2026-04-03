@@ -100,6 +100,7 @@ interface AdminDashboardProps {
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
     const [activeSection, setActiveSection] = useState<'overview' | 'orders' | 'bookings' | 'messages' | 'blog' | 'threads' | 'moderation' | 'handbook'>('overview');
+    const [activeInboxTab, setActiveInboxTab] = useState<'contact' | 'courses' | 'therapy'>('contact');
     const [selectedHandbookSection, setSelectedHandbookSection] = useState<string | null>(null);
     const [orders, setOrders] = useState<Order[]>([]);
     const [bookings, setBookings] = useState<Booking[]>([]);
@@ -812,15 +813,30 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                         <div className="flex gap-4 mb-8">
                             <h4 className="text-sm font-bold text-slate-500 uppercase tracking-widest self-center mr-4">Visa:</h4>
                             <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
-                                <button className="px-4 py-2 bg-orange-500 text-slate-950 rounded-lg text-xs font-bold">Kontakt</button>
-                                <button className="px-4 py-2 text-slate-400 hover:text-white transition-colors text-xs font-bold">Utbildning ({courseApps.length})</button>
-                                <button className="px-4 py-2 text-slate-400 hover:text-white transition-colors text-xs font-bold">Terapiutredning ({therapyRequests.length})</button>
+                                <button 
+                                    onClick={() => setActiveInboxTab('contact')}
+                                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeInboxTab === 'contact' ? 'bg-orange-500 text-slate-950 shadow-lg shadow-orange-500/20' : 'text-slate-400 hover:text-white'}`}
+                                >
+                                    Kontakt
+                                </button>
+                                <button 
+                                    onClick={() => setActiveInboxTab('courses')}
+                                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeInboxTab === 'courses' ? 'bg-orange-500 text-slate-950 shadow-lg shadow-orange-500/20' : 'text-slate-400 hover:text-white'}`}
+                                >
+                                    Utbildning ({courseApps.length})
+                                </button>
+                                <button 
+                                    onClick={() => setActiveInboxTab('therapy')}
+                                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeInboxTab === 'therapy' ? 'bg-orange-500 text-slate-950 shadow-lg shadow-orange-500/20' : 'text-slate-400 hover:text-white'}`}
+                                >
+                                    Terapiutredning ({therapyRequests.length})
+                                </button>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 gap-4">
                             {/* Course Apps List */}
-                            {courseApps.map(app => (
+                            {activeInboxTab === 'courses' && courseApps.map(app => (
                                 <div key={app.id} className="p-8 bg-white/5 border border-amber-500/20 rounded-[2rem] flex flex-col md:flex-row gap-8">
                                     <div className="md:w-64 shrink-0">
                                         <span className="bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded mb-4 inline-block">UTBILDNINGSANSÖKAN</span>
@@ -848,7 +864,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                             ))}
 
                             {/* Therapy Requests List */}
-                            {therapyRequests.map(req => (
+                            {activeInboxTab === 'therapy' && therapyRequests.map(req => (
                                 <div key={req.id} className="p-8 bg-white/5 border border-blue-500/20 rounded-[2rem] flex flex-col md:flex-row gap-8">
                                     <div className="md:w-64 shrink-0">
                                         <span className="bg-blue-500/10 text-blue-500 text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded mb-4 inline-block">TERAPIMATCHNING</span>
@@ -877,7 +893,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onBack }) => {
                             ))}
 
                             {/* Contact Messages List */}
-                            {messages.map((msg: ContactMessage) => (
+                            {activeInboxTab === 'contact' && messages.map((msg: ContactMessage) => (
                                 <div key={msg.id} className={`p-8 bg-white/5 border rounded-[2rem] transition-all flex flex-col md:flex-row gap-8 ${msg.is_read ? 'border-white/5' : 'border-blue-500/30 bg-blue-500/5'}`}>
                                     <div className="md:w-64 shrink-0">
                                         <h4 className="font-bold text-white mb-1">{msg.sender_name}</h4>

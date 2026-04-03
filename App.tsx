@@ -51,7 +51,7 @@ export const PAGE_URLS: Record<Page, string> = {
   [Page.GESTALT_TRAINING]: '/gestaltutbildning',
   [Page.BEHANDLINGS_PEDAGOG]: '/behandlingspedagog',
   [Page.BLOG]: '/blogg',
-  [Page.COMMUNITY]: '/gemenskap',
+  [Page.COMMUNITY]: '/gemenskap-info',
   [Page.CONTACT]: '/kontakt.bokning',
   [Page.SERVICES]: '/tjanster',
   [Page.VIDEO_MEETING]: '/videomote',
@@ -61,7 +61,7 @@ export const PAGE_URLS: Record<Page, string> = {
   [Page.REGISTER]: '/registrera',
   [Page.FORGOT_PASSWORD]: '/glomt-losenord',
   [Page.RESET_PASSWORD]: '/aterstall-losenord',
-  [Page.GEMENSKAP_APP]: '/app',
+  [Page.GEMENSKAP_APP]: '/gemenskap',
   [Page.QUALITY_MARKING]: '/kvalitetsmarkering',
   [Page.BOOK]: '/bok',
   [Page.CHECKOUT]: '/kassa',
@@ -147,7 +147,7 @@ const App: React.FC = () => {
       }
 
       // 2. Legacy Hashes & Auth Redirects
-      if (hash.includes('#login') || hash.includes('#premium-login') || hash.includes('#signup')) {
+      if (hash.includes('#login') || hash.includes('#premium-login') || hash.includes('#signup') || hash.includes('#update-password')) {
         setCurrentPage(Page.GEMENSKAP_APP);
         window.history.replaceState({ page: Page.GEMENSKAP_APP }, '', PAGE_URLS[Page.GEMENSKAP_APP]);
         return;
@@ -214,7 +214,7 @@ const App: React.FC = () => {
 
 
   return (
-    <LanguageProvider>
+    <>
       <Meta currentPage={currentPage} />
       <div className={`relative min-h-screen flex flex-col transition-all duration-700 ease-in-out ${isDarkMode ? 'bg-glossy-gradient-dark' : 'bg-glossy-gradient'}`}>
         <BackgroundShapes />
@@ -323,7 +323,7 @@ const App: React.FC = () => {
           </footer>
         )}
       </div>
-    </LanguageProvider>
+    </>
   );
 };
 

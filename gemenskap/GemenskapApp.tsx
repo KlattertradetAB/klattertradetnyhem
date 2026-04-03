@@ -23,6 +23,8 @@ import AssistantFab from './components/Assistant/AssistantFab';
 import { getEffectiveAvatar } from './services/userUtils';
 import { AssistantProvider } from './contexts/AssistantContext';
 import { translations } from './translations';
+import { CommunityLayout } from './components/layout/CommunityLayout';
+
 
 interface GemenskapAppProps {
   onBackToSite: (page?: Page) => void;
@@ -34,7 +36,7 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
   const [authStatus, setAuthStatus] = useState<AuthStatus>(AuthStatus.IDLE);
   const [user, setUser] = useState<Profile | null>(null);
   const [onlineUsers, setOnlineUsers] = useState<Record<string, any>>({});
-  const [activeTab, setActiveTab] = useState<'welcome' | 'dashboard' | 'resources' | 'chat' | 'experts' | 'admin'>(initialTab || 'welcome');
+  const [activeTab, setActiveTab] = useState<'welcome' | 'dashboard' | 'resources' | 'chat' | 'experts' | 'admin' | 'consultant'>(initialTab || 'welcome');
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
@@ -103,6 +105,13 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
         setShowLogin(false);
         setShowPremiumIntro(false);
         setActiveTab('admin');
+      } else if (hash.includes('#consultant')) {
+        setShowLogin(false);
+        setShowPremiumIntro(false);
+        setActiveTab('consultant');
+        const params = new URLSearchParams(hash.split('?')[1]);
+        const topic = params.get('topic');
+        if (topic) setSelectedTopic(topic);
       } else if (hash.includes('#update-password')) {
         setShowLogin(true);
         setShowPremiumIntro(false);
@@ -199,8 +208,14 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
         const email = session.user.email?.toLowerCase() || '';
         const name = (session.user.user_metadata?.full_name || '').toLowerCase();
         
-        if (email === 'jeanettejohansson1989@gmail.com' || email.includes('jeanette') || name.includes('jeanette')) {
-            console.log("!!! JEANETTE INLOGGAD - TVINGAR ADMIN-RÄTTIGHETER !!!");
+        if (
+          email === 'jeanettejohansson1989@gmail.com' || 
+          email.includes('jeanette') || 
+          email.includes('jenatte') || // Added 'jenatte' case
+          name.includes('jeanette') || 
+          name.includes('jenatte')
+        ) {
+            console.log("!!! JEANETTE/JENATTE INLOGGAD - TVINGAR ADMIN-RÄTTIGHETER !!!");
             role = 'admin';
         }
         // ------------------------------------
@@ -241,6 +256,19 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
               role: role
             }
           });
+
+        // 1. Password Reset Routing - Check hash in URL
+        const checkHash = () => {
+          const hash = window.location.hash;
+          console.log('Current Hash:', hash);
+          if (hash === '#update-password' || hash.includes('type=recovery')) {
+            setIsUpdatingPassword(true);
+            // No need to set activeTab to an invalid 'auth' state
+            // If the user is unauthenticated, the render logic handles the form
+          }
+        };
+        checkHash();
+        window.addEventListener('hashchange', checkHash);
 
         // Redirect based on role
         if (isAdmin && window.location.hash.includes('#admin')) {
@@ -288,12 +316,16 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
         })
         .subscribe(async (status: string) => {
           if (status === 'SUBSCRIBED') {
+            console.log('Subscribed to presence channel successfully');
             await presenceChannel.track({
               user_id: user.id,
               full_name: user.full_name,
               avatar_url: user.avatar_url,
               online_at: new Date().toISOString(),
+              device: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop'
             });
+          } else if (status === 'CLOSED') {
+            console.warn('Presence channel closed, attempting to reconnect...');
           }
         });
     }
@@ -358,7 +390,7 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
     }
   };
 
-  const navigateTo = (tab: 'welcome' | 'dashboard' | 'resources' | 'chat' | 'experts' | 'admin', topic: string | null = null, noHistory = false) => {
+  const navigateTo = (tab: 'welcome' | 'dashboard' | 'resources' | 'chat' | 'experts' | 'admin' | 'consultant', topic: string | null = null, noHistory = false) => {
     setActiveTab(tab);
     setSelectedTopic(topic);
     setIsMobileMenuOpen(false);
@@ -398,7 +430,17 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
   };
 
   const openThread = (topic: string) => {
-    navigateTo('chat', topic);
+    if (topic === 'experts') {
+      navigateTo('experts');
+    } else if (topic === 'consultant') {
+      navigateTo('consultant');
+    } else if (topic === 'admin') {
+      navigateTo('admin');
+    } else if (topic === 'general' || topic === 'self-care' || topic === 'trygghet' || topic === 'video') {
+      navigateTo('chat', topic);
+    } else {
+      navigateTo('chat', topic);
+    }
   };
 
   const handleProfileUpdate = (updatedProfile: Profile) => {
@@ -441,267 +483,86 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
   if (authStatus === AuthStatus.AUTHENTICATED && user) {
     return (
       <AssistantProvider>
-        <BackgroundWrapper>
-          <header className="md:hidden border-b border-white/10 bg-black/20 backdrop-blur-xl sticky top-0 z-50">
-            <div className="px-4 h-16 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                {/* Liquid Glass Back Button (Mobile) */}
-                <button
-                  onClick={handleBack}
-                  className="group flex items-center justify-center w-10 h-10 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-orange-500/50 hover:bg-white/10 transition-all duration-300 shadow-lg active:scale-95"
-                  title="Gå bakåt"
-                  aria-label="Gå bakåt"
-                >
-                  <ChevronLeft size={20} className="text-slate-400 group-hover:text-orange-400 transition-colors" />
-                </button>
-
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 flex items-center justify-center">
-                    <img src="/assets/logo2.png" alt="Klätterträdet Logo" className="w-full h-full object-contain" />
-                  </div>
-                  <h1 className="text-lg font-bold tracking-tight text-white">Horizonten</h1>
-                </div>
+        <CommunityLayout
+          activeTab={activeTab}
+          onTabChange={navigateTo}
+          user={user}
+          onLogout={handleLogout}
+          onSettingsClick={() => setSettingsOpen(true)}
+          onBack={handleBack}
+        >
+          {activeTab === 'welcome' ? (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <Welcome />
+              <div className="py-12">
+                <Footer
+                  onBackToSite={onBackToSite}
+                  onSettingsClick={() => setSettingsOpen(true)}
+                />
               </div>
-
-              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-slate-400 hover:text-white transition-colors">
-                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-              </button>
             </div>
-
-            {isMobileMenuOpen && (
-              <div className="md:hidden border-t border-white/10 bg-black/60 backdrop-blur-xl absolute w-full animate-in slide-in-from-top-2 duration-200 shadow-2xl">
-                <div className="px-4 py-4 space-y-3">
-                  <div className="flex items-center gap-3 px-2 mb-6">
-                    <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-orange-400 to-red-600 flex items-center justify-center text-xs font-bold text-white border border-white/10">
-                      {(() => {
-                        const avatar = getEffectiveAvatar(user.email || undefined, user.avatar_url || undefined, user.role || undefined);
-                        return avatar ? (
-                          <img src={avatar} alt={user.full_name || 'Användare'} className={`w-full h-full ${avatar.includes('logo2') ? 'object-contain p-1.5 bg-slate-900' : 'object-cover'}`} />
-                        ) : (
-                          (user.full_name || 'A').charAt(0)
-                        );
-                      })()}
-                    </div>
-                    <span className="font-semibold text-white">{user.full_name}</span>
-                  </div>
-                  <button onClick={() => navigateTo('welcome')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'welcome' ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' : 'text-slate-400 hover:bg-white/5'}`}>
-                    <Home size={20} /> <span className="font-medium">Välkommen hem</span>
-                  </button>
-                  <button onClick={() => navigateTo('dashboard')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'dashboard' ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' : 'text-slate-400 hover:bg-white/5'}`}>
-                    <LayoutGrid size={20} /> <span className="font-medium">Överblick</span>
-                  </button>
-                  <button onClick={() => navigateTo('resources')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'resources' ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' : 'text-slate-400 hover:bg-white/5'}`}>
-                    <Package size={20} /> <span className="font-medium">Resurser</span>
-                  </button>
-                  <button onClick={() => navigateTo('chat')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'chat' ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' : 'text-slate-400 hover:bg-white/5'}`}>
-                    <MessageCircle size={20} /> <span className="font-medium">Gemenskapen</span>
-                  </button>
-                  <button onClick={() => navigateTo('experts')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'experts' ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' : 'text-slate-400 hover:bg-white/5'}`}>
-                    <Users size={20} /> <span className="font-medium">Kontakt & Bokning</span>
-                  </button>
-                  {user.role === 'admin' && (
-                    <button onClick={() => navigateTo('admin')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'admin' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' : 'text-slate-400 hover:bg-white/5'}`}>
-                      <Shield size={20} /> <span className="font-medium">Admin Panel</span>
-                    </button>
-                  )}
-                  {!isStandalone && (
-                    <div className="border-t border-white/10 my-2 pt-2">
-                      <button onClick={() => onBackToSite()} className="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-orange-400 hover:bg-white/5 rounded-xl transition-colors">
-                        <ArrowLeft size={20} /> <span className="font-medium">Klätterträdet.se</span>
-                      </button>
-                      <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors">
-                        <LogOut size={20} /> <span className="font-medium">Logga ut</span>
-                      </button>
-                    </div>
-                  )}
-                  {isStandalone && (
-                    <div className="border-t border-white/10 my-2 pt-2">
-                      <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors">
-                        <LogOut size={20} /> <span className="font-medium">Logga ut</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
+          ) : activeTab === 'dashboard' ? (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <Dashboard user={user} onThreadClick={openThread} onBackToSite={onBackToSite} />
+              <div className="py-12">
+                <Footer
+                  onBackToSite={onBackToSite}
+                  onSettingsClick={() => setSettingsOpen(true)}
+                />
               </div>
-            )}
-          </header>
-
-          {/* Desktop Sidebar & Main Content */}
-          <div className="flex h-[calc(100vh-64px)] md:h-screen overflow-hidden">
-
-            {/* Vertical Sidebar */}
-            <aside className="hidden md:flex flex-col w-72 bg-slate-950/50 backdrop-blur-2xl border-r border-white/5 p-6 relative z-50">
-              {/* Logo Area */}
-              <div className="flex items-center gap-3 mb-12 px-2 cursor-pointer group" onClick={() => navigateTo('dashboard')}>
-                <div className="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-110 duration-300">
-                  <img src="/assets/logo2.png" alt="Logo" className="w-full h-full object-contain" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold tracking-tight text-white group-hover:text-orange-400 transition-colors">Horizonten</h1>
-                  <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Gemenskap</p>
-                </div>
+            </div>
+          ) : activeTab === 'resources' ? (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <Resources />
+              <div className="py-12">
+                <Footer
+                  onBackToSite={onBackToSite}
+                  onSettingsClick={() => setSettingsOpen(true)}
+                />
               </div>
-
-              {/* Back Button */}
-              <div className="mb-8 px-2">
-                <button
-                  onClick={handleBack}
-                  className="flex items-center gap-3 text-slate-400 hover:text-white transition-colors text-sm font-bold group"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-orange-500/30 group-hover:bg-white/10 transition-all">
-                    <ChevronLeft size={16} />
-                  </div>
-                  Gå bakåt
-                </button>
-              </div>
-
-              {/* Navigation Menus */}
-              <nav className="flex-1 space-y-2">
-                {[
-                  { id: 'welcome', label: 'Välkommen hem', icon: Home },
-                  { id: 'dashboard', label: 'Överblick', icon: LayoutGrid },
-                  { id: 'resources', label: 'Resurser', icon: Package },
-                  { id: 'chat', label: 'Gemenskapen', icon: MessageCircle },
-                  { id: 'experts', label: 'Kontakt & Bokning', icon: Users },
-                  ...(user.role === 'admin' ? [{ id: 'admin', label: 'Admin Panel', icon: Shield }] : [])
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => navigateTo(item.id as any)}
-                    className={`
-                    w-full flex items-center justify-between px-4 py-3.5 rounded-2xl transition-all duration-300 group relative overflow-hidden
-                    ${activeTab === item.id
-                        ? 'bg-white/10 text-white shadow-lg shadow-black/20'
-                        : 'text-slate-400 hover:text-white hover:bg-white/5'}
-                  `}
-                  >
-                    <div className="flex items-center gap-3 relative z-10">
-                      <item.icon size={20} className={activeTab === item.id ? 'text-orange-400' : 'group-hover:text-orange-400 transition-colors'} />
-                      <span className="font-medium text-[15px]">{item.label}</span>
-                    </div>
-
-                    {/* The Fade-in White Line Effect */}
-                    <div className={`
-                    w-1 h-8 bg-gradient-to-b from-transparent via-white to-transparent rounded-full shadow-[0_0_10px_white]
-                    absolute right-4 transition-all duration-500 ease-out transform
-                    ${activeTab === item.id ? 'opacity-100 scale-100 translate-x-0' : 'opacity-0 scale-50 translate-x-4 group-hover:opacity-60 group-hover:translate-x-0 group-hover:scale-75'}
-                  `}></div>
-                  </button>
-                ))}
-              </nav>
-
-              {/* User Footer in Sidebar */}
-              <div className="pt-6 border-t border-white/5 space-y-4">
-                <button onClick={() => setSettingsOpen(true)} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors text-slate-400 hover:text-white group">
-                  <div className="relative">
-                    <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-800">
-                      {(() => {
-                        const avatar = getEffectiveAvatar(user.email || undefined, user.avatar_url || undefined, user.role || undefined);
-                        return avatar ? (
-                          <img src={avatar} alt="" className={`w-full h-full ${avatar.includes('logo2') ? 'object-contain p-1.5 bg-slate-900' : 'object-cover'}`} />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-xs font-bold">{(user.full_name || 'A')[0]}</div>
-                        );
-                      })()}
-                    </div>
-                    <div className="absolute -bottom-1 -right-1 bg-green-500 w-3 h-3 rounded-full border-2 border-slate-950"></div>
-                  </div>
-                  <div className="text-left flex-1 min-w-0">
-                    <p className="text-sm font-bold text-white truncate">{(user.full_name || 'Användare').split(' ')[0]}</p>
-                    <p className="text-[10px] text-slate-500 uppercase tracking-wider">Inställningar</p>
-                  </div>
-                  <Settings size={16} className="opacity-0 group-hover:opacity-100 transition-opacity" />
-                </button>
-
-                <button
-                  onClick={handleLogout}
-                  className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 backdrop-blur-sm transition-all duration-300 shadow-lg hover:shadow-red-900/20 group"
-                >
-                  <LogOut size={16} className="text-red-400 group-hover:scale-110 transition-transform" />
-                  <span className="font-medium text-red-200 group-hover:text-white transition-colors">Logga ut</span>
-                </button>
-              </div>
-            </aside>
-
-            {/* Main Content Area */}
-            <main className={`flex-1 flex flex-col relative z-20 min-h-0 ${activeTab === 'chat' ? 'overflow-hidden' : 'overflow-y-auto custom-scrollbar'}`}>
-              {activeTab === 'welcome' ? (
-                <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-y-auto">
-                  <Welcome />
-                  <div className="p-4 md:px-12 md:pb-12">
-                    <Footer
-                      onBackToSite={onBackToSite}
-                      onSettingsClick={() => setSettingsOpen(true)}
-                    />
-                  </div>
-                </div>
-              ) : activeTab === 'dashboard' ? (
-                <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-y-auto">
-                  <Dashboard user={user} onThreadClick={openThread} onBackToSite={onBackToSite} />
-                  <div className="p-4 md:px-12 md:pb-12">
-                    <Footer
-                      onBackToSite={onBackToSite}
-                      onSettingsClick={() => setSettingsOpen(true)}
-                    />
-                  </div>
-                </div>
-              ) : activeTab === 'resources' ? (
-                <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-y-auto">
-                  <Resources />
-                  <div className="p-4 md:px-12 md:pb-12">
-                    <Footer
-                      onBackToSite={onBackToSite}
-                      onSettingsClick={() => setSettingsOpen(true)}
-                    />
-                  </div>
-                </div>
-              ) : activeTab === 'chat' ? (
-                <div className="flex-1 h-full w-full animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-hidden">
-                  <ChatPage
-                    user={user}
-                    onlineUsers={onlineUsers}
-                    initialThread={selectedTopic}
-                    onOpenSettings={() => setSettingsOpen(true)}
-                    onLogout={handleLogout}
-                    onBackToSite={onBackToSite}
-                  />
-                </div>
-              ) : activeTab === 'experts' ? (
-                <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-y-auto">
-                  <Experts />
-                  <div className="p-4 md:px-12 md:pb-12">
-                    <Footer
-                      onBackToSite={onBackToSite}
-                      onSettingsClick={() => setSettingsOpen(true)}
-                    />
-                  </div>
-                </div>
-              ) : activeTab === 'admin' && user.role === 'admin' ? (
-                <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-y-auto">
-                  <AdminDashboard user={user} onBack={() => navigateTo('dashboard')} />
-                  <div className="p-4 md:px-12 md:pb-12">
-                    <Footer
-                      onBackToSite={onBackToSite}
-                      onSettingsClick={() => setSettingsOpen(true)}
-                    />
-                  </div>
-                </div>
-              ) : null}
-            </main>
-          </div>
-          {
-            settingsOpen && user && (
-              <SettingsModal
+            </div>
+          ) : activeTab === 'chat' ? (
+            <div className="h-full w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <ChatPage
                 user={user}
-                onClose={() => setSettingsOpen(false)}
-                onUpdate={handleProfileUpdate}
+                onlineUsers={onlineUsers}
+                initialThread={selectedTopic}
+                onOpenSettings={() => setSettingsOpen(true)}
+                onLogout={handleLogout}
+                onBackToSite={onBackToSite}
               />
-            )
-          }
-          <AssistantFab user={user} isChatActive={activeTab === 'chat'} />
-          <InstallButton />
-        </BackgroundWrapper >
-      </AssistantProvider >
+            </div>
+          ) : activeTab === 'experts' || activeTab === 'admin' || activeTab === 'consultant' ? (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {activeTab === 'experts' ? (
+                <Experts />
+              ) : activeTab === 'consultant' ? (
+                <div className="h-[700px]">
+                  <AIConsultant user={user} initialTopic={selectedTopic} />
+                </div>
+              ) : (
+                <AdminDashboard user={user} onBack={() => navigateTo('dashboard')} />
+              )}
+              <div className="py-12">
+                <Footer
+                  onBackToSite={onBackToSite}
+                  onSettingsClick={() => setSettingsOpen(true)}
+                />
+              </div>
+            </div>
+          ) : null}
+        </CommunityLayout>
+
+        {settingsOpen && user && (
+          <SettingsModal
+            user={user}
+            onClose={() => setSettingsOpen(false)}
+            onUpdate={handleProfileUpdate}
+          />
+        )}
+        <AssistantFab user={user} isChatActive={activeTab === 'chat'} />
+        <InstallButton />
+      </AssistantProvider>
     );
   }
 
