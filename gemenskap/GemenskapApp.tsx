@@ -9,7 +9,6 @@ import { GL } from '../components/gl';
 import { supabase } from './services/supabase';
 import Dashboard from './components/Dashboard';
 import ChatPage from './components/ChatPage';
-import AIConsultant from './components/AIConsultant';
 import Welcome from './components/Welcome';
 import Experts from './components/Experts';
 import Footer from './components/Footer';
@@ -532,14 +531,10 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
                 onBackToSite={onBackToSite}
               />
             </div>
-          ) : activeTab === 'experts' || activeTab === 'admin' || activeTab === 'consultant' ? (
+          ) : activeTab === 'experts' || activeTab === 'admin' ? (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
               {activeTab === 'experts' ? (
                 <Experts />
-              ) : activeTab === 'consultant' ? (
-                <div className="h-[700px]">
-                  <AIConsultant user={user} initialTopic={selectedTopic} />
-                </div>
               ) : (
                 <AdminDashboard user={user} onBack={() => navigateTo('dashboard')} />
               )}

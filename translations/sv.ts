@@ -116,6 +116,7 @@ export const sv = {
     home_valkommen: 'Välkommen till Horizonten',
     home_gratis_medlem: 'Det är gratis att bli medlem i gemenskapen',
     home_ta_kontakt: 'Ta kontakt med oss',
+    home_choose_path: 'Välj den väg som känns rätt för dig idag.',
     home_hitta_terapeut: 'Hitta din terapeut',
 
     // About

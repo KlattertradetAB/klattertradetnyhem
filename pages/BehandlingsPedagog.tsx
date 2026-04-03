@@ -4,6 +4,7 @@ import { Sparkles, BookOpen, Calendar, Activity, ShieldCheck } from 'lucide-reac
 import { Page } from '../types';
 import TiltedImage from '../components/TiltedImage';
 import { useLanguage } from '../contexts/LanguageContext';
+import ExploreMoreServices from '../components/ExploreMoreServices';
 
 interface BehandlingsPedagogProps {
   setPage: (page: Page) => void;
@@ -125,6 +126,7 @@ const BehandlingsPedagog: React.FC<BehandlingsPedagogProps> = ({ setPage }) => {
           </div>
         </div>
       </div>
+      <ExploreMoreServices setPage={setPage} currentPages={[Page.BEHANDLINGS_PEDAGOG]} />
     </div>
   );
 };

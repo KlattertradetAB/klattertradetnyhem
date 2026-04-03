@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Sparkles, Compass, ArrowRight, ShieldCheck, Star, Users, Package, MessageCircle, Lock, Users2, Info } from 'lucide-react';
+import { Heart, Sparkles, Compass, ArrowRight, ShieldCheck, Star, Users, Package, MessageCircle, Lock, Users2, Info, Calendar, MapPin, Activity, Quote } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { MetricCard } from './ui/MetricCard';
 
@@ -47,6 +47,74 @@ const Welcome: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
                 {/* Main Text Area */}
                 <div className="md:col-span-8 space-y-8">
+                    {/* Latest News / Updates */}
+                    <Card className="bg-gradient-to-br from-orange-500/10 via-orange-600/5 to-transparent border-orange-500/20 rounded-[2.5rem] overflow-hidden relative group">
+                        <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <Sparkles size={120} className="text-orange-500" />
+                        </div>
+                        <CardContent className="p-8 md:p-12 space-y-8 relative z-10">
+                            <div className="flex items-center gap-3 mb-2">
+                                <span className="px-3 py-1 bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full">Nyhet</span>
+                                <span className="text-slate-500 text-xs font-medium">Publicerad 3 april 2026</span>
+                            </div>
+                            
+                            <h2 className="text-3xl md:text-4xl font-black text-white leading-tight">
+                                Nu med terapeutledd <br/>
+                                <span className="text-orange-400">självhjälp varje vecka!</span>
+                            </h2>
+                            
+                            <p className="text-slate-300 leading-relaxed font-light text-lg">
+                                Välkommen till Horizonten! Vi är så glada att du har hittat hit till vår gemenskap. För oss är Horizonten mer än bara en mötesplats; det är en trygg hamn där ingen ska behöva navigera livets utmaningar ensam.
+                            </p>
+                            
+                            <p className="text-slate-300 leading-relaxed font-light text-lg">
+                                Som ett led i att erbjuda ännu djupare stöd vill vi nu lyfta fram en viktig del av vår verksamhet: <span className="text-white font-medium text-lg underline decoration-orange-500/50">vår digitala självhjälpsgrupp.</span>
+                            </p>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-4">
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2 text-orange-400 font-bold">
+                                        <Calendar size={18} /> När
+                                    </div>
+                                    <p className="text-sm text-slate-400">En gång i veckan (se kalendern)</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2 text-orange-400 font-bold">
+                                        <MapPin size={18} /> Var
+                                    </div>
+                                    <p className="text-sm text-slate-400">Direkt här i vårt Videorum</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2 text-orange-400 font-bold">
+                                        <Activity size={18} /> Hur
+                                    </div>
+                                    <p className="text-sm text-slate-400">En timmes fokuserad självhjälp</p>
+                                </div>
+                            </div>
+
+                            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-4">
+                                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                    Varför delta?
+                                </h3>
+                                <p className="text-slate-400 text-sm leading-relaxed">
+                                    Självhjälp i grupp handlar inte om att bli "fixad", utan om att få rätt förutsättningar att förstå sig själv bättre. 
+                                    Med en terapeut som vägleder samtalet säkerställer vi att rummet förblir en trygg och konstruktiv plats för alla deltagare.
+                                </p>
+                            </div>
+
+                            <div className="relative">
+                                <Quote className="absolute -top-4 -left-4 text-orange-500/20" size={48} />
+                                <blockquote className="text-white italic font-light text-lg pl-8 border-l-2 border-orange-500/30">
+                                    "I Horizonten är ditt välmående vår gemensamma kompass. Genom att erbjuda professionellt ledd självhjälp tar vi nästa steg mot en starkare och mer sammanhållen gemenskap."
+                                </blockquote>
+                            </div>
+
+                            <p className="text-slate-500 text-sm italic">
+                                Håll utkik under fliken för evenemang eller i vårt Videorum för nästa tillfälle. Vi ser fram emot att möta dig där!
+                            </p>
+                        </CardContent>
+                    </Card>
+
                     <Card className="bg-card/40 border-white/5 rounded-[2.5rem] overflow-hidden">
                         <CardContent className="p-8 md:p-12 space-y-8 text-slate-300 leading-relaxed text-lg font-light">
                             <p>

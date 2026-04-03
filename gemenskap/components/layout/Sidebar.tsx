@@ -8,8 +8,7 @@ import {
     Shield, 
     LogOut, 
     Settings,
-    ChevronLeft,
-    Bot
+    ChevronLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -38,7 +37,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         { id: 'dashboard', label: 'Överblick', icon: LayoutGrid },
         { id: 'resources', label: 'Resurser', icon: Package },
         { id: 'chat', label: 'Gemenskapen', icon: MessageCircle },
-        { id: 'consultant', label: 'AI-Assistent', icon: Bot },
         { id: 'experts', label: 'Kontakt & Bokning', icon: Users },
         ...(user.role === 'admin' ? [{ id: 'admin', label: 'Admin Panel', icon: Shield }] : [])
     ];

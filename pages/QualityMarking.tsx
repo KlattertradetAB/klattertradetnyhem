@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Page } from '../types';
 import { ArrowRight, Brain, Activity, TrendingUp, Share2, Shield, Zap, CheckCircle, Circle, Building, User, Calendar, Users, FileText, Sparkles, LifeBuoy, Megaphone, Globe } from 'lucide-react';
 import NordicMap from '../components/NordicMap';
 import { useLanguage } from '../contexts/LanguageContext';
+import PremiumLogin from '../gemenskap/components/PremiumLogin';
+import Loader from '../components/ui/Loader';
+import { authService } from '../gemenskap/services/authService';
+import { supabase } from '../gemenskap/services/supabase';
 
 interface QualityMarkingProps {
     setPage: (page: Page) => void;
@@ -10,11 +14,56 @@ interface QualityMarkingProps {
 
 const QualityMarking: React.FC<QualityMarkingProps> = ({ setPage }) => {
     const { t } = useLanguage();
+    const [isLoading, setIsLoading] = useState(true);
+    const [isAuthorized, setIsAuthorized] = useState(false);
+
     const [items, setItems] = useState([
         { id: '1', text: t.quality_checklist_item1, checked: false },
         { id: '2', text: t.quality_checklist_item2, checked: false },
         { id: '3', text: t.quality_checklist_item3, checked: false },
     ]);
+
+    useEffect(() => {
+        let mounted = true;
+
+        const checkAuth = async () => {
+            try {
+                const user = await authService.getCurrentUser();
+                if (user && mounted) {
+                    const profile = await authService.getProfile(user.id);
+                    // Kräver premium (membership_level >= 2) eller bara inloggad, 
+                    // men PremiumLogin registrerar med level 2. Vi testar ifall profilen existerar.
+                    if (profile && (profile.membership_level == null || profile.membership_level >= 1)) {
+                        setIsAuthorized(true);
+                    } else {
+                        setIsAuthorized(false);
+                    }
+                } else if (mounted) {
+                    setIsAuthorized(false);
+                }
+            } catch (err) {
+                console.error("Auth check failed", err);
+                if (mounted) setIsAuthorized(false);
+            } finally {
+                if (mounted) setIsLoading(false);
+            }
+        };
+
+        checkAuth();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            if (session) {
+                checkAuth();
+            } else {
+                if (mounted) setIsAuthorized(false);
+            }
+        });
+
+        return () => {
+            mounted = false;
+            subscription.unsubscribe();
+        };
+    }, []);
 
     const toggleItem = (id: string) => {
         setItems(items.map(item =>
@@ -27,6 +76,26 @@ const QualityMarking: React.FC<QualityMarkingProps> = ({ setPage }) => {
     const scrollToChecklist = () => {
         document.getElementById('checklist-section')?.scrollIntoView({ behavior: 'smooth' });
     };
+
+    if (isLoading) {
+        return (
+            <div className="flex-1 w-full flex items-center justify-center pt-24 pb-16">
+                <Loader />
+            </div>
+        );
+    }
+
+    if (!isAuthorized) {
+        return (
+            <div className="flex-1 w-full relative z-10 pt-24 pb-16 flex flex-col items-center justify-center px-4">
+                <PremiumLogin 
+                    onLoginSuccess={() => {}} 
+                    onBack={() => setPage(Page.HOME)} 
+                    onRegister={() => setPage(Page.PREMIUM_APPLICATION)}
+                />
+            </div>
+        );
+    }
 
     return (
         <div className="flex-1 w-full relative z-10 pt-24 pb-16">

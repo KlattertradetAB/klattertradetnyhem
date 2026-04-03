@@ -149,19 +149,7 @@ export default function LoginPage({ setPage, initialType = 'member' }: LoginPage
                     </Text>
                 </form>
 
-                {/* Community Stats Card */}
-                <div className="stats-outer animate-fade-in" style={{ animationDelay: '0.4s' }}>
-                    <div className="stats-dot"></div>
-                    <div className="stats-card">
-                        <div className="stats-ray"></div>
-                        <div className="stats-topl stats-line"></div>
-                        <div className="stats-leftl stats-line"></div>
-                        <div className="stats-bottoml stats-line"></div>
-                        <div className="stats-rightl stats-line"></div>
-                        <div className="stats-text">850+</div>
-                        <div className="stats-subtext">Medlemmar i communityt</div>
-                    </div>
-                </div>
+                {/* Removed Community Stats Card */}
             </AuthLayout>
             <NewsletterSignup />
         </>

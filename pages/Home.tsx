@@ -56,6 +56,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
   const [isPdfOpen, setIsPdfOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isJeanetteExpanded, setIsJeanetteExpanded] = useState(false);
 
   const slides = [
     {
@@ -147,6 +148,103 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* News Cards Section */}
+      <div className="w-full animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200 space-y-6">
+        
+        {/* Terapeutledd självhjälp News Card (Main) */}
+        <div 
+          onClick={() => setPage(Page.GEMENSKAP_APP, { initialTab: 'videorun' })}
+          className="glass bg-gradient-to-r from-orange-500/10 via-amber-500/5 to-transparent border border-orange-500/20 rounded-[2.5rem] p-6 md:p-8 cursor-pointer group hover:border-orange-500/40 transition-all duration-500 relative overflow-hidden shadow-2xl shadow-orange-500/5"
+        >
+          <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 blur-[100px] rounded-full translate-x-1/2 -translate-y-1/2 group-hover:bg-orange-500/20 transition-colors"></div>
+          
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 md:gap-10">
+            <div className="p-4 bg-orange-500/20 rounded-3xl border border-orange-500/30 group-hover:scale-110 transition-transform duration-500 shadow-xl shadow-orange-500/10">
+              <Users className="text-orange-500" size={40} />
+            </div>
+            
+            <div className="flex-1 text-center md:text-left space-y-2">
+              <div className="flex items-center justify-center md:justify-start gap-2">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+                </span>
+                <span className="text-[10px] font-black text-orange-500 uppercase tracking-[0.3em]">Nyhet i communityn</span>
+              </div>
+              <h2 className="text-2xl md:text-3xl font-black text-white italic tracking-tight group-hover:text-amber-200 transition-colors">
+                Nu med terapeutledd självhjälp varje vecka!
+              </h2>
+              <p className="text-zinc-400 text-sm md:text-base max-w-3xl font-light leading-relaxed">
+                Välkommen till Horizonten! För oss är detta mer än bara en mötesplats; det är en trygg hamn där ingen ska behöva navigera ensam. Nu erbjuder vi även digital självhjälpsgrupp under ledning av professionell terapeut.
+              </p>
+            </div>
+            
+            <div className="shrink-0">
+              <button className="px-8 py-4 bg-white text-slate-900 rounded-2xl font-black transition-all group-hover:scale-105 flex items-center gap-3 shadow-xl uppercase tracking-widest text-xs">
+                Gå till Videorummet <ArrowRight size={18} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Jeanette News Card (Smaller) */}
+        <div 
+          onClick={() => { if (!isJeanetteExpanded) setIsJeanetteExpanded(true); }}
+          className={`glass bg-gradient-to-r from-teal-500/10 via-emerald-500/5 to-transparent border border-teal-500/20 rounded-[2.5rem] p-5 md:p-8 transition-all duration-500 relative overflow-hidden shadow-lg shadow-teal-500/5 flex flex-col md:flex-row gap-5 md:gap-8 w-full group ${isJeanetteExpanded ? 'items-start md:items-start border-teal-500/40 bg-teal-500/5' : 'items-center cursor-pointer hover:border-teal-500/40'}`}
+        >
+          <div className="absolute top-0 right-0 w-48 h-48 bg-teal-500/10 blur-[80px] rounded-full translate-x-1/2 -translate-y-1/2 group-hover:bg-teal-500/20 transition-colors"></div>
+          
+          <div className="p-3 bg-teal-500/20 rounded-2xl border border-teal-500/30 group-hover:scale-110 transition-transform duration-500 shrink-0 shadow-lg shadow-teal-500/10 self-center md:self-start md:mt-2">
+            <Heart className="text-teal-400" size={28} />
+          </div>
+          
+          <div className="flex-1 text-center md:text-left space-y-1.5 z-10 w-full">
+            <div className="flex items-center justify-center md:justify-start gap-2">
+              <span className="text-[9px] font-black text-teal-400 uppercase tracking-[0.2em]">Nyhet i teamet</span>
+            </div>
+            <h3 className="text-lg md:text-xl font-bold text-white tracking-tight group-hover:text-teal-200 transition-colors">
+              Välkommen Jeanette – Samtalsterapeut & Expert inom somatisk omsorg!
+            </h3>
+            <p className="text-zinc-400 text-xs md:text-sm max-w-3xl font-light leading-relaxed">
+              Utöver traditionella samtal erbjuder Jeanette ett starkt fokus på den kroppsliga och själsliga helheten (somatisk omsorg). Hos henne får du hjälp med allt ifrån skräddarsydd kostrådgivning, till skönhetsbehandlingar som ögonbryn och tatueringar. Hela dig, i trygga händer.
+            </p>
+
+            {isJeanetteExpanded && (
+               <div className="pt-4 mt-4 border-t border-teal-500/20 text-zinc-300 text-xs md:text-sm font-light leading-relaxed animate-in slide-in-from-top-2 fade-in duration-500 space-y-3 text-left">
+                 <p>
+                    <strong className="text-white">Somatisk omsorg</strong> innebär att vi inte bara fokuserar på det inre, känslomässiga måendet, utan även det fysiska välbefinnandet. Jeanette kan bland annat hjälpa dig med:
+                 </p>
+                 <ul className="list-disc pl-5 space-y-1 text-teal-50/80">
+                    <li>Djupgående <span className="font-medium text-teal-100">samtalsterapi</span> för personlig utveckling</li>
+                    <li><span className="font-medium text-teal-100">Kostrådgivning</span> som stödjer kroppens eget läkningssystem</li>
+                    <li>Professionella <span className="font-medium text-teal-100">tatueringar</span> – för att bepryda eller täcka över (t.ex. ärr)</li>
+                    <li>Skönhetsbehandlingar som formning och förstärkning av <span className="font-medium text-teal-100">ögonbryn</span></li>
+                 </ul>
+                 <p className="italic text-teal-200/70 pt-2">
+                    Jeanettes helhetssyn gör henne unik i sitt sätt att kombinera terapeutiskt stöd med fysisk och estetisk omvårdnad på ett tryggt och professionellt sätt.
+                 </p>
+               </div>
+            )}
+          </div>
+
+          <div className={`shrink-0 mt-4 md:mt-0 z-10 flex ${isJeanetteExpanded ? 'flex-col' : 'flex-row'} gap-3 w-full md:w-auto justify-center md:self-start md:pt-4`}>
+            <button 
+              onClick={(e) => { e.stopPropagation(); setPage(Page.CONTACT); }}
+              className="px-6 py-3 bg-teal-500 text-slate-900 hover:bg-teal-400 rounded-xl font-bold transition-all flex items-center justify-center gap-2 text-[10px] md:text-xs uppercase tracking-widest shadow-lg shadow-teal-500/20 flex-1 md:flex-none whitespace-nowrap"
+            >
+              Möt Jeanette <Calendar size={14} />
+            </button>
+            <button 
+              onClick={(e) => { e.stopPropagation(); setIsJeanetteExpanded(!isJeanetteExpanded); }}
+              className="px-6 py-3 bg-white/5 text-white hover:bg-white/10 rounded-xl font-bold transition-all flex items-center justify-center gap-2 text-[10px] md:text-xs uppercase tracking-widest border border-white/10 flex-1 md:flex-none whitespace-nowrap"
+            >
+              Läs mer <ChevronRight size={14} className={`transition-transform duration-300 ${isJeanetteExpanded ? 'rotate-90' : ''}`} />
+            </button>
+          </div>
+        </div>
+
       </div>
 
       {/* Featured Post Carousel (Mirrored from Community) */}

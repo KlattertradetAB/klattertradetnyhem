@@ -4,6 +4,7 @@ import { Sparkles, Target, Users, BookOpen, Star, ShieldCheck, ArrowRight, Check
 import { Page } from '../types';
 
 import { useLanguage } from '../contexts/LanguageContext';
+import ExploreMoreServices from '../components/ExploreMoreServices';
 
 interface GestaltTrainingProps {
   setPage: (page: Page) => void;
@@ -146,6 +147,7 @@ const GestaltTraining: React.FC<GestaltTrainingProps> = ({ setPage }) => {
           </div>
         </div>
       </div>
+      <ExploreMoreServices setPage={setPage} currentPages={[Page.GESTALT_TRAINING]} />
     </div>
   );
 };

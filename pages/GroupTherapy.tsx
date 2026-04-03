@@ -4,6 +4,7 @@ import { Users, Heart, Users2, Shield, Sparkles, CheckCircle, ArrowRight, Target
 import { Page } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import TiltedImage from '../components/TiltedImage';
+import ExploreMoreServices from '../components/ExploreMoreServices';
 
 interface GroupTherapyProps {
   setPage: (page: Page) => void;
@@ -131,6 +132,7 @@ const GroupTherapy: React.FC<GroupTherapyProps> = ({ setPage }) => {
         </button>
       </div>
 
+      <ExploreMoreServices setPage={setPage} currentPages={[Page.GROUP_THERAPY]} />
     </div>
   );
 };

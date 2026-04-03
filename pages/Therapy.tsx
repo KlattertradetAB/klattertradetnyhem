@@ -4,6 +4,7 @@ import { Heart, Sparkles, Activity, ShieldCheck, CheckCircle, Target, Users, Sen
 import { Page } from '../types';
 import TiltedImage from '../components/TiltedImage';
 import { useLanguage } from '../contexts/LanguageContext';
+import ExploreMoreServices from '../components/ExploreMoreServices';
 
 type FormViewState = 'splash' | 'form' | 'confirmation';
 
@@ -341,6 +342,7 @@ const Therapy: React.FC<TherapyProps> = ({ setPage }) => {
           </div>
         )}
       </div>
+      <ExploreMoreServices setPage={setPage} currentPages={[Page.THERAPY]} />
     </div>
   );
 };

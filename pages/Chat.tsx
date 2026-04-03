@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
 import { Shield, Brain, Calendar, MapPin, Laptop, Award, Users, ArrowLeft, Send, CheckCircle } from 'lucide-react';
 import TiltedImage from '../components/TiltedImage';
+import { Page } from '../types';
+import ExploreMoreServices from '../components/ExploreMoreServices';
 
 type ViewState = 'info' | 'form' | 'success';
 
-const Chat: React.FC = () => {
+interface ChatProps {
+  setPage: (page: Page) => void;
+}
+
+const Chat: React.FC<ChatProps> = ({ setPage }) => {
   const [view, setView] = useState<ViewState>('info');
   const [formData, setFormData] = useState({
     type: 'Anmälan till utbildning (MiT)',
@@ -418,6 +424,7 @@ ${formData.message}
         <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">Är du redo?</h3>
         <p className="text-white/70">Bli den skillnad dina klienter behöver i mötet med systemet.</p>
       </div>
+      <ExploreMoreServices setPage={setPage} currentPages={[Page.CHAT]} />
     </div>
   );
 };

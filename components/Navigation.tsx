@@ -8,7 +8,7 @@ import ThemeToggle from './ui/ThemeToggle';
 
 interface NavigationProps {
   currentPage: Page;
-  setPage: (page: Page) => void;
+  setPage: (page: Page, state?: any) => void;
   isDarkMode: boolean;
   toggleTheme: () => void;
 }
@@ -25,9 +25,9 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
   const servicesRef = useRef<HTMLDivElement>(null);
   const resourcesRef = useRef<HTMLDivElement>(null);
 
-  const handleNavClick = (page: Page, e?: React.MouseEvent) => {
+  const handleNavClick = (page: Page, state?: any, e?: React.MouseEvent) => {
     if (e) e.preventDefault();
-    setPage(page);
+    setPage(page, state);
     setIsMobileMenuOpen(false);
     setIsServicesOpen(false);
     setIsResourcesOpen(false);
@@ -160,6 +160,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
                     </div>
                   </div>
                   <div className="h-px bg-white/10 mx-2"></div>
+                  <div className="h-px bg-white/10 mx-2"></div>
                   <div>
                     <div className="flex items-center gap-2 px-3 mb-2 text-white/40 text-[10px] uppercase tracking-widest font-bold">
                       <Heart size={12} /> {t.nav_therapy_cat}
@@ -183,6 +184,14 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
                       </a>
                     </div>
                   </div>
+                  <div className="h-px bg-white/10 mx-2"></div>
+                  <a
+                    href={PAGE_URLS[Page.SERVICES]}
+                    onClick={(e) => handleNavClick(Page.SERVICES, e)}
+                    className="w-full text-center px-3 py-2 rounded-xl transition-all font-black text-[10px] uppercase tracking-widest text-orange-400 hover:bg-orange-400/10 flex items-center justify-center gap-2"
+                  >
+                    {t.nav_visa_alla} <ChevronDown size={14} className="-rotate-90" />
+                  </a>
                 </div>
               )}
             </div>
@@ -218,6 +227,20 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
                     <div className="flex flex-col">
                       <span className="font-bold text-sm">{t.nav_gemenskap}</span>
                       <span className="text-[10px] opacity-60">{t.nav_gemenskap_sub}</span>
+                    </div>
+                  </a>
+
+                  <a
+                    href={PAGE_URLS[Page.GEMENSKAP_APP]}
+                    onClick={(e) => handleNavClick(Page.GEMENSKAP_APP, { initialTab: 'videorun' }, e)}
+                    className="w-full text-left px-3 py-3 rounded-xl transition-colors flex items-center gap-3 hover:bg-orange-500/10 text-orange-400 group/nav"
+                  >
+                    <div className="p-2 bg-orange-500/10 rounded-lg group-hover/nav:scale-110 transition-transform">
+                      <Newspaper size={18} />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-sm">Live Självhjälp</span>
+                      <span className="text-[10px] opacity-60">Delta i veckans möten live.</span>
                     </div>
                   </a>
 
@@ -419,6 +442,10 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
                       <a href={PAGE_URLS[Page.COMMUNITY]} onClick={(e) => handleNavClick(Page.COMMUNITY, e)} className="text-amber-400 font-black text-xl flex items-center gap-3">
                         <Users size={24} />
                         {t.nav_gemenskap}
+                      </a>
+                      <a href={PAGE_URLS[Page.GEMENSKAP_APP]} onClick={(e) => handleNavClick(Page.GEMENSKAP_APP, { initialTab: 'videorun' }, e)} className="text-orange-400 font-black text-xl flex items-center gap-3">
+                        <Newspaper size={24} />
+                        Live Självhjälp
                       </a>
                       <div className="h-px bg-white/5 w-12"></div>
                       <a href={PAGE_URLS[Page.QUALITY_MARKING]} onClick={(e) => handleNavClick(Page.QUALITY_MARKING, e)} className="text-white/70 font-medium text-lg hover:text-blue-400 transition-colors">{t.nav_kvalitetsmarkering}</a>

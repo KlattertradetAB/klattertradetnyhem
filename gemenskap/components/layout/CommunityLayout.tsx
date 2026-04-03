@@ -32,7 +32,6 @@ export const CommunityLayout: React.FC<CommunityLayoutProps> = ({
             case 'dashboard': return 'Överblick';
             case 'resources': return 'Resurser';
             case 'chat': return 'Gemenskapen';
-            case 'consultant': return 'AI-Assistent';
             case 'experts': return 'Kontakt & Bokning';
             case 'admin': return 'Admin Panel';
             default: return 'Gemenskap';

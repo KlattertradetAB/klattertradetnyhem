@@ -242,7 +242,7 @@ const App: React.FC = () => {
               switch (currentPage) {
                 case Page.HOME: return <Home setPage={handleSetPage} />;
                 case Page.ABOUT: return <About />;
-                case Page.CHAT: return <Chat />;
+                case Page.CHAT: return <Chat setPage={handleSetPage} />;
                 case Page.THERAPY: return <Therapy setPage={handleSetPage} />;
                 case Page.GROUP_THERAPY: return <GroupTherapy setPage={handleSetPage} />;
                 case Page.GESTALT_TRAINING: return <GestaltTraining setPage={handleSetPage} />;
@@ -286,7 +286,7 @@ const App: React.FC = () => {
                 case Page.ADMIN_SURVEY_STATS: return <AdminDashboard />;
                 case Page.ADMIN_PANEL: return <GemenskapApp onBackToSite={(targetPage?: Page, state?: any) => handleSetPage(targetPage || Page.HOME, state)} initialTab="admin" />;
                 case Page.VIDEO_MEETING: return <StandaloneVideoRoom />;
-                case Page.GEMENSKAP_APP: return <GemenskapApp onBackToSite={(targetPage?: Page, state?: any) => handleSetPage(targetPage || Page.HOME, state)} />;
+                case Page.GEMENSKAP_APP: return <GemenskapApp onBackToSite={(targetPage?: Page, state?: any) => handleSetPage(targetPage || Page.HOME, state)} initialTab={window.history.state?.initialTab} />;
                 default: return <Home setPage={handleSetPage} />;
               }
             })()}
