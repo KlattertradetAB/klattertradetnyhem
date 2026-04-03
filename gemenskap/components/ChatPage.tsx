@@ -227,7 +227,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
             </div>
 
             {/* 2. Middle Sidebar (Content List) - Responsive: Full width on mobile when chat hidden, fixed width on desktop */}
-            <div className={`${mobileShowChat ? 'hidden lg:flex' : 'flex w-full'} lg:w-80 bg-slate-900/40 border-r border-white/5 flex-col shrink-0 h-full transition-all duration-300`}>
+            <div className={`${mobileShowChat ? 'hidden lg:flex' : 'flex w-full'} lg:w-80 bg-slate-900/40 border-r border-white/5 flex-col shrink-0 h-full transition-all duration-300 relative`}>
                 {activeNav === 'discussions' && (
                     <>
                         <div className="p-8 pb-6">
@@ -716,6 +716,34 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                         </div>
                     </div>
                 )}
+
+                {/* Mobile Bottom Navigation Bar */}
+                <div className="md:hidden absolute bottom-0 left-0 right-0 bg-slate-950/90 backdrop-blur-3xl border-t border-white/10 flex justify-around items-center px-2 py-3 pb-8 z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+                    {[
+                        { id: 'discussions', icon: <Hash size={24} />, label: 'Kanaler' },
+                        { id: 'messages', icon: <MessageCircle size={24} />, label: 'DM' },
+                        { id: 'members', icon: <Users size={24} />, label: 'Medlemmar' },
+                        { id: 'notifications', icon: <Bell size={24} />, label: 'Notiser', badge: unreadCount > 0 },
+                    ].map((item) => (
+                        <button
+                            key={item.id}
+                            onClick={() => setActiveNav(item.id as any)}
+                            className={`flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all w-16 ${
+                                activeNav === item.id 
+                                ? 'text-orange-500 font-bold scale-110' 
+                                : 'text-slate-500 hover:text-white font-medium'
+                            }`}
+                        >
+                            <div className="relative">
+                                {item.icon}
+                                {item.badge && activeNav !== item.id && (
+                                    <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-slate-950"></div>
+                                )}
+                            </div>
+                            <span className="text-[9px] uppercase tracking-wider">{item.label}</span>
+                        </button>
+                    ))}
+                </div>
             </div>
 
             {/* 3. Main Chat Area - Responsive: Hidden on mobile if viewing lists */}
