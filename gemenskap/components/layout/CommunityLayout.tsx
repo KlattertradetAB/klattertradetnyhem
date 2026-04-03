@@ -42,6 +42,7 @@ export const CommunityLayout: React.FC<CommunityLayoutProps> = ({
         <div className="flex h-screen bg-slate-950 overflow-hidden font-sans">
             {/* Desktop Sidebar */}
             <Sidebar
+                className="hidden md:flex"
                 activeTab={activeTab}
                 onTabChange={(tab) => {
                     onTabChange(tab);

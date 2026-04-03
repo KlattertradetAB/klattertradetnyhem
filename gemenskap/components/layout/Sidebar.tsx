@@ -16,6 +16,7 @@ import { getEffectiveAvatar } from '../../services/userUtils';
 import { Profile } from '../../types';
 
 interface SidebarProps {
+    className?: string;
     activeTab: string;
     onTabChange: (tab: any) => void;
     user: Profile;
@@ -25,6 +26,7 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ 
+    className,
     activeTab, 
     onTabChange, 
     user, 
@@ -42,7 +44,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     ];
 
     return (
-        <aside className="hidden md:flex flex-col w-72 bg-slate-950/50 backdrop-blur-2xl border-r border-white/5 p-6 relative z-50">
+        <aside className={cn("flex flex-col w-72 bg-slate-950/50 backdrop-blur-2xl border-r border-white/5 p-6 relative z-50 h-full overflow-y-auto", className)}>
             {/* Logo Area */}
             <div className="flex items-center gap-3 mb-12 px-2 cursor-pointer group" onClick={() => onTabChange('dashboard')}>
                 <div className="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-110 duration-300">
