@@ -12,6 +12,7 @@ import {
 import { NewThreadModal } from './NewThreadModal';
 import { InviteFriendModal } from './InviteFriendModal';
 import { VideoRoom } from './VideoRoom';
+import MembershipDetailsModal from './MembershipDetailsModal';
 import DirectChat from './DirectChat';
 import { getNotifications, subscribeToNotifications, clearNotifications, markThreadAsRead, NotificationItem, addNotification } from '../services/notificationStore';
 import { supabase } from '../services/supabase';
@@ -36,7 +37,7 @@ interface ChatRoom {
 }
 
 const CHAT_ROOMS: ChatRoom[] = [
-    { id: 'general', name: 'Forum', icon: <Hash size={18} />, description: 'Det öppna rummet för alla medlemmar.', category: 'public' },
+    { id: 'general', name: 'Allmän', icon: <Hash size={18} />, description: 'Det öppna rummet för alla medlemmar.', category: 'public' },
     { id: 'self-care', name: 'Self-care tips', icon: <Heart size={18} />, description: 'Dela med dig av dina bästa tips för självvård.', category: 'public' },
     { id: 'video', name: 'Videorummet', icon: <Camera size={18} />, description: 'Anslut med kamera och röst i realtid.', category: 'public', hasVideo: true },
     { id: 'trygghet', name: 'Trygga rummet', icon: <Shield size={18} />, description: 'En skyddad plats för svårare samtal.', category: 'private' },
@@ -52,6 +53,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
     const [showInviteModal, setShowInviteModal] = useState(false);
     // Default to false so mobile users land on the Room List (Hub), desktop unaffected
     const [mobileShowChat, setMobileShowChat] = useState(false);
+    const [isMembershipModalOpen, setIsMembershipModalOpen] = useState(false);
     const [threads, setThreads] = useState<any[]>([]);
     const [allProfiles, setAllProfiles] = useState<Profile[]>([]);
     const [conversations, setConversations] = useState<any[]>([]);
@@ -128,6 +130,12 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
     const unreadNotifications = notifications.filter(n => !n.is_read);
     const unreadCount = unreadNotifications.length;
     const unreadThreadIds = new Set(unreadNotifications.filter(n => n.type === 'chat' && n.thread_id).map(n => n.thread_id));
+    
+    // Calculate unread DMs
+    const unreadDmCount = conversations.reduce((acc, conv) => {
+        if (!conv.last_read_at) return acc + 1;
+        return new Date(conv.last_message_at) > new Date(conv.last_read_at) ? acc + 1 : acc;
+    }, 0);
 
     useEffect(() => {
         let interval: any;
@@ -144,8 +152,11 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
 
     // Helper to check if a room is locked for the current user
     const isRoomLocked = (roomId: string) => {
-        // Unlock all rooms for everyone as per new community guidelines
-        return false;
+        // "general" (Allmän) and "video" are open to everyone (Bas and Premium)
+        if (roomId === 'general' || roomId === 'video') return false;
+        
+        // Members with level >= 3 (Premium) or Admin role can access other rooms
+        return (user.membership_level || 0) < 3 && user.role !== 'admin';
     };
 
     const dynamicRooms: ChatRoom[] = threads.map(t => ({
@@ -186,7 +197,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                     <div className="flex flex-col gap-6 w-full px-4">
                         {[
                             { id: 'discussions', icon: <Hash size={26} />, label: 'Kanaler' },
-                            { id: 'messages', icon: <MessageCircle size={26} />, label: 'Meddelanden' },
+                            { id: 'messages', icon: <MessageCircle size={26} />, label: 'Meddelanden', badge: unreadDmCount > 0 },
                             { id: 'members', icon: <Users size={26} />, label: 'Medlemmar' },
                             { id: 'notifications', icon: <Bell size={26} />, label: 'Notiser', badge: unreadCount > 0 },
                         ].map((item) => (
@@ -255,7 +266,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                             {/* Category: Public Rooms */}
                             <div className="space-y-3">
                                 <div className="px-4 flex items-center justify-between">
-                                    <span className="text-[11px] font-black uppercase tracking-[0.25em] text-slate-500">Offentliga Rum</span>
+                                    <span className="text-[11px] font-black uppercase tracking-[0.25em] text-slate-500">Forum</span>
                                     <div className="h-[1px] flex-grow ml-4 bg-gradient-to-r from-white/10 to-transparent"></div>
                                 </div>
                                 <div className="space-y-1">
@@ -265,13 +276,15 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                                             <button
                                                 key={room.id}
                                                 onClick={() => {
-                                                    if (!locked) {
+                                                    if (locked) {
+                                                        setIsMembershipModalOpen(true);
+                                                    } else {
                                                         setActiveRoom(room.id);
                                                         setMobileShowChat(true);
                                                         markThreadAsRead(room.id);
                                                     }
                                                 }}
-                                                disabled={locked}
+                                                disabled={false}
                                                 className={`w-[calc(100%-1rem)] mx-2 flex items-center gap-4 px-4 py-5 rounded-[2rem] transition-all duration-500 group relative 
                                                 ${activeRoom === room.id ? 'bg-white/10 shadow-2xl border border-white/5' : locked ? 'opacity-50 cursor-not-allowed' : 'text-slate-500 hover:bg-white/5 hover:text-white'}
                                             `}
@@ -320,13 +333,15 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                                             <button
                                                 key={room.id}
                                                 onClick={() => {
-                                                    if (!locked) {
+                                                    if (locked) {
+                                                        setIsMembershipModalOpen(true);
+                                                    } else {
                                                         setActiveRoom(room.id);
                                                         setMobileShowChat(true);
                                                         markThreadAsRead(room.id);
                                                     }
                                                 }}
-                                                disabled={locked}
+                                                disabled={false}
                                                 className={`w-[calc(100%-1rem)] mx-2 flex items-center gap-4 px-4 py-5 rounded-[2rem] transition-all duration-500 group relative 
                                                     ${activeRoom === room.id ? 'bg-white/10 shadow-2xl border border-white/5' : locked ? 'opacity-50 cursor-not-allowed' : 'text-slate-500 hover:bg-white/5 hover:text-white'}
                                                 `}
@@ -650,7 +665,12 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                                                             {new Date(conv.last_message_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                         </span>
                                                     </div>
-                                                    <p className="text-[11px] opacity-60 line-clamp-1 font-medium italic">Klicka för att läsa...</p>
+                                                    <div className="flex items-center justify-between">
+                                                        <p className="text-[11px] opacity-60 line-clamp-1 font-medium italic">Klicka för att läsa...</p>
+                                                        {(!conv.last_read_at || new Date(conv.last_message_at) > new Date(conv.last_read_at)) && selectedConversation?.id !== conv.id && (
+                                                            <div className="w-2 h-2 bg-orange-500 rounded-full shadow-[0_0_8px_rgba(249,115,22,0.8)]"></div>
+                                                        )}
+                                                    </div>
                                                 </div>
                                                 {selectedConversation?.id === conv.id && (
                                                     <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-orange-500 rounded-r-full shadow-[0_0_15px_rgba(249,115,22,1)]"></div>
@@ -721,7 +741,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                 <div className="md:hidden absolute bottom-0 left-0 right-0 bg-slate-950/90 backdrop-blur-3xl border-t border-white/10 flex justify-around items-center px-2 py-3 pb-8 z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
                     {[
                         { id: 'discussions', icon: <Hash size={24} />, label: 'Kanaler' },
-                        { id: 'messages', icon: <MessageCircle size={24} />, label: 'DM' },
+                        { id: 'messages', icon: <MessageCircle size={24} />, label: 'DM', badge: unreadDmCount > 0 },
                         { id: 'members', icon: <Users size={24} />, label: 'Medlemmar' },
                         { id: 'notifications', icon: <Bell size={24} />, label: 'Notiser', badge: unreadCount > 0 },
                     ].map((item) => (
@@ -845,7 +865,13 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                 <div className="flex-1 overflow-hidden relative flex flex-col min-h-0">
                     {activeNav === 'messages' ? (
                         selectedConversation ? (
-                            <DirectChat user={user} conversation={selectedConversation} />
+                            <DirectChat 
+                                user={user} 
+                                conversation={selectedConversation} 
+                                onlineUsers={globalOnlineUsers}
+                                showHeader={false}
+                                className="h-full" 
+                            />
                         ) : (
                             <div className="flex-1 flex flex-col items-center justify-center text-slate-600 gap-6 animate-in fade-in zoom-in duration-700">
                                 <div className="w-24 h-24 bg-white/5 rounded-[3rem] flex items-center justify-center text-slate-800 border border-white/5">
@@ -914,6 +940,16 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                     })}
                 </div>
             )}
+            {/* Membership Details Modal for Upsell */}
+            <MembershipDetailsModal
+                isOpen={isMembershipModalOpen}
+                onClose={() => setIsMembershipModalOpen(false)}
+                onUpgrade={() => {
+                     setIsMembershipModalOpen(false);
+                     // Redirect to premium application or show toast
+                     window.location.hash = '#premium-login';
+                }}
+            />
         </div >
     );
 };

@@ -11,10 +11,18 @@ import { getEffectiveAvatar, getUserInitials } from '../services/userUtils';
 interface DirectChatProps {
     user: Profile;
     conversation: DmRoom;
+    onlineUsers?: Record<string, any>;
     className?: string;
+    showHeader?: boolean;
 }
 
-const DirectChat: React.FC<DirectChatProps> = ({ user, conversation, className }) => {
+const DirectChat: React.FC<DirectChatProps> = ({ 
+    user, 
+    conversation, 
+    onlineUsers = {}, 
+    className,
+    showHeader = true 
+}) => {
     const [messages, setMessages] = useState<DmMessage[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(true);
@@ -31,12 +39,15 @@ const DirectChat: React.FC<DirectChatProps> = ({ user, conversation, className }
         };
 
         fetchMessages();
+        dmService.markAsRead(conversation.id);
 
         const channel = dmService.subscribeToRoom(conversation.id, (newMsg) => {
             setMessages(prev => {
                 if (prev.some(m => m.id === newMsg.id)) return prev;
                 return [...prev, newMsg];
             });
+            // Mark as read when new message arrives if we are in the room
+            dmService.markAsRead(conversation.id);
         });
 
         return () => {
@@ -72,18 +83,7 @@ const DirectChat: React.FC<DirectChatProps> = ({ user, conversation, className }
             // Replace optimistic message with actual data
             setMessages(prev => prev.map(m => m.id === optimisticMsg.id ? result : m));
             
-            // Send internal notification to the other user via the notifications table
-            if (otherUser?.id) {
-                const snippet = textToSend.substring(0, 50) + (textToSend.length > 50 ? '...' : '');
-                await supabase.from('notifications' as any).insert({
-                    user_id: otherUser.id,
-                    title: `Nytt meddelande från ${user.full_name?.split(' ')[0] || 'Någon'}`,
-                    message: snippet,
-                    type: 'dm',
-                    thread_id: conversation.id,
-                    is_read: false
-                });
-            }
+            // Manual notification insertion removed - now handled by Database Trigger (notis_trigger.sql)
         }
     };
 
@@ -91,38 +91,42 @@ const DirectChat: React.FC<DirectChatProps> = ({ user, conversation, className }
 
     return (
         <div className={`flex flex-col bg-transparent h-full w-full max-w-full ${className || ''}`}>
-            {/* Header */}
-            <div className="px-4 md:px-6 py-4 md:py-8 border-b border-white/5 flex items-center justify-between bg-slate-900/60 backdrop-blur-3xl relative z-20 shrink-0">
-                <div className="flex items-center gap-4 md:gap-6">
-                    <div className="relative">
-                        <div className={`w-12 h-12 md:w-16 md:h-16 rounded-2xl md:rounded-[2rem] flex items-center justify-center text-lg md:text-xl shadow-2xl transition-transform hover:scale-105 duration-500 overflow-hidden ${getEffectiveAvatar(undefined, otherUser?.avatar_url, undefined)?.includes('logo2') ? 'bg-slate-950 p-2' : 'bg-gradient-to-br from-orange-400 to-red-600 text-white'}`}>
-                            {(() => {
-                                const avatar = getEffectiveAvatar(undefined, otherUser?.avatar_url, undefined);
-                                return avatar ? (
-                                    <img src={avatar} alt={otherUser?.full_name || 'Medlem'} className="w-full h-full object-cover" />
-                                ) : (
-                                    getUserInitials(otherUser?.full_name || '?')
-                                );
-                            })()}
+            {/* Header - Only shown if not handled by parent (ChatPage) */}
+            {showHeader && (
+                <div className="px-4 md:px-6 py-4 md:py-8 border-b border-white/5 flex items-center justify-between bg-slate-900/60 backdrop-blur-3xl relative z-20 shrink-0">
+                    <div className="flex items-center gap-4 md:gap-6">
+                        <div className="relative">
+                            <div className={`w-12 h-12 md:w-16 md:h-16 rounded-2xl md:rounded-[2rem] flex items-center justify-center text-lg md:text-xl shadow-2xl transition-transform hover:scale-105 duration-500 overflow-hidden ${getEffectiveAvatar(undefined, otherUser?.avatar_url, undefined)?.includes('logo2') ? 'bg-slate-950 p-2' : 'bg-gradient-to-br from-orange-400 to-red-600 text-white'}`}>
+                                {(() => {
+                                    const avatar = getEffectiveAvatar(undefined, otherUser?.avatar_url, undefined);
+                                    return avatar ? (
+                                        <img src={avatar} alt={otherUser?.full_name || 'Medlem'} className="w-full h-full object-cover" />
+                                    ) : (
+                                        getUserInitials(otherUser?.full_name || '?')
+                                    );
+                                })()}
+                            </div>
+                            {onlineUsers[otherUser?.id || ''] && (
+                                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 md:w-5 md:h-5 bg-green-500 border-[3px] md:border-4 border-slate-950 rounded-full shadow-lg"></div>
+                            )}
                         </div>
-                        <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 md:w-5 md:h-5 bg-green-500 border-[3px] md:border-4 border-slate-950 rounded-full shadow-lg"></div>
-                    </div>
-                    <div>
-                        <h3 className="text-lg md:text-2xl font-black text-white tracking-tighter truncate max-w-[150px] md:max-w-none">
-                            {otherUser?.full_name || 'Medlem'}
-                        </h3>
-                        <div className="flex items-center gap-2">
-                             <span className="text-[9px] md:text-[10px] text-orange-500 font-black uppercase tracking-widest">Privat chatt</span>
+                        <div>
+                            <h3 className="text-lg md:text-2xl font-black text-white tracking-tighter truncate max-w-[150px] md:max-w-none">
+                                {otherUser?.full_name || 'Medlem'}
+                            </h3>
+                            <div className="flex items-center gap-2">
+                                <span className="text-[9px] md:text-[10px] text-orange-500 font-black uppercase tracking-widest">Privat chatt</span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div className="flex items-center gap-2 md:gap-4">
-                    <button className="p-3 md:p-4 bg-white/5 hover:bg-orange-500/10 hover:text-orange-400 border border-white/5 rounded-xl md:rounded-2xl transition-all shadow-xl active:scale-95">
-                        <MoreVertical size={18} />
-                    </button>
+                    <div className="flex items-center gap-2 md:gap-4">
+                        <button className="p-3 md:p-4 bg-white/5 hover:bg-orange-500/10 hover:text-orange-400 border border-white/5 rounded-xl md:rounded-2xl transition-all shadow-xl active:scale-95">
+                            <MoreVertical size={18} />
+                        </button>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Messages */}
             <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 md:px-8 py-6 md:py-10 space-y-6 md:space-y-8 no-scrollbar scroll-smooth min-h-0">
@@ -157,6 +161,11 @@ const DirectChat: React.FC<DirectChatProps> = ({ user, conversation, className }
                                                 <span className="text-xs">{getUserInitials(u?.full_name || '?')}</span>
                                             );
                                         })()}
+                                        
+                                        {/* Status Dot for other user */}
+                                        {!isCurrentUser && onlineUsers[msg.user_id] && (
+                                            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-slate-900 rounded-full"></div>
+                                        )}
                                     </div>
                                 ) : (
                                     <div className="w-10 shrink-0"></div>

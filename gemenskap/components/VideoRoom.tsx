@@ -95,6 +95,16 @@ export const VideoRoom: React.FC<VideoRoomProps> = ({ roomId, user, onEndCall })
                     <div className="absolute -top-40 -right-40 w-96 h-96 bg-orange-500/10 rounded-full blur-[120px] pointer-events-none group-hover:bg-orange-500/20 transition-colors duration-1000"></div>
 
                     {/* The Video Stream */}
+                    <div className="absolute top-6 left-6 z-30 flex flex-wrap items-center gap-3">
+                        <div className="px-4 py-2 bg-orange-500 text-slate-950 font-black text-[10px] uppercase tracking-widest rounded-xl shadow-xl animate-pulse">
+                            Beta / Labb
+                        </div>
+                        <div className="px-4 py-2 bg-slate-950/60 backdrop-blur-xl border border-white/10 text-white font-bold text-[10px] uppercase tracking-widest rounded-xl shadow-xl flex items-center gap-2">
+                             <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-ping"></div>
+                             Live: {roomId}
+                        </div>
+                    </div>
+                    
                     <video
                         ref={videoRef}
                         autoPlay

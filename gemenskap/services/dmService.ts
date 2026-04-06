@@ -28,39 +28,43 @@ export const dmService = {
         const { data: rooms, error: rError } = await (supabase
             .from('dm_rooms' as any) as any)
             .select(`
-        *,
-        dm_participants (
-          user_id,
-          profiles (
-            id,
-            full_name,
-            avatar_url,
-            role,
-            email
-          )
-        )
-      `)
+                *,
+                dm_participants (
+                    user_id,
+                    last_read_at,
+                    profiles (
+                        id,
+                        full_name,
+                        avatar_url,
+                        role,
+                        email
+                    )
+                )
+            `)
             .in('id', roomIds)
             .order('last_message_at', { ascending: false });
 
         if (rError) {
-          console.error('Error fetching rooms:', rError);
-          return [];
+            console.error('Error fetching rooms:', rError);
+            return [];
         }
         if (!rooms) return [];
 
-    // 3. Map to DmRoom interface, injecting the "other" user profile
-    return (rooms as any[]).map(room => {
-      const otherParticipant = room.dm_participants.find((p: any) => p.user_id !== user.id);
-      return {
-        id: room.id,
-        created_at: room.created_at,
-        last_message_at: room.last_message_at,
-        metadata: room.metadata,
-        other_user: otherParticipant?.profiles || null
-      };
-    });
-  },
+        // 3. Map to DmRoom interface, injecting the "other" user profile and current user's last_read_at
+        return (rooms as any[]).map(room => {
+            const otherParticipant = room.dm_participants.find((p: any) => p.user_id !== user.id);
+            const currentParticipant = room.dm_participants.find((p: any) => p.user_id === user.id);
+            
+            return {
+                id: room.id,
+                created_at: room.created_at,
+                last_message_at: room.last_message_at,
+                last_read_at: currentParticipant?.last_read_at || null,
+                metadata: room.metadata,
+                other_user: otherParticipant?.profiles || null
+            };
+        });
+    },
 
   /**
    * Gets or creates a DM room between the current user and another user.
@@ -183,17 +187,31 @@ export const dmService = {
             .subscribe();
     },
 
-  /**
-   * Subscribes to any new DM messages for the current user (for notifications).
-   */
-  async subscribeToAllDMs(onNewMessage: (payload: any) => void) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
+    /**
+     * Subscribes to any new DM messages for the current user (for notifications).
+     */
+    async subscribeToAllDMs(onNewMessage: (payload: any) => void) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return null;
 
-    // We can't filter by user_id for all DMs accurately in a single filter if we want to catch incoming.
-    // Instead, we subscribe to ALL inserts on dm_messages and filter in JS, 
-    // OR rely on the database trigger to create a notification.
-    // Database trigger is better for performance and consistency.
-    return null;
-  }
+        // We can't filter by user_id for all DMs accurately in a single filter if we want to catch incoming.
+        // Instead, we subscribe to ALL inserts on dm_messages and filter in JS, 
+        // OR rely on the database trigger to create a notification.
+        // Database trigger is better for performance and consistency.
+        return null;
+    },
+
+    /**
+     * Marks all messages in a room as read for the current user.
+     */
+    async markAsRead(roomId: string) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        await (supabase
+            .from('dm_participants' as any) as any)
+            .update({ last_read_at: new Date().toISOString() })
+            .eq('room_id', roomId)
+            .eq('user_id', user.id);
+    }
 };

@@ -34,7 +34,7 @@ export const CommunityLayout: React.FC<CommunityLayoutProps> = ({
             case 'chat': return 'Forum';
             case 'experts': return 'Kontakt & Bokning';
             case 'admin': return 'Admin Panel';
-            default: return 'Gemenskap';
+            default: return 'Community';
         }
     };
 

@@ -21,7 +21,7 @@ const Welcome: React.FC = () => {
                     <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white mb-6 leading-tight">
                         Välkommen hem till <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-200 to-white">
-                            Horizonten Gemenskap
+                            Horizonten Community
                         </span>
                     </h1>
                     <p className="text-xl md:text-2xl text-slate-300 font-medium italic mb-8">
@@ -105,7 +105,7 @@ const Welcome: React.FC = () => {
                             <div className="relative">
                                 <Quote className="absolute -top-4 -left-4 text-orange-500/20" size={48} />
                                 <blockquote className="text-white italic font-light text-lg pl-8 border-l-2 border-orange-500/30">
-                                    "I Horizonten är ditt välmående vår gemensamma kompass. Genom att erbjuda professionellt ledd självhjälp tar vi nästa steg mot en starkare och mer sammanhållen gemenskap."
+                                    "I Horizonten är ditt välmående vår gemensamma kompass. Genom att erbjuda professionellt ledd självhjälp tar vi nästa steg mot en starkare och mer sammanhållen Community."
                                 </blockquote>
                             </div>
 
@@ -123,7 +123,7 @@ const Welcome: React.FC = () => {
                             </p>
 
                             <p>
-                                Horizonten Gemenskap är hjärtat i samarbetet mellan <span className="text-orange-400 font-bold">Klätterträdet, Socialkraft och Twisted-stacks</span>.
+                                Horizonten Community är hjärtat i samarbetet mellan <span className="text-orange-400 font-bold">Klätterträdet, Socialkraft och Twisted-stacks</span>.
                                 Vi har gått samman för att vi delar en vision: Psykisk hälsa och mänskligt stöd ska vara tillgängligt för alla.
                                 Det ska inte vara krångligt, det ska inte kosta en förmögenhet, och du ska inte behöva vänta i en telefonkö för att känna att någon lyssnar.
                             </p>
