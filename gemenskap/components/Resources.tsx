@@ -1,11 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Package, Download, Globe, Shield, ArrowRight, Zap, Star, Layout } from 'lucide-react';
 import PricingCard from '../../components/ui/PricingCard';
 import PremiumBadge from './PremiumBadge';
 import { Card, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
+import MembershipDetailsModal from './MembershipDetailsModal';
 
 const Resources: React.FC = () => {
+    const [isMembershipModalOpen, setIsMembershipModalOpen] = useState(false);
+
+    const handleUpgrade = () => {
+        // Here we would normally trigger the checkout flow
+        // or redirect to a premium checkout page
+        window.location.hash = '#premium-login'; // Example redirect
+        setIsMembershipModalOpen(false);
+    };
+
     return (
         <div className="space-y-12 pb-12">
             {/* Hero Section */}
@@ -45,7 +55,10 @@ const Resources: React.FC = () => {
                                 <p className="text-slate-400 text-sm max-w-md font-light">Lås upp exklusiva workshops, boken som e-bok och direktkontakt med våra experter.</p>
                             </div>
                         </div>
-                        <button className="px-8 py-4 rounded-2xl bg-orange-500 text-white font-black text-xs uppercase tracking-widest hover:bg-orange-600 transition-all shadow-xl shadow-orange-500/20 flex items-center gap-3">
+                        <button 
+                            onClick={() => setIsMembershipModalOpen(true)}
+                            className="px-8 py-4 rounded-2xl bg-orange-500 text-white font-black text-xs uppercase tracking-widest hover:bg-orange-600 transition-all shadow-xl shadow-orange-500/20 flex items-center gap-3"
+                        >
                             Utforska Medlemskap
                             <ArrowRight size={18} />
                         </button>
@@ -66,6 +79,7 @@ const Resources: React.FC = () => {
                         period="för alltid"
                         description="Perfekt för dig som vill utforska gemenskapen."
                         buttonText="Bli Medlem"
+                        onButtonClick={() => setIsMembershipModalOpen(true)}
                         features={["Öppna forum", "Grund-övningar", "Live-samtal", "Digital flock"]}
                     />
 
@@ -76,6 +90,7 @@ const Resources: React.FC = () => {
                         isPopular={true}
                         description="För dig som vill fördjupa din utveckling."
                         buttonText="Uppgradera Nu"
+                        onButtonClick={() => setIsMembershipModalOpen(true)}
                         features={["Allt i Bas", "Videoserier", "Support", "Workshops", "E-bok"]}
                     />
 
@@ -85,6 +100,7 @@ const Resources: React.FC = () => {
                         period="/ månad"
                         description="Det ultimata stödet med personliga verktyg."
                         buttonText="Kontakta Oss"
+                        onButtonClick={() => setIsMembershipModalOpen(true)}
                         features={["Allt i Premium", "Handledning", "Yrkesgrupper", "Metodstöd", "Träffar"]}
                     />
                 </div>
@@ -124,6 +140,12 @@ const Resources: React.FC = () => {
                     </Card>
                 ))}
             </div>
+
+            <MembershipDetailsModal 
+                isOpen={isMembershipModalOpen} 
+                onClose={() => setIsMembershipModalOpen(false)}
+                onUpgrade={handleUpgrade}
+            />
 
             <div className="h-20"></div>
         </div>

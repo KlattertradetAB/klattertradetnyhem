@@ -171,7 +171,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
                 </span>
-                <span className="text-[10px] font-black text-orange-500 uppercase tracking-[0.3em]">Nyhet i communityn</span>
+                <span className="text-[10px] font-black text-orange-500 uppercase tracking-[0.3em]">Nyhet i Communityn</span>
               </div>
               <h2 className="text-2xl md:text-3xl font-black text-white italic tracking-tight group-hover:text-amber-200 transition-colors">
                 Nu med terapeutledd självhjälp varje vecka!
@@ -464,7 +464,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
 
 
 
-      {/* Horizonten Gemenskap Section */}
+      {/* Horizonten Community Section */}
       <div className="space-y-16 md:space-y-24 py-12">
         <div className="text-center space-y-6 mx-auto">
           <h2 className="text-4xl md:text-6xl font-black text-white italic tracking-tight leading-[1.1]">
@@ -493,7 +493,7 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
             <div className="absolute -inset-4 bg-orange-500/20 rounded-[3rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
             <TiltedImage
               src="/logo2.png"
-              alt="Horizonten Gemenskap"
+              alt="Horizonten Community"
               className="w-64 h-64 md:w-80 md:h-80"
               imgClassName="object-contain p-8"
               defaultRotation="5deg"

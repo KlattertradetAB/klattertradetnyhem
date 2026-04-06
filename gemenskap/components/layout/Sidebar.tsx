@@ -38,7 +38,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         { id: 'welcome', label: 'Välkommen hem', icon: Home },
         { id: 'dashboard', label: 'Överblick', icon: LayoutGrid },
         { id: 'resources', label: 'Resurser', icon: Package },
-        { id: 'chat', label: 'Gemenskapen', icon: MessageCircle },
+        { id: 'chat', label: 'Forum', icon: MessageCircle },
         { id: 'experts', label: 'Kontakt & Bokning', icon: Users },
         ...(user.role === 'admin' ? [{ id: 'admin', label: 'Admin Panel', icon: Shield }] : [])
     ];
@@ -52,7 +52,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
                 <div>
                     <h1 className="text-xl font-bold tracking-tight text-white group-hover:text-orange-400 transition-colors">Horizonten</h1>
-                    <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Gemenskap</p>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Community</p>
                 </div>
             </div>
 

@@ -235,7 +235,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                     const snippet = textToSend.split(' ').slice(0, 5).join(' ') + (textToSend.split(' ').length > 5 ? '...' : '');
                     const notificationInserts = profiles.map(p => ({
                         user_id: p.id,
-                        title: `Nytt i ${threadId === 'general' ? 'Gemenskapen' : 'chatten'}`,
+                        title: `Nytt i ${threadId === 'general' ? 'Forum' : 'chatten'}`,
                         message: `${user.full_name?.split(' ')[0] || 'Någon'}: ${snippet}`,
                         thread_id: threadId,
                         type: 'chat',
@@ -305,7 +305,7 @@ const CommunityChat: React.FC<CommunityChatProps> = ({ user, threadId = 'general
                         </div>
                         <div>
                             <h3 className="text-sm font-black text-white uppercase tracking-wider">
-                                {threadId === 'general' ? 'Gemenskapen' : threadId}
+                                {threadId === 'general' ? 'Forum' : threadId}
                             </h3>
                             <p className="text-[10px] text-orange-500 font-bold tracking-widest uppercase flex items-center gap-1.5">
                                 <span className="w-1 h-1 bg-orange-500 rounded-full animate-ping"></span> Live nu

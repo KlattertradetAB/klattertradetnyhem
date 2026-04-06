@@ -36,7 +36,7 @@ interface ChatRoom {
 }
 
 const CHAT_ROOMS: ChatRoom[] = [
-    { id: 'general', name: 'Gemenskapen', icon: <Hash size={18} />, description: 'Det öppna rummet för alla medlemmar.', category: 'public' },
+    { id: 'general', name: 'Forum', icon: <Hash size={18} />, description: 'Det öppna rummet för alla medlemmar.', category: 'public' },
     { id: 'self-care', name: 'Self-care tips', icon: <Heart size={18} />, description: 'Dela med dig av dina bästa tips för självvård.', category: 'public' },
     { id: 'video', name: 'Videorummet', icon: <Camera size={18} />, description: 'Anslut med kamera och röst i realtid.', category: 'public', hasVideo: true },
     { id: 'trygghet', name: 'Trygga rummet', icon: <Shield size={18} />, description: 'En skyddad plats för svårare samtal.', category: 'private' },
@@ -245,7 +245,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-orange-500 transition-colors" size={18} />
                                 <input
                                     type="text"
-                                    placeholder="Sök i gemenskapen..."
+                                    placeholder="Sök i Forumet..."
                                     className="w-full bg-slate-950/40 border border-white/10 rounded-[1.25rem] py-4 pl-12 pr-4 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500/40 transition-all font-medium"
                                 />
                             </div>

@@ -31,7 +31,7 @@ const Landing: React.FC<LandingProps> = ({ onLoginClick, onPremiumLoginClick, on
                     <h1 className="text-4xl sm:text-5xl md:text-8xl font-black tracking-tighter text-white leading-[0.9]">
                         Välkommen till <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-200 to-white">
-                            Horizonten Gemenskap
+                            Horizonten Community
                         </span>
                     </h1>
                     <p className="text-xl md:text-3xl font-medium text-orange-200/80 tracking-tight italic">
@@ -52,7 +52,7 @@ const Landing: React.FC<LandingProps> = ({ onLoginClick, onPremiumLoginClick, on
                     </div>
                     <div className="pt-4">
                         <p className="text-orange-400 font-black uppercase tracking-[0.2em] text-sm">
-                            Välj den nivå av gemenskap som passar ditt liv just nu:
+                            Välj den nivå av Community som passar ditt liv just nu:
                         </p>
                     </div>
                 </div>
@@ -74,14 +74,14 @@ const Landing: React.FC<LandingProps> = ({ onLoginClick, onPremiumLoginClick, on
                             </div>
 
                             <p className="text-slate-400 leading-relaxed text-lg">
-                                Detta är för dig som vill ta del av gemenskapen, läsa och inspireras, men kanske inte har behov av de djupare funktionerna just nu. Det är ett första steg i din Self-care för att bryta isolering.
+                                Detta är för dig som vill ta del av Communityn, läsa och inspireras, men kanske inte har behov av de djupare funktionerna just nu. Det är ett första steg i din Self-care för att bryta isolering.
                             </p>
 
                             <ul className="space-y-6 pt-6 border-t border-white/5">
                                 {[
                                     { title: "Läsrättigheter", desc: "Ta del av öppna diskussioner och insikter." },
                                     { title: "Begränsad chat", desc: "Möjlighet att skriva i vår allmänna välkomst-tråd." },
-                                    { title: "Gemenskap", desc: "Du är en del av flocken – du är inte ensam." }
+                                    { title: "Community", desc: "Du är en del av flocken – du är inte ensam." }
                                 ].map((item, i) => (
                                     <li key={i} className="flex gap-4 items-start">
                                         <div className="bg-white/5 p-1 rounded-md mt-1 shrink-0"><ChevronRight size={14} className="text-slate-500" /></div>
@@ -179,14 +179,14 @@ const Landing: React.FC<LandingProps> = ({ onLoginClick, onPremiumLoginClick, on
 
                             <div className="space-y-4 text-slate-300 text-lg md:text-xl leading-relaxed font-light italic">
                                 <p>
-                                    "Det här är ett avgörande steg. Att bjuda in till gemenskap är en av de finaste formerna av co-regulation (samreglering) vi kan erbjuda.
+                                    "Det här är ett avgörande steg. Att bjuda in till Community är en av de finaste formerna av co-regulation (samreglering) vi kan erbjuda.
                                     Ur ett neurobiologiskt perspektiv vet vi att vi skadas i relationer, men vi läker också i relationer."
                                 </p>
                                 <p>
                                     "När vi designar den här sidan får vi inte bara 'sälja ett abonnemang'. Vi måste erbjuda en väg till minskad ensamhet och ökad agency (handlingskraft)."
                                 </p>
                                 <p className="text-slate-400 text-base md:text-lg not-italic mt-8 border-l-2 border-orange-500/30 pl-6">
-                                    Här är ett förslag på text till inloggningssidan/landningssidan för Horizonten Gemenskap.
+                                    Här är ett förslag på text till inloggningssidan/landningssidan för Horizonten Community.
                                     Jag har lagt upp det så att det tydligt skiljer alternativen åt, men utan att förminska gratisalternativet – det ska vara en låg tröskel in i värmen.
                                 </p>
                             </div>

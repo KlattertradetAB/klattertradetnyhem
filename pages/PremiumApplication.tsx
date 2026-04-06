@@ -60,7 +60,7 @@ const PremiumApplication: React.FC<PremiumApplicationProps> = ({ setPage }) => {
                         <CheckCircle2 className="w-10 h-10 text-amber-500" />
                     </div>
 
-                    <h2 className="text-3xl font-bold text-white mb-4">Välkommen till Gemenskapen!</h2>
+                    <h2 className="text-3xl font-bold text-white mb-4">Välkommen till Communityn!</h2>
                     <p className="text-zinc-400 mb-10 leading-relaxed text-lg">
                         Ditt konto har skapats. Vi har skickat ett verifieringsmail till <span className="text-white font-bold">{formData.email}</span>.
                     </p>
@@ -103,7 +103,7 @@ const PremiumApplication: React.FC<PremiumApplicationProps> = ({ setPage }) => {
 
                 <div className="glass-card p-8 md:p-12">
                     <div className="mb-12">
-                        <h1 className="text-4xl font-bold text-white mb-4">Bli medlem i Gemenskapen</h1>
+                        <h1 className="text-4xl font-bold text-white mb-4">Bli medlem i Communityn</h1>
                         <p className="text-zinc-400 text-lg">
                             Just nu är det kostnadsfritt att gå med. Fyll i dina uppgifter nedan för att skapa ditt konto.
                         </p>
@@ -207,7 +207,7 @@ const PremiumApplication: React.FC<PremiumApplicationProps> = ({ setPage }) => {
                                     <li>Vi sparar dina uppgifter för att administrera ditt medlemskap.</li>
                                     <li>Du måste verifiera din e-postadress för att kunna logga in.</li>
                                     <li>Respektfullt bemötande är ett krav för fortsatt medlemskap.</li>
-                                    <li>Innehåll i gemenskapen får ej spridas vidare.</li>
+                                    <li>Innehåll i Communityn får ej spridas vidare.</li>
                                 </ul>
                             </div>
                             <label className="flex items-start gap-3 cursor-pointer group pt-2">
