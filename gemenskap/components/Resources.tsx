@@ -36,9 +36,9 @@ const Resources: React.FC = () => {
                             <motion.div 
                                 animate={{ rotate: 360 }}
                                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                                className="shrink-0"
+                                className="shrink-0 w-24 h-24 flex items-center justify-center bg-slate-950/40 rounded-[2.5rem] p-4 border border-white/5 backdrop-blur-xl shadow-2xl"
                             >
-                                <PremiumBadge />
+                                <img src="/assets/logo2.png" alt="Horizonten Logo" className="w-full h-full object-contain" />
                             </motion.div>
                             <div className="space-y-2">
                                 <h2 className="text-3xl font-black text-white tracking-tight">Uppgradera till Premium</h2>

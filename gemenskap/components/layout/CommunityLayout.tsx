@@ -55,19 +55,22 @@ export const CommunityLayout: React.FC<CommunityLayoutProps> = ({
             />
 
             {/* Mobile Header */}
-            <header className="md:hidden fixed top-0 left-0 right-0 h-16 border-b border-white/5 bg-slate-950/80 backdrop-blur-xl z-50 flex items-center justify-between px-4">
+            <header className="md:hidden fixed top-0 left-0 right-0 h-20 border-b border-white/5 bg-slate-950/80 backdrop-blur-xl z-50 flex items-end justify-between px-6 pb-4 pt-safe">
                 <div className="flex items-center gap-3">
                     <button
                         onClick={onBack}
-                        className="p-2 rounded-xl bg-white/5 border border-white/10"
+                        className="p-2.5 rounded-xl bg-white/5 border border-white/10 active:scale-95 transition-transform"
                     >
                         <ChevronLeft size={20} className="text-slate-400" />
                     </button>
-                    <span className="font-bold text-white text-sm">{getTitle()}</span>
+                    <div className="flex flex-col">
+                        <span className="text-[10px] text-orange-500 font-black uppercase tracking-widest leading-none mb-1">Horizonten</span>
+                        <span className="font-bold text-white text-base leading-none">{getTitle()}</span>
+                    </div>
                 </div>
                 <button
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                    className="p-2 text-slate-400 hover:text-white"
+                    className="p-2.5 text-slate-400 hover:text-white bg-white/5 border border-white/10 rounded-xl"
                 >
                     {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
@@ -113,8 +116,8 @@ export const CommunityLayout: React.FC<CommunityLayoutProps> = ({
                     <Header title={getTitle()} onResetTab={() => onTabChange('welcome')} />
                 </div>
 
-                <section className="flex-1 overflow-auto md:pt-0 pt-16 custom-scrollbar">
-                    <div className="max-w-7xl mx-auto p-4 md:p-8">
+                <section className="flex-1 overflow-auto md:pt-0 pt-20 custom-scrollbar">
+                    <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={activeTab}

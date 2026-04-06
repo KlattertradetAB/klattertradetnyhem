@@ -423,16 +423,16 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
 
                             {/* Other Members Section */}
                             <div className="space-y-3">
-                                <div className="px-4 flex items-center justify-between">
-                                    <span className="text-[11px] font-black uppercase tracking-[0.25em] text-slate-500">Andra medlemmar</span>
+                                <div className="px-2 md:px-4 flex items-center justify-between">
+                                    <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.25em] text-slate-500">Andra medlemmar</span>
                                     <div className="h-[1px] flex-grow ml-4 bg-gradient-to-r from-white/10 to-transparent"></div>
                                 </div>
                                 <div className="space-y-1">
                                     {allProfiles.filter(p => !globalOnlineUsers[p.id] && p.id !== user.id).map((p) => (
-                                        <div key={p.id} className="flex items-center justify-between p-4 rounded-[2rem] hover:bg-white/5 transition-all group border border-transparent hover:border-white/5">
-                                            <div className="flex items-center gap-4">
-                                                <div className="relative">
-                                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl shadow-xl transition-transform group-hover:scale-105 duration-500 overflow-hidden ${getEffectiveAvatar(undefined, p.avatar_url || undefined, undefined)?.includes('logo2') ? 'bg-slate-950 p-2' : 'bg-slate-800 text-slate-500'}`}>
+                                        <div key={p.id} className="flex items-center justify-between p-3 md:p-4 rounded-[1.5rem] md:rounded-[2rem] hover:bg-white/5 transition-all group border border-transparent hover:border-white/5">
+                                            <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
+                                                <div className="relative shrink-0">
+                                                    <div className={`w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center text-lg md:text-xl shadow-xl transition-transform group-hover:scale-105 duration-500 overflow-hidden ${getEffectiveAvatar(undefined, p.avatar_url || undefined, undefined)?.includes('logo2') ? 'bg-slate-950 p-2' : 'bg-slate-800 text-slate-500'}`}>
                                                         {(() => {
                                                             const avatar = getEffectiveAvatar(undefined, p.avatar_url || undefined, undefined);
                                                             return avatar ? (
@@ -442,12 +442,12 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
                                                             );
                                                         })()}
                                                     </div>
-                                                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-slate-700 border-4 border-slate-900 rounded-full shadow-lg"></div>
+                                                    <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 md:w-4 md:h-4 bg-slate-700 border-[3px] md:border-4 border-slate-900 rounded-full shadow-lg"></div>
                                                 </div>
-                                                <div>
-                                                    <h4 className="font-bold text-slate-400 group-hover:text-white transition-colors">{p.full_name || 'Medlem'}</h4>
+                                                <div className="min-w-0">
+                                                    <h4 className="font-bold text-slate-400 group-hover:text-white transition-colors truncate">{p.full_name || 'Medlem'}</h4>
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-[10px] text-zinc-600 font-black uppercase tracking-widest">Frånvarande</span>
+                                                        <span className="text-[9px] md:text-[10px] text-zinc-600 font-black uppercase tracking-widest leading-none">Frånvarande</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -493,9 +493,9 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
 
                 {/* Notifications view */}
                 {activeNav === 'notifications' && (
-                    <div className="p-8 animate-in fade-in slide-in-from-left-4 duration-500 h-full flex flex-col">
+                    <div className="px-4 md:px-8 py-6 md:py-8 animate-in fade-in slide-in-from-left-4 duration-500 h-full flex flex-col">
                         <div className="flex items-center justify-between mb-8">
-                            <h2 className="text-3xl font-black text-white tracking-tighter">Notiser</h2>
+                            <h2 className="text-2xl md:text-3xl font-black text-white tracking-tighter">Notiser</h2>
                             <button
                                 onClick={clearNotifications}
                                 className="text-zinc-500 hover:text-white transition-colors text-[10px] font-black uppercase tracking-widest"
@@ -543,11 +543,11 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, onlineUsers: globalOnlineUser
 
                 {/* Messages view */}
                 {activeNav === 'messages' && (
-                    <div className="p-8 animate-in fade-in slide-in-from-left-4 duration-500 h-full flex flex-col">
-                        <div className="flex items-center justify-between mb-8">
-                            <h2 className="text-3xl font-black text-white tracking-tighter">Meddelanden</h2>
-                            <div className="w-12 h-12 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-slate-400">
-                                <MessageCircle size={24} />
+                    <div className="px-4 md:px-8 py-6 md:py-8 animate-in fade-in slide-in-from-left-4 duration-500 h-full flex flex-col">
+                        <div className="flex items-center justify-between mb-6 md:mb-8">
+                            <h2 className="text-2xl md:text-3xl font-black text-white tracking-tighter">Meddelanden</h2>
+                            <div className="w-10 h-10 md:w-12 md:h-12 bg-white/5 border border-white/10 rounded-xl md:rounded-2xl flex items-center justify-center text-slate-400">
+                                <MessageCircle size={20} className="md:w-6 md:h-6" />
                             </div>
                         </div>
 
