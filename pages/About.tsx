@@ -23,6 +23,26 @@ const About: React.FC = () => {
           </p>
         </div>
       </div>
+      {/* Team Image / Founder Showcase */}
+      <div className="relative group max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-10 duration-1000">
+        <div className="absolute -inset-1 bg-gradient-to-r from-amber-500 to-orange-600 rounded-[2.5rem] blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+        <div className="relative glass bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl aspect-[4/3] md:aspect-auto">
+          <img 
+            src="/assets/om-oss-team.png" 
+            alt="Horizonten Grundare" 
+            className="w-full h-full object-cover object-top max-h-[700px] group-hover:scale-105 transition-transform duration-1000"
+          />
+          <div className="absolute bottom-0 inset-x-0 p-6 md:p-10 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent">
+            <div className="flex items-center gap-3 mb-2">
+                <Sparkles className="text-amber-400" size={18} />
+                <span className="text-xs font-black uppercase tracking-[0.2em] text-amber-200/60">Tillsammans för förändring</span>
+            </div>
+            <p className="text-white/90 text-lg md:text-2xl font-black italic tracking-tight leading-tight">
+                "Vi skapade Horizonten som en plats där varje människa får växa i sin egen takt, med trygghet som fundament."
+            </p>
+          </div>
+        </div>
+      </div>
 
       {/* Vår Historia & Grundare */}
       <div className="grid md:grid-cols-2 gap-10">
