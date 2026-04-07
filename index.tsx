@@ -4,6 +4,7 @@ import './index.css';
 import App from './App';
 import ErrorBoundary from './components/ErrorBoundary';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { AuthProvider } from './contexts/AuthContext';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -13,10 +14,12 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <LanguageProvider>
-      <ErrorBoundary>
-        <App />
-      </ErrorBoundary>
-    </LanguageProvider>
+    <AuthProvider>
+      <LanguageProvider>
+        <ErrorBoundary>
+          <App />
+        </ErrorBoundary>
+      </LanguageProvider>
+    </AuthProvider>
   </React.StrictMode>
 );

@@ -23,6 +23,8 @@ import { getEffectiveAvatar } from './services/userUtils';
 import { AssistantProvider } from './contexts/AssistantContext';
 import { translations } from './translations';
 import { CommunityLayout } from './components/layout/CommunityLayout';
+import { useAuth } from '../contexts/AuthContext';
+import { AuthStatus as GlobalAuthStatus } from './types';
 
 
 interface GemenskapAppProps {
@@ -31,9 +33,10 @@ interface GemenskapAppProps {
 }
 
 export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initialTab }) => {
-  // 1. State Declarations (MUST be at the top)
-  const [authStatus, setAuthStatus] = useState<AuthStatus>(AuthStatus.IDLE);
-  const [user, setUser] = useState<Profile | null>(null);
+  // 1. Context and Hooks
+  const { user, status: authStatus, logout: authLogout, refreshProfile } = useAuth();
+  
+  // 2. State Declarations
   const [onlineUsers, setOnlineUsers] = useState<Record<string, any>>({});
   const [activeTab, setActiveTab] = useState<'welcome' | 'dashboard' | 'resources' | 'chat' | 'experts' | 'admin' | 'consultant'>(initialTab || 'welcome');
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
@@ -47,9 +50,7 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
   const [navHistory, setNavHistory] = useState<{ tab: string; topic: string | null }[]>([]);
   const [isStandalone, setIsStandalone] = useState(false);
 
-  // No association state here anymore
-
-  // 2. Effects
+  // 3. Effects
   useEffect(() => {
     const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
     setIsStandalone(!!isStandaloneMode);
@@ -60,7 +61,6 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
       const hash = window.location.hash;
 
       if (hash.includes('#premium-login')) {
-        // Bypass intro splash and go straight to login
         setShowPremiumIntro(false);
         setShowLogin(true);
         setIsPremiumView(true);
@@ -79,7 +79,6 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
         setShowLogin(false);
         setShowPremiumIntro(false);
         setActiveTab('chat');
-        // Extract topic if present (e.g. #chat?topic=self-care)
         const params = new URLSearchParams(hash.split('?')[1]);
         const topic = params.get('topic');
         if (topic) setSelectedTopic(topic);
@@ -95,11 +94,6 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
         setShowLogin(false);
         setShowPremiumIntro(false);
         setActiveTab('dashboard');
-      } else if (hash.includes('#association')) {
-        // Association moved to public community page, redirect back to welcome
-        setShowLogin(false);
-        setShowPremiumIntro(false);
-        setActiveTab('welcome');
       } else if (hash.includes('#admin')) {
         setShowLogin(false);
         setShowPremiumIntro(false);
@@ -121,7 +115,6 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
         setIsUpdatingPassword(false);
       }
 
-      // Sync internal history with hash changes if needed
       const currentTab = hash.split('?')[0].replace('#', '') || 'welcome';
       const params = hash.includes('?') ? new URLSearchParams(hash.split('?')[1]) : null;
       const currentTopic = params ? params.get('topic') : null;
@@ -139,22 +132,15 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
   }, []);
 
   useEffect(() => {
-    // Request notification permission and register service worker
     import('./services/notifications').then(m => {
       m.requestNotificationPermission();
       m.registerServiceWorker();
     });
 
-    // The global chat notifications listener has been removed. 
-    // Notifications are now generated cleanly by a Databas Trigger (NOTIS_FIX.sql) 
-    // and received in realtime via the notificationStore's public:notifications channel.scribe();
-
-    // History handling
     const handlePopState = (event: PopStateEvent) => {
       const state = event.state;
       if (!state) {
-        if (authStatus === AuthStatus.AUTHENTICATED) {
-          // stay on welcome if authenticated
+        if (authStatus === GlobalAuthStatus.AUTHENTICATED) {
           setActiveTab('welcome');
         } else {
           setShowLogin(false);
@@ -174,117 +160,24 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
 
     window.addEventListener('popstate', handlePopState);
 
-    // Supabase Auth Listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event: string, session: any) => {
-      if (session) {
-        setAuthStatus(AuthStatus.AUTHENTICATED);
-        setShowLogin(false);
-
-        // Fetch rich profile from DB with retry logic
-        let profileData = null;
-        let retries = 0;
-        const maxRetries = 5;
-
-        while (!profileData && retries < maxRetries) {
-          const { data } = await (supabase as any)
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-          
-          if (data) {
-            profileData = data;
-          } else {
-            console.log(`Profile not found yet, retrying... (${retries + 1}/${maxRetries})`);
-            await new Promise(resolve => setTimeout(resolve, 500 * (retries + 1))); // Exponential backoff
-            retries++;
-          }
-        }
-
-        let role = profileData?.role || 'medlem';
-        
-        // --- Speciallåsning för Jeanette ---
-        const email = session.user.email?.toLowerCase() || '';
-        const name = (session.user.user_metadata?.full_name || '').toLowerCase();
-        
-        if (
-          email === 'jeanettejohansson1989@gmail.com' || 
-          email.includes('jeanette') || 
-          email.includes('jenatte') || // Added 'jenatte' case
-          name.includes('jeanette') || 
-          name.includes('jenatte')
-        ) {
-            console.log("!!! JEANETTE/JENATTE INLOGGAD - TVINGAR ADMIN-RÄTTIGHETER !!!");
-            role = 'admin';
-        }
-        // ------------------------------------
-
-        const isAdmin = role === 'admin';
-
-        setUser({
-          id: session.user.id,
-          email: session.user.email || '',
-          full_name: profileData?.full_name || session.user.user_metadata.full_name || 'Medlem',
-          role: role,
-          avatar_url: profileData?.avatar_url || session.user.user_metadata.avatar_url,
-          membership_level: profileData?.membership_level ?? 2,
-          membership_active: profileData?.membership_active ?? true,
-          notifications_enabled: profileData?.notifications_enabled ?? true,
-        });
-
-        // Update login metadata
-        await (supabase as any)
-          .from('profiles')
-          .update({
-            last_login: new Date().toISOString(),
-            login_count: (profileData?.login_count || 0) + 1,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            last_localization: navigator.language
-          })
-          .eq('id', session.user.id);
-
-        // Record Login Event
-        await (supabase as any)
-          .from('login_events')
-          .insert({
-            user_id: session.user.id,
-            metadata: {
-              url: window.location.href,
-              user_agent: navigator.userAgent,
-              localization: navigator.language,
-              role: role
-            }
-          });
-
-        // 1. Password Reset Routing - Check hash in URL
-        const checkHash = () => {
-          const hash = window.location.hash;
-          console.log('Current Hash:', hash);
-          if (hash === '#update-password' || hash.includes('type=recovery')) {
-            setIsUpdatingPassword(true);
-            // No need to set activeTab to an invalid 'auth' state
-            // If the user is unauthenticated, the render logic handles the form
-          }
-        };
-        checkHash();
-        window.addEventListener('hashchange', checkHash);
-
-        // Redirect based on role
-        if (isAdmin && window.location.hash.includes('#admin')) {
-          setActiveTab('admin');
-        } else {
-          setActiveTab('welcome');
-          window.history.pushState({ tab: 'welcome', view: 'welcome' }, '', '#welcome');
-        }
-      } else {
-        setAuthStatus(AuthStatus.IDLE);
-        setUser(null);
+    // Initial view and tab selection when authenticated
+    if (authStatus === GlobalAuthStatus.AUTHENTICATED && user) {
+      setShowLogin(false);
+      if (user.role === 'admin' && window.location.hash.includes('#admin')) {
+        setActiveTab('admin');
+      } else if (activeTab === 'welcome' && !window.location.hash) {
+        window.history.replaceState({ tab: 'welcome', view: 'welcome' }, '', '#welcome');
       }
-    });
+    }
 
-    // Presence Listener
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [authStatus, user]);
+
+  useEffect(() => {
     let presenceChannel: any = null;
-    if (user) {
+    if (user && authStatus === GlobalAuthStatus.AUTHENTICATED) {
       presenceChannel = supabase.channel('online-users', {
         config: {
           presence: {
@@ -307,37 +200,26 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
           
           setOnlineUsers(onlineInfo as any);
         })
-        .on('presence', { event: 'join' }, ({ key, newPresences }: any) => {
-          console.log('join', key, newPresences);
-        })
-        .on('presence', { event: 'leave' }, ({ key, leftPresences }: any) => {
-          console.log('leave', key, leftPresences);
-        })
         .subscribe(async (status: string) => {
           if (status === 'SUBSCRIBED') {
-            console.log('Subscribed to presence channel successfully');
             await presenceChannel.track({
               user_id: user.id,
               full_name: user.full_name,
               avatar_url: user.avatar_url,
+              role: user.role,
               online_at: new Date().toISOString(),
               device: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop'
             });
-          } else if (status === 'CLOSED') {
-            console.warn('Presence channel closed, attempting to reconnect...');
           }
         });
     }
 
     return () => {
-      window.removeEventListener('popstate', handlePopState);
-      subscription.unsubscribe();
       if (presenceChannel) supabase.removeChannel(presenceChannel);
     };
-  }, [authStatus, isPremiumView, user?.id]);
+  }, [user, authStatus]);
 
-
-  // 3. Handlers
+  // 4. Handlers
   const handleLoginClick = () => {
     setShowLogin(true);
     setIsPremiumView(false);
@@ -357,30 +239,22 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
     onBackToSite();
   };
 
-  const handleLoginSuccess = (profile: Profile) => {
-    setUser(profile);
-    setAuthStatus(AuthStatus.AUTHENTICATED);
-
-    // Default tab logic for newly logged in users
-    const initialTab = 'welcome';
-    setActiveTab(initialTab);
-
-    window.history.pushState({ tab: initialTab, view: initialTab }, '', `#${initialTab}`);
+  const handleLoginSuccess = async () => {
+    // Shared auth will handle state update
+    await refreshProfile();
+    setActiveTab('welcome');
+    window.history.pushState({ tab: 'welcome', view: 'welcome' }, '', '#welcome');
   };
 
-  const handleLogout = () => {
-    supabase.auth.signOut();
-    setUser(null);
-    setAuthStatus(AuthStatus.UNAUTHENTICATED);
+  const handleLogout = async () => {
+    await authLogout();
     setActiveTab('welcome');
     setSelectedTopic(null);
-    setShowLogin(isStandalone); // Show login directly if standalone
+    setShowLogin(isStandalone);
 
     if (!isStandalone) {
-      // Explicitly go back to the site's official login page for a consistent experience
       onBackToSite(Page.LOGIN);
     } else {
-      // In standalone, just show the premium login form
       setShowPremiumIntro(false);
       setShowLogin(true);
       setIsPremiumView(true);
@@ -394,7 +268,6 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
     setSelectedTopic(topic);
     setIsMobileMenuOpen(false);
 
-    // Add to internal history if not explicitly requested otherwise
     if (!noHistory) {
       setNavHistory(prev => {
         const last = prev[prev.length - 1];
@@ -403,8 +276,6 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
       });
     }
 
-    // Use paths for internal navigation too if we want "Pretty URLs" everywhere
-    // e.g. /app/chat instead of /app#chat
     const baseUrl = '/app';
     const pathPart = tab === 'welcome' && !topic ? '' : `/${tab}`;
     const queryPart = topic ? `?topic=${encodeURIComponent(topic)}` : '';
@@ -416,12 +287,11 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
   const handleBack = () => {
     if (navHistory.length > 1) {
       const historyCopy = [...navHistory];
-      historyCopy.pop(); // Remove current state
+      historyCopy.pop();
       const prevState = historyCopy[historyCopy.length - 1];
       setNavHistory(historyCopy);
       navigateTo(prevState.tab as any, prevState.topic, true);
     } else {
-      // If no history, default to dashboard
       if (activeTab !== 'dashboard') {
         navigateTo('dashboard');
       }
@@ -435,18 +305,15 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
       navigateTo('consultant');
     } else if (topic === 'admin') {
       navigateTo('admin');
-    } else if (topic === 'general' || topic === 'self-care' || topic === 'trygghet' || topic === 'video') {
-      navigateTo('chat', topic);
     } else {
       navigateTo('chat', topic);
     }
   };
 
-  const handleProfileUpdate = (updatedProfile: Profile) => {
-    setUser(updatedProfile);
+  const handleProfileUpdate = () => {
+    refreshProfile();
   };
 
-  // 4. Background Component
   const BackgroundWrapper = ({ children }: { children: React.ReactNode }) => (
     <div className="min-h-screen relative flex flex-col font-sans text-slate-100 selection:bg-orange-500/30">
       <div className="fixed inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-black animate-bg-shift z-0"></div>
@@ -461,25 +328,20 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
   );
 
   // 5. Render Logic
-
-  // -- PREMIUM INTRO (Priority) --
   if (showPremiumIntro) {
     return (
-      <>
-        <Hero
-          onLoginClick={() => {
-            setShowPremiumIntro(false);
-            if (!user) {
-              setShowLogin(true);
-            }
-          }}
-        />
-      </>
+      <Hero
+        onLoginClick={() => {
+          setShowPremiumIntro(false);
+          if (!user) {
+            setShowLogin(true);
+          }
+        }}
+      />
     );
   }
 
-  // -- AUTHENTICATED VIEW --
-  if (authStatus === AuthStatus.AUTHENTICATED && user) {
+  if (authStatus === GlobalAuthStatus.AUTHENTICATED && user) {
     return (
       <AssistantProvider>
         <CommunityLayout
@@ -561,7 +423,6 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
     );
   }
 
-  // -- UNAUTHENTICATED VIEW (Landing or Login) --
   return (
     <BackgroundWrapper>
       <div className="min-h-screen flex flex-col items-center justify-center p-4 relative animate-in fade-in zoom-in-95 duration-700 overflow-hidden">
@@ -580,9 +441,6 @@ export const GemenskapApp: React.FC<GemenskapAppProps> = ({ onBackToSite, initia
         )}
 
         <div className="relative z-10 w-full max-w-md bg-black/40 backdrop-blur-3xl p-8 rounded-[2.5rem] border border-white/5 shadow-2xl">
-          <div className="mb-8 flex justify-center">
-            {/* Logo removed */}
-          </div>
           {isUpdatingPassword ? (
             <UpdatePasswordForm 
               onSuccess={() => {

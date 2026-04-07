@@ -22,6 +22,9 @@ const AssistantChat: React.FC<AssistantChatProps> = ({ user, onClose }) => {
         if (type === 'axel') return 'Axel';
         if (type === 'sofia') return 'Sofia';
         if (type === 'lova') return 'Lova';
+        if (type === 'sara') return 'Sara';
+        if (type === 'leo') return 'Leo';
+        if (type === 'mika') return 'Mika';
         return 'Huvudassistenten';
     };
 
@@ -32,6 +35,9 @@ const AssistantChat: React.FC<AssistantChatProps> = ({ user, onClose }) => {
         if (type === 'axel') return '🌲';
         if (type === 'sofia') return '🏛️';
         if (type === 'lova') return '🚀';
+        if (type === 'sara') return '👨‍👩‍👧‍👦';
+        if (type === 'leo') return '🎨';
+        if (type === 'mika') return '⚓';
         return '🤖';
     };
 
@@ -45,6 +51,9 @@ const AssistantChat: React.FC<AssistantChatProps> = ({ user, onClose }) => {
             if (assistantType === 'axel') welcomeText = `Tjena, Axel här. 🌲 Det är skönt att du hittat hit. Ibland behöver man bara checka in lite. Hur ser din dag ut?`;
             if (assistantType === 'sofia') welcomeText = `Hej! Jag heter Sofia. 🏛️ Jag är här för att hjälpa dig att bygga och organisera dina idéer inom Horizonten. Vad vill du skapa idag?`;
             if (assistantType === 'lova') welcomeText = `Tja! Lova här. 🚀 Jag brinner för tillväxt och visioner. Hur kan vi ta din idé till nästa nivå och få den att flyga?`;
+            if (assistantType === 'sara') welcomeText = `Hej, jag heter Sara. 👨‍👩‍👧‍👦 Jag finns här för att stötta dig i ditt föräldraskap och familjeliv. Vad funderar du på idag?`;
+            if (assistantType === 'leo') welcomeText = `Hej! Leo här. 🎨 Kreativitet är en fantastisk väg till läkning. Vill du utforska något skapande med mig idag?`;
+            if (assistantType === 'mika') welcomeText = `Hej. Jag heter Mika. ⚓ Jag finns här för att stötta dig i frågor kring beroende och återhämtning. Hur ser ditt nästa steg ut?`;
 
             addMessage({
                 role: 'model',
@@ -119,7 +128,10 @@ const AssistantChat: React.FC<AssistantChatProps> = ({ user, onClose }) => {
                     { id: 'amanda', avatar: '👩‍⚕️', name: 'Amanda' },
                     { id: 'axel', avatar: '🌲', name: 'Axel' },
                     { id: 'sofia', avatar: '🏛️', name: 'Sofia' },
-                    { id: 'lova', avatar: '🚀', name: 'Lova' }
+                    { id: 'lova', avatar: '🚀', name: 'Lova' },
+                    { id: 'sara', avatar: '👨‍👩‍👧‍👦', name: 'Sara' },
+                    { id: 'leo', avatar: '🎨', name: 'Leo' },
+                    { id: 'mika', avatar: '⚓', name: 'Mika' }
                 ].map((asst) => (
                     <button
                         key={asst.id}

@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { Mail, Phone, User, Send, CheckCircle2, ArrowLeft, Lock, Loader2 } from 'lucide-react';
 import { Page } from '../types';
 import { authService } from '../gemenskap/services/authService';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface PremiumApplicationProps {
     setPage: (page: Page) => void;
 }
 
 const PremiumApplication: React.FC<PremiumApplicationProps> = ({ setPage }) => {
+    const { t } = useLanguage();
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -103,9 +105,9 @@ const PremiumApplication: React.FC<PremiumApplicationProps> = ({ setPage }) => {
 
                 <div className="glass-card p-8 md:p-12">
                     <div className="mb-12">
-                        <h1 className="text-4xl font-bold text-white mb-4">Bli medlem i Communityn</h1>
+                        <h1 className="text-4xl font-bold text-white mb-4">{t.premium_app_title}</h1>
                         <p className="text-zinc-400 text-lg">
-                            Just nu är det kostnadsfritt att gå med. Fyll i dina uppgifter nedan för att skapa ditt konto.
+                            Anslut dig till vårt växande nätverk. Fyll i dina uppgifter nedan för att påbörja din ansökan.
                         </p>
                     </div>
 

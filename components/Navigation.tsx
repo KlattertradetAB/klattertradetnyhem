@@ -5,6 +5,7 @@ import { PAGE_URLS } from '../App';
 import { Hexagon, Menu, X, Moon, Sun, ChevronDown, BookOpen, Heart, Newspaper, Library, Users, ClipboardList, Download, LogIn, ShieldCheck, Globe } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import ThemeToggle from './ui/ThemeToggle';
+import { useAuth } from '../contexts/AuthContext';
 
 interface NavigationProps {
   currentPage: Page;
@@ -20,7 +21,10 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
   const [isLangOpen, setIsLangOpen] = useState(false);
 
   const { lang, setLang, t } = useLanguage();
+  const { user, logout, status } = useAuth();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   const servicesRef = useRef<HTMLDivElement>(null);
   const resourcesRef = useRef<HTMLDivElement>(null);
@@ -156,6 +160,14 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
                       >
                         <span className="font-bold text-sm">{t.nav_gestalt}</span>
                         <span className="text-[10px] opacity-60">{t.nav_gestalt_sub}</span>
+                      </a>
+                      <a
+                        href={PAGE_URLS[Page.ONLINE_EDUCATION]}
+                        onClick={(e) => handleNavClick(Page.ONLINE_EDUCATION, e)}
+                        className={`w-full text-left px-3 py-3 rounded-xl transition-all flex flex-col border border-orange-500/10 mt-2 bg-orange-500/5 hover:bg-orange-500/10 group/edu-link ${currentPage === Page.ONLINE_EDUCATION ? 'bg-orange-600/20 text-orange-400' : 'text-white/90'}`}
+                      >
+                        <span className="font-black text-xs text-orange-400 uppercase tracking-widest mb-1 group-hover/edu-link:translate-x-1 transition-transform">{t.nav_edu_portal}</span>
+                        <span className="text-[10px] leading-tight opacity-70 italic">{t.nav_edu_portal_sub}</span>
                       </a>
                     </div>
                   </div>
@@ -305,20 +317,60 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
               {t.nav_contact}
             </a>
 
-            <div className="relative group/badge">
-              <a
-                href={PAGE_URLS[Page.LOGIN]}
-                onClick={(e) => handleNavClick(Page.LOGIN, e)}
-                className={`px-4 py-2 rounded-xl transition-all font-medium flex items-center gap-2 ${currentPage === Page.LOGIN ? 'bg-orange-600/20 text-orange-400 shadow-sm' : 'text-white/80 hover:bg-white/10 hover:text-white'}`}
-              >
-                <LogIn size={18} /> {t.nav_login}
-              </a>
-              <div className="absolute -top-3 -right-3 pointer-events-none">
-                <div className="bg-red-600 text-[7px] font-black text-white px-2 py-1 rounded-lg shadow-[0_4px_12px_rgba(220,38,38,0.5)] animate-pulse whitespace-nowrap uppercase tracking-widest border border-white/20 -rotate-6 group-hover/badge:rotate-0 transition-transform duration-500">
-                  {t.nav_badge_new}
+            {user ? (
+              <div className="relative" ref={profileRef}>
+                <button
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  className="flex items-center gap-3 px-4 py-2 rounded-xl bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 transition-all font-bold border border-orange-500/20 group/profile"
+                >
+                  <div className="w-6 h-6 rounded-full bg-orange-500/20 flex items-center justify-center overflow-hidden border border-orange-500/30">
+                    {user.avatar_url ? (
+                      <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <Users size={14} />
+                    )}
+                  </div>
+                  <span className="hidden lg:block truncate max-w-[120px]">{user.full_name?.split(' ')[0]}</span>
+                  <ChevronDown size={14} className={`transition-transform duration-300 ${isProfileOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isProfileOpen && (
+                  <div className="absolute right-0 top-full mt-3 w-56 glass bg-black/95 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl p-2 animate-fade-in flex flex-col gap-1">
+                    <div className="px-4 py-3 border-b border-white/5 mb-1">
+                      <p className="text-xs font-black text-white/40 uppercase tracking-widest">{t.nav_login_as}</p>
+                      <p className="text-sm font-bold text-white truncate">{user.full_name}</p>
+                    </div>
+                    <button
+                      onClick={() => handleNavClick(Page.GEMENSKAP_APP)}
+                      className="w-full text-left px-4 py-2.5 rounded-xl hover:bg-white/5 text-white/90 text-sm font-medium flex items-center gap-3 transition-colors"
+                    >
+                      <Users size={16} className="text-blue-400" /> {t.nav_gemenskap}
+                    </button>
+                    <button
+                      onClick={async () => { await logout(); setIsProfileOpen(false); handleNavClick(Page.HOME); }}
+                      className="w-full text-left px-4 py-2.5 rounded-xl hover:bg-red-500/10 text-red-400 text-sm font-bold flex items-center gap-3 transition-colors"
+                    >
+                      <LogIn size={16} className="rotate-180" /> {t.nav_logout || 'Logga ut'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="relative group/badge">
+                <a
+                  href={PAGE_URLS[Page.LOGIN]}
+                  onClick={(e) => handleNavClick(Page.LOGIN, e)}
+                  className={`px-4 py-2 rounded-xl transition-all font-medium flex items-center gap-2 ${currentPage === Page.LOGIN ? 'bg-orange-600/20 text-orange-400 shadow-sm' : 'text-white/80 hover:bg-white/10 hover:text-white'}`}
+                >
+                  <LogIn size={18} /> {t.nav_login}
+                </a>
+                <div className="absolute -top-3 -right-3 pointer-events-none">
+                  <div className="bg-red-600 text-[7px] font-black text-white px-2 py-1 rounded-lg shadow-[0_4px_12px_rgba(220,38,38,0.5)] animate-pulse whitespace-nowrap uppercase tracking-widest border border-white/20 -rotate-6 group-hover/badge:rotate-0 transition-transform duration-500">
+                    {t.nav_badge_new}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             <div className="w-px h-6 bg-white/20 mx-2"></div>
 
@@ -411,9 +463,31 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
                   <a href={PAGE_URLS[Page.HOME]} onClick={(e) => handleNavClick(Page.HOME, e)} className={`w-full py-5 rounded-2xl font-black text-2xl px-8 transition-all flex items-center justify-between ${currentPage === Page.HOME ? 'text-blue-400 bg-blue-500/15 border border-blue-500/30' : 'text-white/90 bg-white/5 hover:bg-white/10 border border-white/5'}`}>
                     {t.nav_home}
                   </a>
-                  <a href={PAGE_URLS[Page.LOGIN]} onClick={(e) => handleNavClick(Page.LOGIN, e)} className={`w-full py-5 rounded-2xl font-black text-2xl px-8 flex items-center gap-4 transition-all shadow-xl ${currentPage === Page.LOGIN ? 'bg-orange-500 text-slate-950 scale-105' : 'bg-white/10 text-white hover:bg-white/20'}`}>
-                    <LogIn size={28} /> {t.nav_login.toUpperCase()}
-                  </a>
+                  {user ? (
+                    <div className="bg-orange-500/10 border border-orange-500/20 rounded-2xl p-6 flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center overflow-hidden border border-orange-500/30">
+                        {user.avatar_url ? (
+                          <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <Users size={24} className="text-orange-500" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-black text-orange-500/60 uppercase tracking-widest">{t.nav_login_as}</p>
+                        <p className="text-xl font-black text-white truncate">{user.full_name}</p>
+                      </div>
+                      <button 
+                        onClick={async () => { await logout(); setIsMobileMenuOpen(false); handleNavClick(Page.HOME); }}
+                        className="p-3 bg-red-500/10 text-red-500 rounded-xl border border-red-500/20 shadow-lg shadow-red-500/10"
+                      >
+                        <LogIn size={20} className="rotate-180" />
+                      </button>
+                    </div>
+                  ) : (
+                    <a href={PAGE_URLS[Page.LOGIN]} onClick={(e) => handleNavClick(Page.LOGIN, e)} className={`w-full py-5 rounded-2xl font-black text-2xl px-8 flex items-center gap-4 transition-all shadow-xl ${currentPage === Page.LOGIN ? 'bg-orange-500 text-slate-950 scale-105' : 'bg-white/10 text-white hover:bg-white/20'}`}>
+                      <LogIn size={28} /> {t.nav_login.toUpperCase()}
+                    </a>
+                  )}
                 </div>
 
                 <div className="space-y-8">
@@ -429,6 +503,10 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, setPage, isDarkMod
                       <a href={PAGE_URLS[Page.THERAPY]} onClick={(e) => handleNavClick(Page.THERAPY, e)} className="text-white/70 font-medium text-lg hover:text-blue-400 transition-colors">{t.nav_enskild_terapi}</a>
                       <a href={PAGE_URLS[Page.BEHANDLINGS_PEDAGOG]} onClick={(e) => handleNavClick(Page.BEHANDLINGS_PEDAGOG, e)} className="text-white/70 font-medium text-lg hover:text-blue-400 transition-colors">{t.nav_behandlingspedagog}</a>
                       <a href={PAGE_URLS[Page.CHAT]} onClick={(e) => handleNavClick(Page.CHAT, e)} className="text-white/70 font-medium text-lg hover:text-blue-400 transition-colors">{t.nav_mit}</a>
+                      <a href={PAGE_URLS[Page.ONLINE_EDUCATION]} onClick={(e) => handleNavClick(Page.ONLINE_EDUCATION, e)} className="bg-orange-600/10 border border-orange-500/20 p-5 rounded-2xl flex flex-col gap-1 mt-4 group/mobile-edu">
+                        <span className="text-orange-400 font-black text-xl tracking-tight uppercase group-mobile-edu:translate-x-1 transition-transform">{t.nav_edu_portal}</span>
+                        <span className="text-white/40 text-[10px] italic leading-snug">{t.nav_edu_portal_sub}</span>
+                      </a>
                     </div>
                   </div>
 

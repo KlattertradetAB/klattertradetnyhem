@@ -31,6 +31,8 @@ export const sv = {
     nav_blog: 'Blogg',
     nav_contact: 'Kontakt & Bokning',
     nav_login: 'Logga in',
+    nav_logout: 'Logga ut',
+    nav_login_as: 'Inloggad som',
     nav_badge_new: 'Nytt',
     nav_visa_alla: 'Visa alla tjänster',
 
@@ -114,7 +116,7 @@ export const sv = {
     home_specialist_tag5: 'Hudvård & Somatisk omsorg',
     home_specialist_tag5_desc: 'Self-care handlar också om att vårda kroppens gräns mot omvärlden.',
     home_valkommen: 'Välkommen till Horizonten',
-    home_gratis_medlem: 'Det är gratis att bli medlem i Communityn',
+    home_gratis_medlem: 'Bli premium medlem och ta del av community och utbildningsplattform',
     home_ta_kontakt: 'Ta kontakt med oss',
     home_choose_path: 'Välj den väg som känns rätt för dig idag.',
     home_hitta_terapeut: 'Hitta din terapeut',
@@ -668,6 +670,22 @@ export const sv = {
     checkout_title: 'Kassa',
     checkout_soon: 'Betalningslösning kommer snart...',
     back_btn: 'Tillbaka',
+
+    // Premium Membership CTAs
+    premium_app_title: 'Bli premium medlem och ta del av community och utbildningsplattform',
+    therapy_premium_cta_desc: 'Bli betalmedlem, med premiummedlemskap har du tillgång till förmånliga rabatter, fler funktioner i gemenskapen och även tillgång till vår utbildnignsplattform',
+    therapy_premium_cta_btn: 'Bli Premiummedlem',
+    // Education Portal CTAs
+    edu_cta_login: 'Logga in för att utforska portalen',
+    edu_cta_premium: 'Lås upp portalen med Premium',
+    edu_cta_continue: 'Fortsätt till Onlineportalen',
+    edu_online_title: 'Onlineutbildning & Självstudier',
+    edu_online_desc: 'Vill du påbörja din resa direkt? Vi erbjuder flera av våra utbildningsmoment och kurser helt online. Perfekt för dig som vill studera i din egen takt eller bor på annan ort.',
+    nav_edu_portal: 'Onlineutbildning',
+    nav_edu_portal_sub: 'Vill du komma till vår utbildningssida så tryck här',
+    home_edu_portal_news_title: 'Klätterträdet Utbildningsportal',
+    home_edu_portal_news_desc: 'Besök vår dedikerade plattform för onlineutbildning, elevmaterial och självstudier. Här hittar du allt du behöver för din personliga och professionella växt.',
+    home_edu_portal_news_link: 'Till Utbildningsportalen',
 };
 
 export type TranslationKeys = typeof sv;

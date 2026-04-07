@@ -16,6 +16,9 @@ export const getAssistantResponse = async (history: MessageContext[], userMessag
         if (type === 'axel') systemPrompt = SYSTEM_PROMPTS.ASSISTANT_AXEL;
         if (type === 'sofia') systemPrompt = SYSTEM_PROMPTS.ASSISTANT_SOFIA;
         if (type === 'lova') systemPrompt = SYSTEM_PROMPTS.ASSISTANT_LOVA;
+        if (type === 'sara') systemPrompt = SYSTEM_PROMPTS.ASSISTANT_SARA;
+        if (type === 'leo') systemPrompt = SYSTEM_PROMPTS.ASSISTANT_LEO;
+        if (type === 'mika') systemPrompt = SYSTEM_PROMPTS.ASSISTANT_MIKA;
 
         const responseText = await getAIResponse(
             history,

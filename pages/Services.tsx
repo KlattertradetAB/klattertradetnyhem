@@ -155,13 +155,13 @@ const Services: React.FC<ServicesProps> = ({ setPage }) => {
                 },
                 {
                     name: "Somatisk omsorg",
-                    desc: "Self-care som vårdar kroppens gräns mot omvärlden och främjar helhetshälsa.",
+                    desc: "Fokuserar på det fysiska välbefinnandet och nervsystemets reglering som en del av den själsliga och sociala helheten.",
                     img: "/Jea-profil.png",
                     details: [
-                        "Holistiskt välmående",
-                        "Kroppslig gränssättning",
-                        "Somatisk medvetenhet",
-                        "Främjande av inre ro"
+                        "Kostrådgivning för läkning",
+                        "Myndighetsinducerat trauma",
+                        "Estetiska behandlingar (tatuering/bryn)",
+                        "Somatisk nervsystem-reglering"
                     ],
                     experts: ["Jeanette Johansson"]
                 }

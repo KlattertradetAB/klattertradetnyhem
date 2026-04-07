@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Page } from '../types';
+import { AuthStatus as GlobalAuthStatus } from '../gemenskap/types';
+import { useAuth } from '../contexts/AuthContext';
 import { PAGE_URLS } from '../App';
 import { ArrowRight, BookOpen, Users, Shield, Heart, Anchor, Sparkles, Calendar, FileText, Star, ChevronRight, ChevronLeft } from 'lucide-react';
 import Newsletter from '../components/Newsletter';
@@ -53,6 +55,7 @@ interface HomeProps {
 
 const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const [isPdfOpen, setIsPdfOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -121,10 +124,10 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
             <div className="flex flex-col sm:flex-row gap-4 pt-2 w-full sm:w-auto">
               <a
                 href={PAGE_URLS[Page.CHAT]}
-                onClick={(e) => { e.preventDefault(); setPage(Page.CHAT); }}
+                onClick={(e) => { e.preventDefault(); setPage(user ? Page.GEMENSKAP_APP : Page.CHAT); }}
                 className="w-full sm:w-auto px-6 md:px-8 py-3 md:py-3.5 bg-white text-slate-900 hover:bg-white/90 rounded-xl font-bold transition-all hover:scale-105 flex items-center justify-center gap-2 shadow-xl shadow-white/10"
               >
-                {t.home_hero_cta_utbildning} <ArrowRight size={18} />
+                {user ? t.nav_gemenskap : t.home_hero_cta_utbildning} <ArrowRight size={18} />
               </a>
               <a
                 href={PAGE_URLS[Page.CONTACT]}
@@ -208,23 +211,24 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
               Välkommen Jeanette – Samtalsterapeut & Expert inom somatisk omsorg!
             </h3>
             <p className="text-zinc-400 text-xs md:text-sm max-w-3xl font-light leading-relaxed">
-              Utöver traditionella samtal erbjuder Jeanette ett starkt fokus på den kroppsliga och själsliga helheten (somatisk omsorg). Hos henne får du hjälp med allt ifrån skräddarsydd kostrådgivning, till skönhetsbehandlingar som ögonbryn och tatueringar. Hela dig, i trygga händer.
+              Utöver traditionella terapisamtal och coaching erbjuder Jeanette ett starkt fokus på den kroppsliga, själsliga och sociala helheten (somatisk omsorg). Hos Jeanette får du hjälp med allt ifrån skräddarsydd kostrådgivning och mental coaching till skönhetsbehandlingar som ögonbryn och tatueringar.
             </p>
 
             {isJeanetteExpanded && (
                <div className="pt-4 mt-4 border-t border-teal-500/20 text-zinc-300 text-xs md:text-sm font-light leading-relaxed animate-in slide-in-from-top-2 fade-in duration-500 space-y-3 text-left">
                  <p>
-                    <strong className="text-white">Somatisk omsorg</strong> innebär att vi inte bara fokuserar på det inre, känslomässiga måendet, utan även det fysiska välbefinnandet. Jeanette kan bland annat hjälpa dig med:
+                    Jeanette är även utbildad i <strong className="text-white">Myndighetsinducerat trauma</strong> och tar emot barn och vuxna i behandling för detta lika som att delta i utbildningen inom området.
                  </p>
+                 <p>
+                    <strong className="text-white">Somatisk omsorg</strong> innebär att vi inte bara fokuserar på det inre, känslomässiga och psykiska måendet, utan även det fysiska välbefinnandet och nervsystemet.
+                 </p>
+                 <p className="font-medium text-teal-100/90">Jeanette kan bland annat hjälpa dig med:</p>
                  <ul className="list-disc pl-5 space-y-1 text-teal-50/80">
-                    <li>Djupgående <span className="font-medium text-teal-100">samtalsterapi</span> för personlig utveckling</li>
+                    <li>Coaching i livet & djupgående <span className="font-medium text-teal-100">samtalsterapi</span> för personlig utveckling</li>
                     <li><span className="font-medium text-teal-100">Kostrådgivning</span> som stödjer kroppens eget läkningssystem</li>
-                    <li>Professionella <span className="font-medium text-teal-100">tatueringar</span> – för att bepryda eller täcka över (t.ex. ärr)</li>
-                    <li>Skönhetsbehandlingar som formning och förstärkning av <span className="font-medium text-teal-100">ögonbryn</span></li>
+                    <li>Behandling för <span className="font-medium text-teal-100">myndighetsinducerat trauma</span></li>
+                    <li>Professionella <span className="font-medium text-teal-100">tatueringar</span> – för att bepryda eller täcka över t.ex. ärrbildning eller ögonbryn</li>
                  </ul>
-                 <p className="italic text-teal-200/70 pt-2">
-                    Jeanettes helhetssyn gör henne unik i sitt sätt att kombinera terapeutiskt stöd med fysisk och estetisk omvårdnad på ett tryggt och professionellt sätt.
-                 </p>
                </div>
             )}
           </div>
@@ -242,6 +246,39 @@ const HomeComponent: React.FC<HomeProps> = ({ setPage }) => {
             >
               Läs mer <ChevronRight size={14} className={`transition-transform duration-300 ${isJeanetteExpanded ? 'rotate-90' : ''}`} />
             </button>
+          </div>
+        </div>
+
+        {/* Online Education Portal News Card */}
+        <div 
+          onClick={() => setPage(Page.ONLINE_EDUCATION)}
+          className="glass bg-gradient-to-r from-orange-400/20 via-amber-500/10 to-transparent border border-orange-400/30 rounded-[2.5rem] p-6 md:p-8 cursor-pointer group hover:border-orange-400/50 transition-all duration-500 relative overflow-hidden shadow-2xl shadow-orange-500/10"
+        >
+          <div className="absolute top-0 right-0 w-80 h-80 bg-orange-400/10 blur-[120px] rounded-full translate-x-1/2 -translate-y-1/2 group-hover:bg-orange-400/20 transition-colors"></div>
+          
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 md:gap-10">
+            <div className="p-4 bg-orange-500/20 rounded-3xl border border-orange-500/30 group-hover:scale-110 transition-transform duration-500 shadow-xl shadow-orange-500/20">
+              <BookOpen className="text-orange-400" size={40} />
+            </div>
+            
+            <div className="flex-1 text-center md:text-left space-y-2">
+              <div className="flex items-center justify-center md:justify-start gap-2">
+                <span className="text-[10px] font-black text-orange-400 uppercase tracking-[0.3em]">Nyresurser för elever</span>
+                <span className="bg-orange-500 text-white text-[8px] px-2 py-0.5 rounded font-black uppercase tracking-tighter animate-pulse">Live nu</span>
+              </div>
+              <h2 className="text-2xl md:text-3xl font-black text-white italic tracking-tight group-hover:text-amber-200 transition-colors">
+                {t.home_edu_portal_news_title}
+              </h2>
+              <p className="text-zinc-300 text-sm md:text-base max-w-4xl font-light leading-relaxed">
+                {t.home_edu_portal_news_desc}
+              </p>
+            </div>
+            
+            <div className="shrink-0">
+              <button className="px-8 py-4 bg-orange-500 hover:bg-orange-400 text-slate-950 rounded-2xl font-black transition-all group-hover:scale-105 flex items-center gap-3 shadow-xl uppercase tracking-widest text-xs border border-orange-400/20">
+                {t.home_edu_portal_news_link} <ArrowRight size={18} />
+              </button>
+            </div>
           </div>
         </div>
 

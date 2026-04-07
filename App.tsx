@@ -34,6 +34,7 @@ const PremiumApplication = lazy(() => import('./pages/PremiumApplication'));
 const FreeRegistration = lazy(() => import('./pages/FreeRegistration'));
 const GestaltApp = lazy(() => import('./gestalt-filosofi/App'));
 const StandaloneVideoRoom = lazy(() => import('./gemenskap/components/StandaloneVideoRoom').then(m => ({ default: m.StandaloneVideoRoom })));
+const OnlineEducationPortal = lazy(() => import('./online-education/OnlineEducationApp'));
 import { Page } from './types';
 import { LanguageProvider as SelfCareLanguageProvider } from './self-care/contexts/LanguageContext';
 import { ThemeProvider as SelfCareThemeProvider } from './self-care/contexts/ThemeContext';
@@ -42,6 +43,9 @@ import { supabase } from './gemenskap/services/supabase';
 import { AuthStatus } from './gemenskap/types';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { trackPageView } from './gemenskap/services/analytics';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { PremiumRequired } from './components/PremiumRequired';
+import { AuthStatus as GlobalAuthStatus } from './gemenskap/types';
 export const PAGE_URLS: Record<Page, string> = {
   [Page.HOME]: '/',
   [Page.ABOUT]: '/om-oss',
@@ -72,16 +76,17 @@ export const PAGE_URLS: Record<Page, string> = {
   [Page.FREE_REGISTRATION]: '/gratis-registrering',
   [Page.GESTALT_WORKSHEET]: '/gestalt-arbetsblad',
   [Page.ADMIN_SURVEY_STATS]: '/admin/survey-stats',
-  [Page.ADMIN_PANEL]: '/admin'
+  [Page.ADMIN_PANEL]: '/admin',
+  [Page.ONLINE_EDUCATION]: '/utbildning-online'
 };
 
 const App: React.FC = () => {
   const { t } = useLanguage();
+  const { status: authStatus, isPremium } = useAuth();
   const [currentPage, setCurrentPage] = useState<Page>(Page.HOME);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
   const [isCookieBannerVisible, setIsCookieBannerVisible] = useState(true);
-  const [authStatus, setAuthStatus] = useState<AuthStatus>(AuthStatus.IDLE);
   const [loginInitialType, setLoginInitialType] = useState<'member' | 'admin'>('member');
 
   useEffect(() => {
@@ -110,26 +115,7 @@ const App: React.FC = () => {
 
     handleAuthCallback();
 
-    // 2. Supabase Auth Listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: string, session: any) => {
-      console.log('🔔 Auth Event:', event);
-
-      if (event === 'PASSWORD_RECOVERY') {
-        handleSetPage(Page.RESET_PASSWORD);
-        return;
-      }
-
-      if (session) {
-        setAuthStatus(AuthStatus.AUTHENTICATED);
-        // If on a public auth page, move to app
-        if ([Page.LOGIN, Page.REGISTER, Page.FORGOT_PASSWORD].includes(currentPage)) {
-          handleSetPage(Page.GEMENSKAP_APP);
-        }
-      } else {
-        setAuthStatus(AuthStatus.UNAUTHENTICATED);
-      }
-    });
-
+    // 2. Auth listener is now handled in AuthContext
     // 3. Initial routing logic
     const handleInitialRoute = () => {
       const path = window.location.pathname;
@@ -187,7 +173,6 @@ const App: React.FC = () => {
 
     window.addEventListener('popstate', handlePopState);
     return () => {
-      subscription.unsubscribe();
       window.removeEventListener('popstate', handlePopState);
     };
   }, []); // Changed dependency from [currentPage] to [] to avoid redundant runs and listeners
@@ -287,6 +272,25 @@ const App: React.FC = () => {
                 case Page.ADMIN_PANEL: return <GemenskapApp onBackToSite={(targetPage?: Page, state?: any) => handleSetPage(targetPage || Page.HOME, state)} initialTab="admin" />;
                 case Page.VIDEO_MEETING: return <StandaloneVideoRoom />;
                 case Page.GEMENSKAP_APP: return <GemenskapApp onBackToSite={(targetPage?: Page, state?: any) => handleSetPage(targetPage || Page.HOME, state)} initialTab={window.history.state?.initialTab} />;
+                case Page.ONLINE_EDUCATION: {
+                  if (authStatus === GlobalAuthStatus.LOADING) {
+                    return (
+                      <div className="min-h-screen flex items-center justify-center">
+                        <Loader />
+                      </div>
+                    );
+                  }
+                  if (authStatus === GlobalAuthStatus.UNAUTHENTICATED) {
+                    return (
+                      <LoginPage 
+                        setPage={handleSetPage} 
+                        initialType="member" 
+                        onLoginSuccess={() => handleSetPage(Page.ONLINE_EDUCATION)} 
+                      />
+                    );
+                  }
+                  return isPremium ? <OnlineEducationPortal /> : <PremiumRequired setPage={handleSetPage} />;
+                }
                 default: return <Home setPage={handleSetPage} />;
               }
             })()}

@@ -6,7 +6,7 @@ interface Message {
     timestamp: Date;
 }
 
-export type AssistantType = 'main' | 'lina' | 'erik' | 'amanda' | 'axel' | 'sofia' | 'lova';
+export type AssistantType = 'main' | 'lina' | 'erik' | 'amanda' | 'axel' | 'sofia' | 'lova' | 'sara' | 'leo' | 'mika';
 
 interface AssistantContextType {
     isOpen: boolean;

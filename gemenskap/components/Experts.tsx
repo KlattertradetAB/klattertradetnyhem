@@ -36,8 +36,8 @@ const Experts: React.FC = () => {
         },
         {
             name: 'Jeanette Johansson',
-            role: 'Behandlingspedagog & Hudterapeut',
-            desc: 'Arbetar med yttre och inre välmående utifrån ett holistiskt perspektiv.',
+            role: 'Samtalsterapeut & Expert inom somatisk omsorg',
+            desc: 'Specialiserad på somatisk omsorg, kostrådgivning och behandling för myndighetsinducerat trauma. Jeanette erbjuder även coaching och estetiska behandlingar som del av ett holistiskt välbefinnande.',
             image: '/Jea-profil.png',
             email: 'jeanettejohansson1989@gmail.com,billy@klattertradet.se'
         }

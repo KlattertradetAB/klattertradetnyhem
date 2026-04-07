@@ -2,8 +2,10 @@
 import React from 'react';
 import { Sparkles, Target, Users, BookOpen, Star, ShieldCheck, ArrowRight, CheckCircle2, Loader2 } from 'lucide-react';
 import { Page } from '../types';
+import { AuthStatus } from '../gemenskap/types';
 
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 import ExploreMoreServices from '../components/ExploreMoreServices';
 
 interface GestaltTrainingProps {
@@ -12,9 +14,17 @@ interface GestaltTrainingProps {
 
 const GestaltTraining: React.FC<GestaltTrainingProps> = ({ setPage }) => {
   const { t } = useLanguage();
+  const { user, status, isPremium } = useAuth();
   const [formState, setFormState] = React.useState({ name: '', email: '', message: '' });
   const [submitted, setSubmitted] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+
+  // Helper to determine CTA text based on auth state
+  const getEduCTAText = () => {
+    if (status === AuthStatus.UNAUTHENTICATED || !user) return t.edu_cta_login as string;
+    if (!isPremium) return t.edu_cta_premium as string;
+    return t.edu_cta_continue as string;
+  };
 
   const handleInterestSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,6 +157,26 @@ const GestaltTraining: React.FC<GestaltTrainingProps> = ({ setPage }) => {
           </div>
         </div>
       </div>
+      {/* Online Education Extension */}
+      <div className="glass bg-gradient-to-br from-amber-500/10 to-orange-600/10 border border-amber-500/20 rounded-3xl p-8 md:p-12 text-center">
+        <div className="max-w-3xl mx-auto">
+          <div className="inline-flex p-3 bg-amber-500/20 rounded-2xl text-amber-500 mb-6">
+            <BookOpen size={32} />
+          </div>
+          <h3 className="text-3xl font-bold mb-4">{t.edu_online_title}</h3>
+          <p className="text-lg text-white/80 mb-8">
+            {t.edu_online_desc}
+          </p>
+          <button
+            onClick={() => setPage(Page.ONLINE_EDUCATION)}
+            className="px-8 py-4 bg-amber-600 hover:bg-amber-500 text-white rounded-2xl font-bold text-lg transition-all hover:scale-105 flex items-center justify-center gap-3 mx-auto shadow-lg shadow-amber-900/20"
+          >
+            {getEduCTAText()}
+            <ArrowRight size={20} />
+          </button>
+        </div>
+      </div>
+
       <ExploreMoreServices setPage={setPage} currentPages={[Page.GESTALT_TRAINING]} />
     </div>
   );

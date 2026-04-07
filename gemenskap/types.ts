@@ -8,6 +8,11 @@ export interface Profile {
   role?: string | null;
   avatar_url?: string | null;
   notifications_enabled?: boolean | null;
+  accepted_terms?: string[] | null;
+  login_count?: number | null;
+  last_login?: string | null;
+  timezone?: string | null;
+  last_localization?: string | null;
 }
 
 export enum AuthStatus {

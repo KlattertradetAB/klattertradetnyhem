@@ -1,9 +1,11 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Heart, Sparkles, Activity, ShieldCheck, CheckCircle, Target, Users, Send, MessageSquare } from 'lucide-react';
+import { Heart, Sparkles, Activity, ShieldCheck, CheckCircle, Target, Users, Send, MessageSquare, BookOpen, ArrowRight } from 'lucide-react';
 import { Page } from '../types';
+import { AuthStatus } from '../gemenskap/types';
 import TiltedImage from '../components/TiltedImage';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 import ExploreMoreServices from '../components/ExploreMoreServices';
 
 type FormViewState = 'splash' | 'form' | 'confirmation';
@@ -14,6 +16,15 @@ interface TherapyProps {
 
 const Therapy: React.FC<TherapyProps> = ({ setPage }) => {
   const { t } = useLanguage();
+  const { user, status, isPremium } = useAuth();
+
+  // Helper to determine CTA text based on auth state
+  const getEduCTAText = () => {
+    if (status === AuthStatus.UNAUTHENTICATED || !user) return t.edu_cta_login as string;
+    if (!isPremium) return t.edu_cta_premium as string;
+    return t.edu_cta_continue as string;
+  };
+
   const [formView, setFormView] = useState<FormViewState>(() => {
     const historyState = window.history.state;
     return historyState?.showForm ? 'form' : 'splash';
@@ -342,6 +353,47 @@ const Therapy: React.FC<TherapyProps> = ({ setPage }) => {
           </div>
         )}
       </div>
+
+      {/* Premium Membership CTA */}
+      <div className="glass bg-gradient-to-br from-red-500/10 to-orange-600/10 border border-red-500/20 rounded-3xl p-8 md:p-12 text-center">
+        <div className="max-w-3xl mx-auto">
+          <div className="inline-flex p-3 bg-red-500/20 rounded-2xl text-red-400 mb-6">
+            <Users size={32} />
+          </div>
+          <h3 className="text-3xl font-bold mb-4">{t.therapy_premium_cta_btn}</h3>
+          <p className="text-lg text-white/80 mb-8">
+            {t.therapy_premium_cta_desc}
+          </p>
+          <button
+            onClick={() => setPage(Page.PREMIUM_APPLICATION)}
+            className="px-8 py-4 bg-orange-600 hover:bg-orange-500 text-white rounded-2xl font-bold text-lg transition-all hover:scale-105 flex items-center justify-center gap-3 mx-auto shadow-lg shadow-orange-900/20"
+          >
+            {t.therapy_premium_cta_btn}
+            <ArrowRight size={20} />
+          </button>
+        </div>
+      </div>
+
+      {/* Online Education Extension */}
+      <div className="glass bg-gradient-to-br from-amber-500/10 to-orange-600/10 border border-amber-500/20 rounded-3xl p-8 md:p-12 text-center">
+        <div className="max-w-3xl mx-auto">
+          <div className="inline-flex p-3 bg-amber-500/20 rounded-2xl text-amber-500 mb-6">
+            <BookOpen size={32} />
+          </div>
+          <h3 className="text-3xl font-bold mb-4">{t.edu_online_title}</h3>
+          <p className="text-lg text-white/80 mb-8">
+            {t.edu_online_desc}
+          </p>
+          <button
+            onClick={() => setPage(Page.ONLINE_EDUCATION)}
+            className="px-8 py-4 bg-amber-600 hover:bg-amber-500 text-white rounded-2xl font-bold text-lg transition-all hover:scale-105 flex items-center justify-center gap-3 mx-auto shadow-lg shadow-amber-900/20"
+          >
+            {getEduCTAText()}
+            <ArrowRight size={20} />
+          </button>
+        </div>
+      </div>
+
       <ExploreMoreServices setPage={setPage} currentPages={[Page.THERAPY]} />
     </div>
   );

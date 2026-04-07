@@ -33,6 +33,8 @@ export const en: TranslationKeys = {
     nav_blog: 'Blog',
     nav_contact: 'Contact & Booking',
     nav_login: 'Login',
+    nav_logout: 'Logout',
+    nav_login_as: 'Logged in as',
     nav_badge_new: 'New',
     nav_visa_alla: 'See all services',
 
@@ -116,7 +118,7 @@ export const en: TranslationKeys = {
     home_specialist_tag5: 'Skincare & Somatic Care',
     home_specialist_tag5_desc: 'Self-care is also about nurturing the body\'s boundary with the world.',
     home_valkommen: 'Welcome to Horizonten',
-    home_gratis_medlem: 'It is free to become a member of the Community',
+    home_gratis_medlem: 'Become a premium member and access the community and education portal',
     home_ta_kontakt: 'Get in touch with us',
     home_choose_path: 'Choose the path that feels right for you today.',
     home_hitta_terapeut: 'Find your therapist',
@@ -670,4 +672,21 @@ export const en: TranslationKeys = {
     checkout_title: 'Checkout',
     checkout_soon: 'Payment solution coming soon...',
     back_btn: 'Back',
+
+    // Premium Membership CTAs
+    premium_app_title: 'Become a premium member and access the community and education portal',
+    therapy_premium_cta_desc: 'Become a paid member; with premium membership you have access to favorable discounts, more community features, and access to our education platform',
+    therapy_premium_cta_btn: 'Become a Premium Member',
+
+    // Education Portal CTAs
+    edu_cta_login: 'Log in to explore the portal',
+    edu_cta_premium: 'Unlock the portal with Premium',
+    edu_cta_continue: 'Continue to Online Portal',
+    edu_online_title: 'Online Education & Self-Studies',
+    edu_online_desc: 'Want to start your journey right away? We offer several of our training modules and courses entirely online. Perfect for those who want to study at their own pace or live elsewhere.',
+    nav_edu_portal: 'Online Education',
+    nav_edu_portal_sub: 'Click here to visit our education portal',
+    home_edu_portal_news_title: 'Klätterträdet Education Portal',
+    home_edu_portal_news_desc: 'Visit our dedicated platform for online education, student materials, and self-studies. Here you find everything you need for your personal and professional growth.',
+    home_edu_portal_news_link: 'To Education Portal',
 };

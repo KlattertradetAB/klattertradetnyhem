@@ -15,9 +15,10 @@ import { Mail, Lock, ShieldCheck, AlertCircle } from 'lucide-react'
 interface LoginPageProps {
     setPage: (page: Page) => void
     initialType?: 'member' | 'admin'
+    onLoginSuccess?: () => void
 }
 
-export default function LoginPage({ setPage, initialType = 'member' }: LoginPageProps) {
+export default function LoginPage({ setPage, initialType = 'member', onLoginSuccess }: LoginPageProps) {
     const [loginType, setLoginType] = useState<'member' | 'admin'>(initialType)
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -50,8 +51,9 @@ export default function LoginPage({ setPage, initialType = 'member' }: LoginPage
                     logged_in_at: new Date().toISOString(),
                 });
             }
-            // Redirect handled by App.tsx listener, but we can nudge it
-            if (loginType === 'admin') {
+            if (onLoginSuccess) {
+                onLoginSuccess()
+            } else if (loginType === 'admin') {
                 setPage(Page.ADMIN_PANEL)
             } else {
                 setPage(Page.GEMENSKAP_APP)
