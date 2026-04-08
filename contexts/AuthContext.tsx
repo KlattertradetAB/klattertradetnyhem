@@ -36,12 +36,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .single();
       
       if (error && error.code !== 'PGRST116') {
-        // Ignore AbortErrors that happen during unmount/remount
         if (error.message?.includes('AbortError') || error.message?.includes('signal is aborted')) {
           return;
         }
         console.warn('Profile fetch error:', error);
-        throw error;
+        // Do NOT throw here, proceed to fallback!
       }
       
       let profileData = data;
@@ -63,6 +62,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         if (insertError) {
           console.error('Failed to create initial profile:', insertError);
+          // FALLBACK if insert fails
+          profileData = {
+            id: userId,
+            email: authUser.email || '',
+            full_name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'Medlem',
+            role: 'medlem',
+            membership_level: 1,
+            membership_active: true,
+            phone: null,
+            application_reason: null,
+            avatar_url: null,
+            timezone: null,
+            updated_at: new Date().toISOString()
+          };
         } else {
           profileData = newProfile;
         }
@@ -87,9 +100,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         setUser({
-          id: p.id,
-          email: p.email,
-          full_name: p.full_name,
+          id: p.id || userId,
+          email: p.email || email,
+          full_name: p.full_name || name,
           membership_level: p.membership_level ?? 1,
           membership_active: p.membership_active ?? true,
           role: role,
@@ -132,21 +145,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (err: any) {
       if (!err.message?.includes('AbortError') && !err.message?.includes('signal is aborted')) {
         console.error('Critical Error in fetchProfile:', err);
+        // Force authentication anyway using base user to prevent lockout
+        setUser({
+          id: userId,
+          email: authUser.email,
+          full_name: authUser.email?.split('@')[0] || 'Medlem',
+          role: 'medlem',
+          membership_level: 1,
+          membership_active: true
+        });
+        setStatus(AuthStatus.AUTHENTICATED);
       }
     } finally {
       pendingUserRef.current = null;
-      setIsLoading(false);
     }
   };
 
   useEffect(() => {
+    // Ultimate failsafe: Never show the splash screen for more than 5 seconds.
+    // If Supabase hangs (network issues or bad local storage), this ensures the app still loads.
+    const splashScreenFallback = setTimeout(() => {
+      if (isLoading) {
+        setIsLoading(false);
+      }
+    }, 5000);
+
     // 1. Setup the Auth State Change Listener
-    // This listener handles INITIAL_SESSION, SIGNED_IN, SIGNED_OUT, etc.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log(`[Auth] Event: ${event}`, !!session ? 'Session Active' : 'No Session');
       
       if (session) {
         await fetchProfile(session.user.id, session.user);
+        setIsLoading(false);
       } else {
         setStatus(AuthStatus.UNAUTHENTICATED);
         setUser(null);
@@ -156,19 +186,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     // 2. Check for initial session if onAuthStateChange hasn't fired yet
-    // Some older environments might not fire INITIAL_SESSION immediately
     const checkInitial = async () => {
-      if (initializingRef.current) return;
-      initializingRef.current = true;
-      
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session && !user) {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+           console.warn('Error fetching Supabase session:', error);
+        }
+        if (session) {
           await fetchProfile(session.user.id, session.user);
-        } else if (!session) {
-          setIsLoading(false);
         }
       } catch (err) {
+        console.error('checkInitial error:', err);
+      } finally {
         setIsLoading(false);
       }
     };
@@ -176,6 +205,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkInitial();
 
     return () => {
+      clearTimeout(splashScreenFallback);
       subscription.unsubscribe();
     };
   }, []);
